@@ -1,3 +1,9 @@
 module.exports = {
-  transpileDependencies: ["vuetify"]
+  transpileDependencies: ["vuetify"],
+  devServer: {
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      https: true,
+    },
+  },
 };
