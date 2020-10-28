@@ -1,4 +1,3 @@
-import mock from "./mock";
 import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
@@ -79,7 +78,7 @@ export class Store {
       const minItems = this.minItems;
       const maxItems = this.maxItems;
 
-      const model = await FieldModel.getDefaultValue(mock as any, {
+      const model = await FieldModel.getDefaultValue(value, {
         minItems,
         maxItems,
       });
