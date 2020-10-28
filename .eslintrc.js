@@ -30,6 +30,7 @@ module.exports = {
     "plugin:vue/essential",
     "eslint:recommended",
     "@vue/typescript",
+    "airbnb-base",
     "prettier",
   ],
 };
