@@ -1,22 +1,37 @@
 <template>
   <v-app>
-    <loading v-if="store.loading" />
-    <v-sheet class="app" v-show="!store.loading">
-      <card v-on:add="togglePanel" />
+    <v-sheet class="app" :class="{ 'is-readonly': store.isReadOnly }">
+      <v-row class="title-row">
+        <p>{{ store.title }}</p>
+      </v-row>
+
+      <draggable
+        v-model="store.listModel"
+        class="row"
+        :move="isDraggable"
+        handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
+      >
+        <v-col cols="auto" v-for="value in store.model" :key="value.id">
+          <card :value="value"></card>
+        </v-col>
+      </draggable>
+
       <v-navigation-drawer
-        v-model="overlay"
+        v-model="store.panelOpen"
         absolute
         temporary
         right
         width="95vw"
       >
-        <tree-view v-if="overlay" :toggle-panel="togglePanel" />
+        <tree-view v-if="store.panelOpen" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
 </template>
 
 <script lang="ts">
+import draggable, { MoveEvent } from "vuedraggable"; // eslint-disable-line no-unused-vars
+
 import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 
@@ -24,7 +39,8 @@ import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
 import TreeView from "@/containers/TreeView.vue";
 
-import store from "@/store/DynamicContent";
+import store, { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
+import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
@@ -32,15 +48,21 @@ import store from "@/store/DynamicContent";
     Card,
     Loading,
     TreeView,
+    draggable,
   },
 })
 export default class App extends Vue {
   public store = store;
 
-  public overlay: Boolean = false;
+  async created() {
+    await store.initialize();
+  }
 
-  public togglePanel() {
-    this.overlay = !this.overlay;
+  isDraggable($event: MoveEvent<HTMLElement>) {
+    const to = this.store.model[$event.draggedContext.futureIndex];
+    const from = this.store.model[$event.draggedContext.index];
+
+    return !(this.store.isLast(to) || this.store.isLast(from));
   }
 }
 </script>
@@ -51,5 +73,15 @@ export default class App extends Vue {
   text-align: center;
   color: #2c3e50;
   padding: 16px;
+  height: 500px;
+}
+
+.is-readonly {
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+.title-row {
+  padding: 0 12px;
 }
 </style>
