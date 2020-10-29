@@ -22,7 +22,8 @@ export class FieldModel {
         const parents = await store.dcManagementSdk.hierarchies.parents.get(
           (value as ContentItemModel).id
         );
-        const path = parents.parents.map((parent) => parent.label);
+        // const path = parents.parents.map((parent) => parent.label);
+        const path = ["something", "else", "gonna keep going", "parent"];
 
         return new CardModel(value, index, path);
       }

@@ -10,19 +10,21 @@
     <div class="card-scale">
       <div class="txt-container" ng-if="!value.contentItem._empty">
         <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
-        <p ng-if="value.path">{{ value.path }}</p>
+        <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
     </div>
+
     <div class="btn-container">
       <v-tooltip bottom v-for="action in value.actions" :key="action.label">
         <template v-slot:activator="{ on, attrs }">
           <v-btn
+            fab
+            depressed
             class="mx-2"
-            v-bind="attrs"
             v-on="on"
+            v-bind="attrs"
             :color="buttonColor(value)"
             :class="[`${action.label}-btn`]"
-            fab
             @click="action.action"
           >
             <v-icon large>
@@ -43,12 +45,15 @@ import { Component, Prop, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import Visualization from "@/components/Visualization.vue";
+import Breadcrumbs from "@/components/Breadcrumbs.vue";
+
 import store from "@/store/DynamicContent";
 
 @Observer
 @Component({
   components: {
     Visualization,
+    Breadcrumbs,
   },
 })
 export default class AmpCard extends Vue {
@@ -76,7 +81,8 @@ export default class AmpCard extends Vue {
   top: 0;
   text-align: left;
   position: absolute;
-  transform: translate(16px, 32px);
+  padding: 16px 32px;
+  width: 100%;
 }
 
 .theme--light {

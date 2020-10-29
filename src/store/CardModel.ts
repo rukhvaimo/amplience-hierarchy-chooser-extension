@@ -39,21 +39,19 @@ export class CardModel {
     return Object.assign({}, { _empty: true });
   }
 
-  public path: string;
-
   constructor(
     public contentItem:
       | ContentItemModel
       | EmptyItem = CardModel.createEmptyItem(),
     public index: number,
-    path: Array<string> = []
-  ) {
-    this.path = path?.join("/");
-  }
+    public path: Array<string> = []
+  ) {}
 
   get actions() {
     return this.contentItem && (this.contentItem as EmptyItem)._empty
       ? this.ACTIONS.NEW
       : this.ACTIONS.EXISTING;
   }
+
+  toJSON() {}
 }
