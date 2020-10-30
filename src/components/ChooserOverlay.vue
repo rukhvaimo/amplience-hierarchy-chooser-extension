@@ -4,6 +4,7 @@
       <p class="text-justify">
         Browse hierarchy and add content
       </p>
+      <tree-view></tree-view>
       <v-btn depressed text @click="store.togglePanel">
         Cancel
       </v-btn>
@@ -19,14 +20,14 @@ import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 
-import Card from "@/components/Card.vue";
+import TreeView from "./TreeView/TreeView.vue";
 import store from "@/store/DynamicContent";
 
 @Observer
 @Component({
-  components: { Card },
+  components: { TreeView },
 })
-export default class TreeView extends Vue {
+export default class ChooserOverlay extends Vue {
   public store = store;
 }
 </script>

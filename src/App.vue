@@ -23,9 +23,18 @@
         right
         width="95vw"
       >
-        <tree-view v-if="store.panelOpen" />
+        <chooser-overlay v-if="store.panelOpen" />
       </v-navigation-drawer>
     </v-sheet>
+    <v-alert
+      dark
+      dismissible
+      close-text="Close"
+      icon="mdi-alert-outline"
+      transition="fade-transition"
+      v-model="alertVisible"
+      >{{ alertText }}</v-alert
+    >
   </v-app>
 </template>
 
@@ -33,11 +42,13 @@
 import draggable, { MoveEvent } from "vuedraggable"; // eslint-disable-line no-unused-vars
 
 import { Observer } from "mobx-vue";
+// import {reaction} from 'mobx-state-tree';
+import Global from "@/store/Global";
 import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
-import TreeView from "@/containers/TreeView.vue";
+import ChooserOverlay from "@/components/ChooserOverlay.vue";
 
 import store, { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
@@ -47,14 +58,31 @@ import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-
   components: {
     Card,
     Loading,
-    TreeView,
+    ChooserOverlay,
     draggable,
+  },
+  computed: {
+    alertText() {
+      return Global.alertText;
+    },
+    alertVisible: {
+      get() {
+        return Global.alertVisible;
+      },
+      set(visible: boolean) {
+        Global.showAlert(visible);
+      },
+    },
   },
 })
 export default class App extends Vue {
   public store = store;
 
   async created() {
+    this.init();
+  }
+
+  async init() {
     await store.initialize();
   }
 

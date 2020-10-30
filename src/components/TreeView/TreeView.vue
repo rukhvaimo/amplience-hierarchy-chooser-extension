@@ -14,16 +14,45 @@
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-
+import Component, { mixins } from "vue-class-component";
+import { always, compose, ifElse, isNil, not, pipe, when } from "rambda";
+import TreeStore from "@/store/Tree";
+import { INode } from "@/store/Node";
+import DynamicContentStore from "@/store/DynamicContent";
+import Alert from "@/mixins/ShowAlert.mixin";
 import TreeNode from "./TreeNode.vue";
+import { ifNotError, isError } from "@/utils/helpers";
 
-export default Vue.extend({
+const loadTree = when(compose(not, isNil), TreeStore.loadTree);
+
+// const setTree = ifElse(
+//   isError,
+//   ({ children, ...node }) => TreeStore.setRootNode(node).setChildren(children),
+//   __
+// );
+
+@Component({
   components: { TreeNode },
-  data: () => ({
+  data: {
     nodes: [],
-  }),
-});
+  },
+})
+export default class TreeView extends mixins(Alert) {
+  created() {
+    this.init();
+  }
+
+  async init() {
+    const nodeId = DynamicContentStore.getNodeId();
+    ifElse(ifNotError, this.setTree, () =>
+      this.showAlert("Could not load tree")
+    )(await loadTree(nodeId));
+  }
+
+  setTree({ children, ...node }: INode) {
+    TreeStore.setRootNode(node).setChildren(children);
+  }
+}
 </script>
 
 <style lang="scss" scoped></style>

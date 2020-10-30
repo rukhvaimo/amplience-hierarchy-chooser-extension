@@ -1,7 +1,7 @@
 <template>
   <v-card
     elevation="2"
-    v-bind:class="{
+    :class="{
       'is-last': store.isLast(value),
       'is-edit': isEdit,
       'is-new': !isEdit,

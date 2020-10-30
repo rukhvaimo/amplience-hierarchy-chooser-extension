@@ -22,13 +22,17 @@ export interface ContentItemModel {
 }
 export class Store {
   @observable dcExtensionSdk!: SDK<any, Params & ExtensionParams>;
+
   @observable dcManagementSdk!: DynamicContent;
+
   @observable rootNode!: ContentItem;
 
   @observable model: Array<CardModel> = [new CardModel(undefined, 0)];
 
   @observable isReadOnly: Boolean = false;
+
   @observable panelOpen: Boolean = false;
+
   @observable activeCard: number | null = null;
 
   @computed
@@ -179,7 +183,7 @@ export class Store {
     return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
   }
 
-  private getNodeId(): string | undefined {
+  getNodeId(): string | undefined {
     return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 
