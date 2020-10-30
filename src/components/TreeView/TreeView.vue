@@ -17,13 +17,13 @@
 import Component, { mixins } from "vue-class-component";
 import { always, compose, ifElse, isNil, not, pipe, when } from "rambda";
 import TreeStore from "@/store/Tree";
-import { INode } from "@/store/Node";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
 import TreeNode from "./TreeNode.vue";
 import { ifNotError, isError } from "@/utils/helpers";
+import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
 
-const loadTree = when(compose(not, isNil), TreeStore.loadTree);
+const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
 
 // const setTree = ifElse(
 //   isError,
@@ -33,8 +33,10 @@ const loadTree = when(compose(not, isNil), TreeStore.loadTree);
 
 @Component({
   components: { TreeNode },
-  data: {
-    nodes: [],
+  computed: {
+    nodes() {
+      return TreeStore.visibleNodes;
+    },
   },
 })
 export default class TreeView extends mixins(Alert) {
@@ -43,13 +45,22 @@ export default class TreeView extends mixins(Alert) {
   }
 
   async init() {
+    console.log("yo");
     const nodeId = DynamicContentStore.getNodeId();
+    console.log(nodeId);
     ifElse(ifNotError, this.setTree, () =>
       this.showAlert("Could not load tree")
     )(await loadTree(nodeId));
   }
 
-  setTree({ children, ...node }: INode) {
+  setTree({
+    children,
+    ...node
+  }: {
+    children: HierarchyChildren[];
+    node: HierarchyNode;
+  }) {
+    console.log("YEP");
     TreeStore.setRootNode(node).setChildren(children);
   }
 }

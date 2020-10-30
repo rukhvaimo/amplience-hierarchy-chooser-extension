@@ -6,12 +6,12 @@ import { path } from "rambda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { FieldModel } from "./FieldModel";
 
-interface ExtensionParams {
+type ExtensionParams = Params & {
   instance: {
     nodeId: string;
     dcConfig?: string;
   };
-}
+};
 
 export interface ContentItemModel {
   _meta: {
@@ -20,8 +20,10 @@ export interface ContentItemModel {
   id: string;
   contentType: string;
 }
+
+export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
-  @observable dcExtensionSdk!: SDK<any, Params & ExtensionParams>;
+  @observable dcExtensionSdk!: DcExtension;
 
   @observable dcManagementSdk!: DynamicContent;
 
@@ -35,9 +37,23 @@ export class Store {
 
   @observable activeCard: number | null = null;
 
-  @computed
-  get loading() {
+  @computed get loading() {
     return !this.dcExtensionSdk || !this.dcManagementSdk;
+  }
+
+  @computed get maxItems(): number {
+    return (
+      path(["field", "schema", "maxItems"], this.dcExtensionSdk) ||
+      Number.MAX_SAFE_INTEGER
+    );
+  }
+
+  @computed get minItems(): number {
+    return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
+  }
+
+  @computed get title(): string {
+    return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
   }
 
   @computed
@@ -49,34 +65,36 @@ export class Store {
     this.updateList(value);
   }
 
-  @action.bound async initialize() {
+  async initialize() {
     try {
-      this.dcExtensionSdk = await init();
-      this.dcManagementSdk = new DynamicContent(
+      const dcExtensionSdk = await init<any, ExtensionParams>();
+      const dcManagementSdk = new DynamicContent(
         {} as any,
         {},
-        this.dcExtensionSdk.client
+        dcExtensionSdk.client
       );
 
-      await Promise.all([this.getValue(), this.getNode()]);
+      this.setDynamicContent(dcManagementSdk, dcExtensionSdk);
 
-      this.isReadOnly = this.dcExtensionSdk.form.readOnly;
+      const [model, node] = await Promise.all([
+        this.getValue(),
+        this.getNode(),
+      ]);
+
+      this.setValue(model);
+      this.setRootNode(node);
+      this.setReadOnly(this.dcExtensionSdk.form.readOnly);
 
       this.dcExtensionSdk.frame.startAutoResizer();
-      this.dcExtensionSdk.form.onReadOnlyChange((readonly) => {
-        this.isReadOnly = readonly;
-      });
+      this.dcExtensionSdk.form.onReadOnlyChange((readonly) =>
+        this.setReadOnly(readonly)
+      );
     } catch (error) {
       console.info("Failed to initialize", error);
     }
   }
 
-  @action.bound togglePanel(index: number | null = null) {
-    this.panelOpen = !this.panelOpen;
-    this.activeCard = this.panelOpen ? index : null;
-  }
-
-  @action.bound async getValue() {
+  async getValue() {
     try {
       const value: ContentItemModel[] = await this.dcExtensionSdk.field.getValue();
       const minItems = this.minItems;
@@ -87,36 +105,34 @@ export class Store {
         maxItems,
       });
 
-      this.model = model;
+      return model;
     } catch (err) {
       console.info("Unable to get field value");
+      return this.model;
     }
-
-    return this.model;
   }
 
-  @action.bound async updateList(model: Array<CardModel>) {
-    this.model = model.map(
-      (value, index) =>
-        new CardModel(value.contentItem, index, value.path.split("/"))
+  async updateList(model: Array<CardModel>) {
+    this.setValue(
+      model.map(
+        (value, index) => new CardModel(value.contentItem, index, value.path)
+      )
     );
 
     await this.dcExtensionSdk.field.setValue(this.model);
   }
 
-  @action.bound async getNode() {
+  async getNode() {
     const nodeId = this.getNodeId();
 
     if (!nodeId) {
       throw new Error("No NodeId supplied to extension");
     }
 
-    this.rootNode = await this.dcManagementSdk.contentItems.get(nodeId);
-
-    return this.rootNode;
+    return this.dcManagementSdk.contentItems.get(nodeId);
   }
 
-  @action.bound async addItem(node: any) {
+  async addItem(node: any) {
     const schema = this.getItemRef();
 
     if (!schema) {
@@ -135,12 +151,12 @@ export class Store {
       }
     );
 
-    this.model.push(new CardModel(contentItem, this.model.length));
+    this.pushItem(contentItem);
 
     await this.dcExtensionSdk.field.setValue(this.model);
   }
 
-  @action.bound async removeItem(node: any) {
+  async removeItem(node: any) {
     const model = this.model.filter((value) => {
       if ((value.contentItem as EmptyItem)._empty) {
         return true;
@@ -149,18 +165,39 @@ export class Store {
     });
 
     if (!model.length) {
-      this.model.push(
-        new CardModel(CardModel.createEmptyItem(), this.model.length)
-      );
+      model.push(new CardModel(CardModel.createEmptyItem(), this.model.length));
     }
 
-    this.model = model;
-
-    await this.dcExtensionSdk.field.setValue(this.model);
+    await this.updateList(model);
+    await this.dcExtensionSdk.field.setValue(model);
   }
 
-  @action.bound
-  isLast(item: CardModel) {
+  @action.bound setDynamicContent(
+    dcManagementSdk: DynamicContent,
+    dcExtensionSdk: DcExtension
+  ) {
+    this.dcExtensionSdk = dcExtensionSdk;
+    this.dcManagementSdk = dcManagementSdk;
+  }
+
+  @action.bound togglePanel(index: number | null = null) {
+    this.panelOpen = !this.panelOpen;
+    this.activeCard = this.panelOpen ? index : null;
+  }
+
+  @action.bound setValue(model: Array<CardModel>) {
+    this.model = model;
+  }
+
+  @action.bound setNode(node: ContentItem) {
+    this.rootNode = node;
+  }
+
+  @action.bound pushItem(contentItem: ContentItemModel | EmptyItem) {
+    this.model.push(new CardModel(contentItem, this.model.length));
+  }
+
+  @action.bound isLast(item: CardModel) {
     return this.model.length === item.index + 1;
   }
 
@@ -168,19 +205,12 @@ export class Store {
     return Boolean((item.contentItem as EmptyItem)._empty);
   }
 
-  @computed get maxItems(): number {
-    return (
-      path(["field", "schema", "maxItems"], this.dcExtensionSdk) ||
-      Number.MAX_SAFE_INTEGER
-    );
+  @action.bound setRootNode(node: ContentItem) {
+    this.rootNode = node;
   }
 
-  @computed get minItems(): number {
-    return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
-  }
-
-  @computed get title(): string {
-    return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
+  @action.bound setReadOnly(readonly: Boolean) {
+    this.isReadOnly = readonly;
   }
 
   getNodeId(): string | undefined {

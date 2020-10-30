@@ -1,13 +1,14 @@
-import { flow, types } from "mobx-state-tree";
+import { flow, IMaybeNull, Instance, types } from "mobx-state-tree";
 import { always } from "rambda";
 import Store from "./DynamicContent";
 import { Node, INode } from "./Node";
 import { isError, tryCatch } from "@/utils/helpers";
 
 import data from "./mock";
+import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
 
 const getNodes = tryCatch(
-  Store.dcManagementSdk.hierarchies.children.get,
+  (id: string) => Store.dcManagementSdk.hierarchies.children.get(id),
   always
 );
 
@@ -27,7 +28,7 @@ const Tree = types
       const { data } = yield getNodes(id);
       yield data;
     }),
-    setRootNode(rootNode: INode): Node {
+    setRootNode(rootNode: any): Instance<typeof Node> {
       self.rootNode = Node.create(rootNode);
       return self.rootNode;
     },

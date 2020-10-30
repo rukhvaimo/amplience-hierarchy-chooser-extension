@@ -19,6 +19,7 @@ import {
 
 export const Node = types
   .model({
+    children: types.array(types.late((): IAnyModelType => Node)),
     childrenVisible: types.optional(types.boolean, false),
     contentTypeId: types.optional(types.string, ""),
     contentTypeUri: types.optional(types.string, ""),
@@ -59,20 +60,13 @@ export const Node = types
 
       return [];
     },
+  }))
+  .actions((self) => ({
+    setChildren(children: any[]) {
+      self.children.replace(children);
+    },
   }));
 
-// Prevents typescript circular reference error
-Node.props({
-  children: types.array(types.late(() => Node)),
-}).actions((self) => ({
-  setChildren(children: INode[]) {
-    self.children.replace(children);
-  },
-}));
-
-export interface INode extends Instance<typeof Node> {
-  setChildren: Node[];
-  children: Node[];
-}
+export interface INode extends Instance<typeof Node> {}
 export interface ITodoSnapshotIn extends SnapshotIn<typeof Node> {}
 export interface ITodoSnapshotOut extends SnapshotOut<typeof Node> {}
