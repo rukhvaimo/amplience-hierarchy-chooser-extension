@@ -63,7 +63,7 @@ export const Node = types
   }))
   .actions((self) => ({
     setChildren(children: any[]) {
-      self.children.replace(children);
+      self.children.replace(children.map((child) => ({ ...child })));
     },
   }));
 

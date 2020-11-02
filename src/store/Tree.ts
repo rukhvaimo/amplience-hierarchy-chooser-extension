@@ -1,11 +1,8 @@
 import { flow, IMaybeNull, Instance, types } from "mobx-state-tree";
 import { always } from "rambda";
 import Store from "./DynamicContent";
-import { Node, INode } from "./Node";
-import { isError, tryCatch } from "@/utils/helpers";
-
-import data from "./mock";
-import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
+import { Node } from "./Node";
+import { tryCatch } from "@/utils/helpers";
 
 const getNodes = tryCatch(
   (id: string) => Store.dcManagementSdk.hierarchies.children.get(id),
@@ -13,7 +10,7 @@ const getNodes = tryCatch(
 );
 
 const Tree = types
-  .model("Tree", {
+  .model({
     rootNode: types.maybeNull(Node),
     selected: types.maybeNull(types.reference(Node)),
     selectedNodes: types.array(types.reference(Node)),
@@ -25,11 +22,11 @@ const Tree = types
   }))
   .actions((self) => ({
     loadTree: flow(function*(id: string) {
-      const { data } = yield getNodes(id);
-      yield data;
+      const nodes = yield getNodes(id);
+      return nodes;
     }),
     setRootNode(rootNode: any): Instance<typeof Node> {
-      self.rootNode = Node.create(rootNode);
+      self.rootNode = Node.create({ ...rootNode });
       return self.rootNode;
     },
   }));

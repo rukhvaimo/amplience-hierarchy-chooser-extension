@@ -3,7 +3,7 @@
     <v-virtual-scroll
       class="am-taxonomy-tree__container"
       bench="5"
-      :items="nodes"
+      :items="treeStore.visibleNodes"
       item-height="50"
     >
       <template v-slot:default="{ item }">
@@ -15,22 +15,19 @@
 
 <script lang="ts">
 import Component, { mixins } from "vue-class-component";
-import { always, compose, ifElse, isNil, not, pipe, when } from "rambda";
+import { Observer } from "mobx-vue";
+
+import { compose, ifElse, isNil, not, when } from "rambda";
 import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
 import TreeNode from "./TreeNode.vue";
-import { ifNotError, isError } from "@/utils/helpers";
+import { notError } from "@/utils/helpers";
 import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
 
 const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
 
-// const setTree = ifElse(
-//   isError,
-//   ({ children, ...node }) => TreeStore.setRootNode(node).setChildren(children),
-//   __
-// );
-
+@Observer
 @Component({
   components: { TreeNode },
   computed: {
@@ -40,27 +37,29 @@ const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
   },
 })
 export default class TreeView extends mixins(Alert) {
+  treeStore = TreeStore;
+
   created() {
     this.init();
   }
 
   async init() {
-    console.log("yo");
-    const nodeId = DynamicContentStore.getNodeId();
-    console.log(nodeId);
-    ifElse(ifNotError, this.setTree, () =>
-      this.showAlert("Could not load tree")
-    )(await loadTree(nodeId));
+    ifElse(notError, this.setTree, () => this.showAlert("Could not load tree"))(
+      await this.loadTree()
+    );
+  }
+
+  async loadTree() {
+    return await loadTree(DynamicContentStore.getNodeId());
   }
 
   setTree({
     children,
     ...node
   }: {
-    children: HierarchyChildren[];
+    children: HierarchyNode[];
     node: HierarchyNode;
   }) {
-    console.log("YEP");
     TreeStore.setRootNode(node).setChildren(children);
   }
 }

@@ -4,7 +4,6 @@
       <p class="text-justify">
         Browse hierarchy and add content
       </p>
-      <tree-view></tree-view>
       <v-btn depressed text @click="store.togglePanel">
         Cancel
       </v-btn>
@@ -12,6 +11,14 @@
         Add
       </v-btn>
     </v-toolbar>
+    <v-container>
+      <v-row>
+        <v-col>
+          <tree-view></tree-view>
+          <alert class="chooser-overlay__alert"></alert>
+        </v-col>
+      </v-row>
+    </v-container>
   </div>
 </template>
 
@@ -21,11 +28,12 @@ import { Component, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 
 import TreeView from "./TreeView/TreeView.vue";
+import Alert from "./Alert.vue";
 import store from "@/store/DynamicContent";
 
 @Observer
 @Component({
-  components: { TreeView },
+  components: { Alert, TreeView },
 })
 export default class ChooserOverlay extends Vue {
   public store = store;
@@ -47,6 +55,13 @@ export default class ChooserOverlay extends Vue {
     margin-left: 8px;
     min-width: 80px;
     text-transform: none;
+  }
+}
+.chooser-overlay {
+  &__alert {
+    position: absolute;
+    top: 8px;
+    right: 8px;
   }
 }
 </style>

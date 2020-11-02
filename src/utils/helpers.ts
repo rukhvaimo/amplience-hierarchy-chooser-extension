@@ -12,6 +12,6 @@ export const tryCatch = curry(
 
 export const isError = (x: any) => x instanceof Error;
 
-export const ifError = when(isError);
+export const whenError = when(isError);
 
-export const ifNotError = compose(not, isError);
+export const notError = compose(not, isError);
