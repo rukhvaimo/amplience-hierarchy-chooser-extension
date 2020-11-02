@@ -48,9 +48,13 @@ export class CardModel {
   ) {}
 
   get actions() {
-    return this.contentItem && (this.contentItem as EmptyItem)._empty
+    return this.contentItem && this.isEmpty
       ? this.ACTIONS.NEW
       : this.ACTIONS.EXISTING;
+  }
+
+  isEmpty() {
+    return (this.contentItem as EmptyItem)._empty;
   }
 
   toJSON() {}

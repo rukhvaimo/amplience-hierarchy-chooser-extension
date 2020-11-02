@@ -12,7 +12,7 @@
   "dependencies": {
     "@mdi/font": "^5.6.55",
     "core-js": "^3.6.5",
-    "dc-extensions-sdk": "github:amplience/dc-extensions-sdk#feature/CMP-7270",
+    "dc-extensions-sdk": "github:amplience/dc-extensions-sdk#feature/CMP-7377",
     "dc-management-sdk-js": "github:amplience/dc-management-sdk-js#feature/CMP-7269",
     "mobx": "^5.15.7",
     "mobx-state-tree": "^3.17.2",

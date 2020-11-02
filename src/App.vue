@@ -73,7 +73,7 @@ export default class App extends Vue {
   text-align: center;
   color: #2c3e50;
   padding: 16px;
-  height: 500px;
+  height: 100%;
 }
 
 .is-readonly {

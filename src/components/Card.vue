@@ -7,11 +7,22 @@
       'is-new': !isEdit,
     }"
   >
-    <div class="card-scale">
-      <div class="txt-container" ng-if="!value.contentItem._empty">
+    <div class="card__image" v-if="isEdit">
+      <img src="@/assets/default_icon.png" alt="content item" />
+    </div>
+
+    <div class="card__scale">
+      <div class="txt-container" v-if="isEdit">
         <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
+
+      <span
+        class="card__count"
+        v-if="!(value.isEmpty() && store.isLast(value))"
+      >
+        {{ value.index + 1 }}
+      </span>
     </div>
 
     <div class="btn-container">
@@ -23,7 +34,7 @@
             class="mx-2"
             v-on="on"
             v-bind="attrs"
-            :color="buttonColor(value)"
+            :color="!store.isLast(value) && !isEdit ? 'white' : 'dark_grey'"
             :class="[`${action.label}-btn`]"
             @click="action.action"
           >
@@ -40,8 +51,9 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 import { Component, Prop, Vue } from "vue-property-decorator";
+
+import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 import { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import Visualization from "@/components/Visualization.vue";
@@ -62,11 +74,7 @@ export default class AmpCard extends Vue {
   @Prop(Object) value!: CardModel;
 
   get isEdit() {
-    return !(this.value.contentItem as EmptyItem)._empty;
-  }
-
-  buttonColor(value: CardModel) {
-    return !this.store.isLast(value) && !this.isEdit ? "white" : "dark_grey";
+    return !this.value.isEmpty();
   }
 }
 </script>
@@ -112,8 +120,9 @@ export default class AmpCard extends Vue {
 
     &.is-edit {
       &:hover {
-        .card-scale {
+        .card__scale {
           background-color: rgba(0, 0, 0, 0.4);
+          z-index: 10;
         }
       }
     }
@@ -147,6 +156,7 @@ export default class AmpCard extends Vue {
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
+    z-index: 10;
   }
 
   .is-new {
@@ -166,10 +176,40 @@ export default class AmpCard extends Vue {
   }
 }
 
-.card-scale {
-  position: aboslute;
-  top: 0;
-  height: 0;
-  padding-top: 100%;
+.card {
+  &__scale {
+    position: relative;
+    top: 0;
+    height: 0;
+    padding-top: 100%;
+  }
+
+  &__image {
+    width: calc(100% - 32px);
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: translate(16px, 100px);
+    z-index: 1;
+
+    img {
+      max-height: 160px;
+      max-width: 100%;
+    }
+  }
+
+  &__count {
+    font-weight: 300;
+    display: inline;
+    font-size: 84px;
+    line-height: 84px;
+    position: absolute;
+    top: 50%;
+    margin-top: -42px;
+    left: 15px;
+    vertical-align: middle;
+    color: rgba(221, 221, 221, 0.5);
+    z-index: 2;
+  }
 }
 </style>
