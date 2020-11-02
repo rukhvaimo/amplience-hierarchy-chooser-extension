@@ -15,10 +15,10 @@
       <v-row>
         <v-col>
           <tree-view></tree-view>
-          <alert class="chooser-overlay__alert"></alert>
         </v-col>
       </v-row>
     </v-container>
+    <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
 

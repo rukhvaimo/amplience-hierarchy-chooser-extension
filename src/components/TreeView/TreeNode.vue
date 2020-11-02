@@ -6,8 +6,8 @@
         'padding-left': paddingLeft,
       }"
       :class="{
-        'is-root': isRoot,
-        'is-last': isLast,
+        'is-root': node.isRoot,
+        'is-last': node.isLast,
         'is-selected': isSelected,
         'is-disabled': isDisabled,
       }"
@@ -17,13 +17,17 @@
           class="am-taxonomy-tree-node__item am-taxonomy-tree-node__item--active"
           :click="setActive"
         >
-          <div v-if="!isRoot" class="am-taxonomy-tree-node__connector"></div>
+          <div
+            v-if="!node.isRoot"
+            class="am-taxonomy-tree-node__connector"
+          ></div>
           <div class="am-taxonomy-tree-node__toggle-btn-wrapper">
-            <md-button
-              class="md-icon-button am-taxonomy-tree-node__toggle-btn"
+            <v-btn
+              class="am-taxonomy-tree-node__toggle-btn"
               @click="toggleChildren"
-              v-if="hasChildren"
+              v-if="node.hasChildren"
               aria-label="Toggle children"
+              icon
             >
               <v-icon
                 class="am-taxonomy-tree-node__toggle-btn-icon"
@@ -31,33 +35,54 @@
               >
                 mdi-chevron-right
               </v-icon>
-              <!-- <am-spinner class="am-taxonomy-tree-node__loader" ng-if="$ctrl.loadingChildren"></am-spinner> -->
-            </md-button>
+              <v-progress-circular indeterminate v-else></v-progress-circular>
+            </v-btn>
           </div>
-          <div
-            class="am-taxonomy-tree-node__label text-truncate"
-            v-if="!$ctrl.isEditing || $ctrl.isDisabled"
-          >
+          <div class="am-taxonomy-tree-node__label text-truncate">
             {{ node.label }}
           </div>
         </div>
       </div>
     </div>
-    <div v-repeat="level in nestingLevels" :key="level" v-if="!isRoot"></div>
+    <div
+      v-repeat="level in nestingLevels"
+      :key="level"
+      v-if="!node.isRoot"
+    ></div>
   </div>
 </template>
 
 <script lang="ts">
-import Vue from "vue";
-export default Vue.extend({
+import { Component, Vue } from "vue-property-decorator";
+@Component({
   props: {
     node: {
       type: Object,
       required: true,
     },
   },
-  data() {},
-});
+  computed: {
+    paddingLeft() {
+      return "0";
+    },
+    isDisabled() {
+      false;
+    },
+    isSelected() {
+      return false;
+    },
+    loadingChildren() {
+      return false;
+    },
+    nestingLevels() {
+      return [];
+    }
+  },
+})
+export default class TreeNode extends Vue {
+  setActive() {},
+  toggleChildren() {}
+}
 </script>
 
 <style></style>

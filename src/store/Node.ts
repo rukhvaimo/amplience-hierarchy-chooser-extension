@@ -1,21 +1,28 @@
 import {
+  hasParentOfType,
   IAnyModelType,
   Instance,
   SnapshotIn,
   SnapshotOut,
   types,
 } from "mobx-state-tree";
-import {
-  always,
-  compose,
-  concat,
-  equals,
-  flatten,
-  flip,
-  ifElse,
-  lensProp,
-  reduce,
-} from "rambda";
+import { flatten, ifElse, pipe, propEq, reduce } from "rambda";
+
+const extractVisibleNodes = pipe(
+  (node: any) => node.children,
+  reduce(
+    (visibleNodes: any[], child: any) => [...visibleNodes, child.visibleNodes],
+    []
+  ),
+  flatten
+);
+
+const getVisibleNodes = ifElse(
+  //@ts-ignore
+  propEq("childrenVisible", true),
+  (node) => [node, ...extractVisibleNodes(node)],
+  (node) => [node]
+);
 
 export const Node = types
   .model({
@@ -33,37 +40,20 @@ export const Node = types
     ),
     _links: types.optional(types.frozen(), {}),
   })
-  .views((self) => ({
-    get visibleNodes(): Node[] {
-      const visibleNodesLens = lensProp("visibleNodes");
-      const hasChildNodes = compose(equals(true), lensProp("childrenVisible"));
-      // const joinVisibleNodes = compose(
-      //   flatten,
-      //   reduce(flip(call(concat, __, visibleNodesLens)), [])
-      // );
-
-      // const getVisibleNodes = ifElse(
-      //   hasChildNodes,
-      //   joinVisibleNodes,
-      //   always([self])
-      // );
-      // return getVisibleNodes(self);
-
-      // if (self.childrenVisible) {
-      //   const visibleChildren = self.childNodes.reduce(
-      //     (visibleNodes, child) => [...visibleNodes, child.visibleNodes],
-      //     []
-      //   );
-      //   return flatten([self, ...visibleChildren]);
-      // }
-      // return [self];
-
-      return [];
+  .views((self: any) => ({
+    get isRoot(): boolean {
+      return !hasParentOfType(self, Node);
+    },
+    get visibleNodes() {
+      return getVisibleNodes(self);
     },
   }))
   .actions((self) => ({
     setChildren(children: any[]) {
       self.children.replace(children.map((child) => ({ ...child })));
+    },
+    showChildren(visible: boolean) {
+      self.childrenVisible = visible;
     },
   }));
 

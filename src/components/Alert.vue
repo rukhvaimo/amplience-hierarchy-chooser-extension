@@ -7,7 +7,9 @@
     v-model="global.alertVisible"
   >
     <div class="d-flex">
-      {{ global.alertText }}
+      <div class="mr-4">
+        {{ global.alertText }}
+      </div>
       <v-btn small icon @click="global.showAlert(false)" class="ml-auto">
         <v-icon>mdi-close-circle</v-icon>
       </v-btn>

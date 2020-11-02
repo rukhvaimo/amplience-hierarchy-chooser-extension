@@ -30,11 +30,6 @@ const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
 @Observer
 @Component({
   components: { TreeNode },
-  computed: {
-    nodes() {
-      return TreeStore.visibleNodes;
-    },
-  },
 })
 export default class TreeView extends mixins(Alert) {
   treeStore = TreeStore;
@@ -44,9 +39,11 @@ export default class TreeView extends mixins(Alert) {
   }
 
   async init() {
-    ifElse(notError, this.setTree, () => this.showAlert("Could not load tree"))(
-      await this.loadTree()
+    const treeLoaded = ifElse(notError, this.setTree, () =>
+      this.showAlert("Could not load tree")
     );
+
+    treeLoaded(await this.loadTree());
   }
 
   async loadTree() {
@@ -61,6 +58,7 @@ export default class TreeView extends mixins(Alert) {
     node: HierarchyNode;
   }) {
     TreeStore.setRootNode(node).setChildren(children);
+    TreeStore.rootNode?.showChildren(true);
   }
 }
 </script>
