@@ -11,12 +11,14 @@ import {
   __,
   add,
   always,
+  anyPass,
   apply,
   compose,
   curry,
   equals,
   flatten,
   ifElse,
+  last,
   not,
   path,
   pipe,
@@ -60,6 +62,12 @@ const getNodeParent = when(
   getParentOfNode
 );
 
+//@ts-ignore
+const getLastChildId = pipe(path(["parent", "children"]), last, prop("id"));
+//@ts-ignore
+const isLastChild = (node) => equals(getLastChildId(node), node.id);
+const isLast = anyPass([isRoot, isLastChild]);
+
 export const Node = types
   .model({
     children: types.array(types.late((): IAnyModelType => Node)),
@@ -77,6 +85,10 @@ export const Node = types
     _links: types.optional(types.frozen(), {}),
   })
   .views((self: any) => ({
+    get isLast() {
+      //@ts-ignore
+      return isLast(self);
+    },
     get isRoot(): boolean {
       return !hasParentOfType(self, Node);
     },

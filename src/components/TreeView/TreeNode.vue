@@ -44,7 +44,7 @@
 import { Component, Vue } from "vue-property-decorator";
 import { Observer } from "mobx-vue";
 import TreeStore from "@/store/Tree";
-import { range } from "ramda";
+import { multiply, range } from "ramda";
 
 @Observer
 @Component({
@@ -56,7 +56,9 @@ import { range } from "ramda";
   },
   computed: {
     paddingLeft() {
-      return "0";
+      const PADDING = 31;
+      //@ts-ignore
+      return `${multiply(this.node.nestingLevel, PADDING)}px`;
     },
     isDisabled() {
       false;
@@ -146,7 +148,7 @@ export default class TreeNode extends Vue {
     &::before {
       content: "";
       display: block;
-      width: 13px;
+      width: 12px;
       height: 1px;
       border-bottom: 1px solid #ccc;
       position: absolute;
