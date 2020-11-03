@@ -1,13 +1,7 @@
 import { flow, Instance, types } from "mobx-state-tree";
-import { always } from "ramda";
-import Store from "./DynamicContent";
+import { any, propEq } from "ramda";
 import { Node } from "./Node";
-import { tryCatch } from "@/utils/helpers";
-
-const getNodes = tryCatch(
-  (id: string) => Store.dcManagementSdk.hierarchies.children.get(id),
-  always
-);
+import { getNodes } from "@/utils/tree";
 
 const Tree = types
   .model({
@@ -24,13 +18,16 @@ const Tree = types
     deselctNode(nodeId: string) {
       self.selectedNodes.filter(({ id }) => id === nodeId);
     },
-    selectNode(id: string) {
-      self.selectedNodes.push(id);
+    isSelected(nodeId: string) {
+      return any(propEq("id", nodeId), self.selectedNodes);
     },
     loadTree: flow(function*(id: string) {
       const nodes = yield getNodes(id);
       return nodes;
     }),
+    selectNode(id: string) {
+      self.selectedNodes.push(id);
+    },
     setRootNode(rootNode: any): Instance<typeof Node> {
       self.rootNode = Node.create({ ...rootNode });
       return self.rootNode;

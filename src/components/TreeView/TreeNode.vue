@@ -5,6 +5,7 @@
       'padding-left': paddingLeft,
     }"
     :class="{
+      'children-visible': node.childrenVisible,
       'is-root': node.isRoot,
       'is-last': node.isLast,
       'is-selected': isSelected,
@@ -12,7 +13,7 @@
     }"
   >
     <div class="taxonomy-tree-node__wrapper">
-      <div class="taxonomy-tree-node__item" :click="select">
+      <div class="taxonomy-tree-node__item" @click="select">
         <div v-if="!node.isRoot" class="taxonomy-tree-node__connector"></div>
         <div class="taxonomy-tree-node__toggle-btn-wrapper">
           <v-btn
@@ -41,10 +42,23 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from "vue-property-decorator";
+import Component, { mixins } from "vue-class-component";
 import { Observer } from "mobx-vue";
+import {
+  __,
+  always,
+  compose,
+  concat,
+  ifElse,
+  multiply,
+  pipe,
+  range,
+  toString,
+} from "ramda";
 import TreeStore from "@/store/Tree";
-import { multiply, range } from "ramda";
+import { hasChildren } from "@/utils/tree";
+import { notError } from "@/utils/helpers";
+import Alert from "@/mixins/ShowAlert.mixin";
 
 @Observer
 @Component({
@@ -55,32 +69,48 @@ import { multiply, range } from "ramda";
     },
   },
   computed: {
-    paddingLeft() {
+    paddingLeft(): string {
       const PADDING = 31;
-      //@ts-ignore
-      return `${multiply(this.node.nestingLevel, PADDING)}px`;
+      return pipe(
+        multiply(PADDING),
+        toString,
+        concat(__, "px")
+      )(this.$props.node.nestingLevel);
     },
     isDisabled() {
-      false;
-    },
-    isSelected() {
       return false;
     },
-    loadingChildren() {
-      return false;
-    },
-    nestingLevels() {
+    isSelected(): boolean {
       //@ts-ignore
-      return range(0, this.node.nestingLevel);
+      return this.treeStore.isSelected(this.$props.node.id);
+    },
+    nestingLevels(): number[] {
+      return range(0, this.$props.node.nestingLevel);
     },
   },
+  data: () => ({
+    loadingChildren: false,
+  }),
 })
-export default class TreeNode extends Vue {
+export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
   select() {
     // this.treeStore.selectNode(this.node.id);
   }
-  toggleChildren() {}
+  async loadChildren() {
+    ifElse(
+      notError,
+      this.toggleChildren,
+      compose(this.showAlert, always("Could not load children"))
+    )(await this.$props.node.loadChildren());
+  }
+  toggleChildren() {
+    ifElse(
+      hasChildren,
+      (node) => node.showChildren(!node.childrenVisible),
+      this.loadChildren
+    )(this.$props.node);
+  }
 }
 </script>
 
@@ -195,6 +225,21 @@ export default class TreeNode extends Vue {
     transform: translate(0, -1px);
     margin-left: 5px;
     min-width: 60px;
+  }
+
+  &__toggle-btn-icon {
+    transition: all 0.3s;
+    .children-visible & {
+      transform: rotate(90deg) translateX(-2px);
+    }
+
+    .is-selected & {
+      color: white;
+    }
+
+    .am-taxonomy-tree-node:not(.is-disabled):hover & {
+      color: #039be5;
+    }
   }
 }
 </style>

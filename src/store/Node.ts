@@ -1,5 +1,6 @@
+import { notError } from "@/utils/helpers";
 import {
-  getParent,
+  flow,
   hasParentOfType,
   IAnyModelType,
   Instance,
@@ -7,66 +8,14 @@ import {
   SnapshotOut,
   types,
 } from "mobx-state-tree";
+import { __, when } from "ramda";
 import {
-  __,
-  add,
-  always,
-  anyPass,
-  apply,
-  compose,
-  curry,
-  equals,
-  flatten,
-  ifElse,
-  last,
-  not,
-  path,
-  pipe,
-  prop,
-  propEq,
-  reduce,
-  when,
-} from "ramda";
-
-const extractVisibleNodes = pipe(
-  //@ts-ignore
-  prop("children"),
-  reduce(
-    (visibleNodes: any[], child: any) => [...visibleNodes, child.visibleNodes],
-    []
-  ),
-  flatten
-);
-
-const getVisibleNodes = ifElse(
-  //@ts-ignore
-  propEq("childrenVisible", true),
-  //@ts-ignore
-  (node) => [node, ...extractVisibleNodes(node)],
-  (node) => [node]
-);
-
-//@ts-ignore
-const isRoot = pipe(prop("isRoot"), equals(true));
-const notRoot = compose(not, isRoot);
-//@ts-ignore
-const incrementParentLevel = pipe(path(["parent", "nestingLevel"]), add(1));
-
-const getNestingLevel = ifElse(isRoot, always(0), incrementParentLevel);
-//@ts-ignore
-const getParentOfNode = apply(curry(getParent), [__, 2]);
-
-const getNodeParent = when(
-  notRoot,
-  //@ts-ignore
-  getParentOfNode
-);
-
-//@ts-ignore
-const getLastChildId = pipe(path(["parent", "children"]), last, prop("id"));
-//@ts-ignore
-const isLastChild = (node) => equals(getLastChildId(node), node.id);
-const isLast = anyPass([isRoot, isLastChild]);
+  getChildren,
+  getNestingLevel,
+  getNodeParent,
+  getVisibleNodes,
+  isLast,
+} from "@/utils/tree";
 
 export const Node = types
   .model({
@@ -104,6 +53,12 @@ export const Node = types
     },
   }))
   .actions((self) => ({
+    loadChildren: flow(function*() {
+      const nodes = yield getChildren(self.id);
+      //@ts-ignore
+      when(notError, self.setChildren)(nodes);
+      return nodes;
+    }),
     setChildren(children: any[]) {
       self.children.replace(children.map((child) => ({ ...child })));
     },
