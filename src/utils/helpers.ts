@@ -1,4 +1,4 @@
-import { compose, curry, not, when } from "rambda";
+import { compose, curry, equals, not, pipe, type, when } from "ramda";
 
 export const tryCatch = curry(
   async (left: Function, right: Function, body: any) => {
@@ -10,8 +10,9 @@ export const tryCatch = curry(
   }
 );
 
-export const isError = (x: any) => x instanceof Error;
+export const isError = pipe(type, equals("Error"));
 
+//@ts-ignore
 export const whenError = when(isError);
 
 export const notError = compose(not, isError);

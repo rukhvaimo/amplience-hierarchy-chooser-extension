@@ -1,4 +1,5 @@
 import {
+  getParent,
   hasParentOfType,
   IAnyModelType,
   Instance,
@@ -6,10 +7,28 @@ import {
   SnapshotOut,
   types,
 } from "mobx-state-tree";
-import { flatten, ifElse, pipe, propEq, reduce } from "rambda";
+import {
+  __,
+  add,
+  always,
+  apply,
+  compose,
+  curry,
+  equals,
+  flatten,
+  ifElse,
+  not,
+  path,
+  pipe,
+  prop,
+  propEq,
+  reduce,
+  when,
+} from "ramda";
 
 const extractVisibleNodes = pipe(
-  (node: any) => node.children,
+  //@ts-ignore
+  prop("children"),
   reduce(
     (visibleNodes: any[], child: any) => [...visibleNodes, child.visibleNodes],
     []
@@ -20,8 +39,25 @@ const extractVisibleNodes = pipe(
 const getVisibleNodes = ifElse(
   //@ts-ignore
   propEq("childrenVisible", true),
+  //@ts-ignore
   (node) => [node, ...extractVisibleNodes(node)],
   (node) => [node]
+);
+
+//@ts-ignore
+const isRoot = pipe(prop("isRoot"), equals(true));
+const notRoot = compose(not, isRoot);
+//@ts-ignore
+const incrementParentLevel = pipe(path(["parent", "nestingLevel"]), add(1));
+
+const getNestingLevel = ifElse(isRoot, always(0), incrementParentLevel);
+//@ts-ignore
+const getParentOfNode = apply(curry(getParent), [__, 2]);
+
+const getNodeParent = when(
+  notRoot,
+  //@ts-ignore
+  getParentOfNode
 );
 
 export const Node = types
@@ -43,6 +79,13 @@ export const Node = types
   .views((self: any) => ({
     get isRoot(): boolean {
       return !hasParentOfType(self, Node);
+    },
+    get nestingLevel() {
+      return getNestingLevel(self);
+    },
+    get parent() {
+      //@ts-ignore
+      return getNodeParent(this);
     },
     get visibleNodes() {
       return getVisibleNodes(self);

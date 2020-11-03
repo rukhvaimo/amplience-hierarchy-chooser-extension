@@ -2,7 +2,7 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path } from "rambda";
+import { path } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { FieldModel } from "./FieldModel";
 

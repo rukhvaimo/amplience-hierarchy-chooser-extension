@@ -17,12 +17,13 @@
 import Component, { mixins } from "vue-class-component";
 import { Observer } from "mobx-vue";
 
-import { compose, ifElse, isNil, not, when } from "rambda";
+import { compose, ifElse, isNil, not, when } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
 import TreeNode from "./TreeNode.vue";
 import { notError } from "@/utils/helpers";
+// eslint-disable-next-line no-unused-vars
 import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
 
 const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);

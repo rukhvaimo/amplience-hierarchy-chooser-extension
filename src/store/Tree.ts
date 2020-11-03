@@ -1,5 +1,5 @@
-import { flow, IMaybeNull, Instance, types } from "mobx-state-tree";
-import { always } from "rambda";
+import { flow, Instance, types } from "mobx-state-tree";
+import { always } from "ramda";
 import Store from "./DynamicContent";
 import { Node } from "./Node";
 import { tryCatch } from "@/utils/helpers";
@@ -21,6 +21,12 @@ const Tree = types
     },
   }))
   .actions((self) => ({
+    deselctNode(nodeId: string) {
+      self.selectedNodes.filter(({ id }) => id === nodeId);
+    },
+    selectNode(id: string) {
+      self.selectedNodes.push(id);
+    },
     loadTree: flow(function*(id: string) {
       const nodes = yield getNodes(id);
       return nodes;
