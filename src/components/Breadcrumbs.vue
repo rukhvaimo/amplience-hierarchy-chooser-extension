@@ -9,7 +9,7 @@
 </template>
 
 <script lang="ts">
-import { pipe } from "rambda";
+import { pipe } from "ramda";
 import { Component, Prop, Ref, Vue, Watch } from "vue-property-decorator";
 
 export interface BreadcrumbModel {

@@ -11,6 +11,14 @@
         Add
       </v-btn>
     </v-toolbar>
+    <v-container>
+      <v-row>
+        <v-col>
+          <tree-view></tree-view>
+        </v-col>
+      </v-row>
+    </v-container>
+    <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
 
@@ -19,14 +27,15 @@ import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 
-import Card from "@/components/Card.vue";
+import TreeView from "./TreeView/TreeView.vue";
+import Alert from "./Alert.vue";
 import store from "@/store/DynamicContent";
 
 @Observer
 @Component({
-  components: { Card },
+  components: { Alert, TreeView },
 })
-export default class TreeView extends Vue {
+export default class ChooserOverlay extends Vue {
   public store = store;
 }
 </script>
@@ -46,6 +55,13 @@ export default class TreeView extends Vue {
     margin-left: 8px;
     min-width: 80px;
     text-transform: none;
+  }
+}
+.chooser-overlay {
+  &__alert {
+    position: absolute;
+    top: 8px;
+    right: 8px;
   }
 }
 </style>

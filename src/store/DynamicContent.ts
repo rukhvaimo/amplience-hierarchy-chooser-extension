@@ -2,7 +2,7 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path } from "rambda";
+import { path } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { FieldModel } from "./FieldModel";
 
@@ -24,13 +24,17 @@ export interface ContentItemModel {
 export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
   @observable dcExtensionSdk!: DcExtension;
+
   @observable dcManagementSdk!: DynamicContent;
+
   @observable rootNode!: ContentItem;
 
   @observable model: Array<CardModel> = [new CardModel(undefined, 0)];
 
   @observable isReadOnly: Boolean = false;
+
   @observable panelOpen: Boolean = false;
+
   @observable activeCard: number | null = null;
 
   @computed get loading() {
@@ -209,7 +213,7 @@ export class Store {
     this.isReadOnly = readonly;
   }
 
-  private getNodeId(): string | undefined {
+  getNodeId(): string | undefined {
     return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 

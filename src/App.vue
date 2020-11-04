@@ -23,7 +23,7 @@
         right
         width="95vw"
       >
-        <tree-view v-if="store.panelOpen" />
+        <chooser-overlay v-if="store.panelOpen" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
@@ -37,7 +37,7 @@ import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
-import TreeView from "@/containers/TreeView.vue";
+import ChooserOverlay from "@/components/ChooserOverlay.vue";
 
 import store, { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
@@ -47,7 +47,7 @@ import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-
   components: {
     Card,
     Loading,
-    TreeView,
+    ChooserOverlay,
     draggable,
   },
 })
@@ -55,6 +55,10 @@ export default class App extends Vue {
   public store = store;
 
   async created() {
+    this.init();
+  }
+
+  async init() {
     await store.initialize();
   }
 
