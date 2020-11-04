@@ -12,7 +12,7 @@
       'is-disabled': isDisabled,
     }"
   >
-    <v-icon v-if="isDisabled" small>
+    <v-icon v-if="isDisabled" small class="mr-2">
       mdi-cancel
     </v-icon>
     <v-checkbox
@@ -22,12 +22,7 @@
       @click="select(isSelected)"
     ></v-checkbox>
     <div class="tree-node__wrapper">
-      <v-tooltip
-        bottom
-        :attach="$refs.node"
-        v-model="tooltipVisible"
-        allow-overflow
-      >
+      <v-tooltip bottom :activator="$refs.node" v-model="tooltipVisible">
         Node is not a valid content type for addition.
       </v-tooltip>
       <div
@@ -46,10 +41,21 @@
             aria-label="Toggle children"
             icon
           >
-            <v-icon class="tree-node__toggle-btn-icon" v-if="!loadingChildren">
-              mdi-chevron-right
-            </v-icon>
-            <v-progress-circular indeterminate v-else></v-progress-circular>
+            <v-fade-transition mode="out-in">
+              <span v-if="loadingChildren">
+                <v-progress-circular
+                  indeterminate
+                  :size="16"
+                  color="grey"
+                  width="2"
+                ></v-progress-circular>
+              </span>
+              <span v-else>
+                <v-icon class="tree-node__toggle-btn-icon">
+                  mdi-chevron-right
+                </v-icon>
+              </span>
+            </v-fade-transition>
           </v-btn>
         </div>
         <div class="tree-node__label text-truncate">
@@ -139,12 +145,18 @@ export default class TreeNode extends mixins(Alert) {
     this.$data.tooltipVisible = false;
   }
   async loadChildren() {
+    //@ts-ignore
+    this.loadingChildren = true;
+
     ifElse(
       notError,
       this.toggleChildren,
       compose(this.showAlert, always("Could not load children"))
       //@ts-ignore
     )(await this.node.loadChildren());
+
+    //@ts-ignore
+    this.loadingChildren = false;
   }
   select(selected: boolean) {
     //@ts-ignore
@@ -292,7 +304,7 @@ export default class TreeNode extends mixins(Alert) {
 
   &__toggle-btn-icon {
     transition: all 0.3s;
-    transform: rotate(90deg) translateX(-2px);
+    transform: rotate(90deg);
     .children-hidden & {
       transform: none;
     }
