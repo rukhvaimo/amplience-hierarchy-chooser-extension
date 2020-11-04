@@ -1,6 +1,6 @@
 <template>
   <div
-    class="taxonomy-tree-node"
+    class="tree-node"
     :style="{
       'padding-left': paddingLeft,
     }"
@@ -12,32 +12,33 @@
       'is-disabled': isDisabled,
     }"
   >
-    <div class="taxonomy-tree-node__wrapper">
-      <div class="taxonomy-tree-node__item" @click="select">
-        <div v-if="!node.isRoot" class="taxonomy-tree-node__connector"></div>
-        <div class="taxonomy-tree-node__toggle-btn-wrapper">
+    <div class="tree-node__wrapper">
+      <div class="tree-node__item" @click="select">
+        <div v-if="!node.isRoot" class="tree-node__connector"></div>
+        <div class="tree-node__toggle-btn-wrapper">
           <v-btn
-            class="taxonomy-tree-node__toggle-btn"
+            class="tree-node__toggle-btn"
             @click="toggleChildren"
             v-if="node.hasChildren"
             aria-label="Toggle children"
             icon
           >
-            <v-icon
-              class="taxonomy-tree-node__toggle-btn-icon"
-              v-if="!loadingChildren"
-            >
+            <v-icon class="tree-node__toggle-btn-icon" v-if="!loadingChildren">
               mdi-chevron-right
             </v-icon>
             <v-progress-circular indeterminate v-else></v-progress-circular>
           </v-btn>
         </div>
-        <div class="taxonomy-tree-node__label text-truncate">
+        <div class="tree-node__label text-truncate">
           {{ node.label }}
         </div>
       </div>
     </div>
-    <div v-for="level in nestingLevels" :key="level"></div>
+    <div
+      v-for="level in nestingLevels"
+      :key="level"
+      class="tree-node__level"
+    ></div>
   </div>
 </template>
 
@@ -85,7 +86,7 @@ import Alert from "@/mixins/ShowAlert.mixin";
       return this.treeStore.isSelected(this.$props.node.id);
     },
     nestingLevels(): number[] {
-      return range(0, this.$props.node.nestingLevel);
+      return range(0, this.$props.node.nestingLevel - 1);
     },
   },
   data: () => ({
@@ -115,7 +116,7 @@ export default class TreeNode extends mixins(Alert) {
 </script>
 
 <style lang="scss" scoped>
-.taxonomy-tree-node {
+.tree-node {
   padding-bottom: 18px;
   min-height: 50px;
   max-width: 100%;
@@ -143,7 +144,7 @@ export default class TreeNode extends mixins(Alert) {
 
     color: #666666;
     user-select: none;
-    .taxonomy-tree-node:not(.is-disabled):hover & {
+    .tree-node:not(.is-disabled):hover & {
       background-color: rgba(#039be5, 0.2);
       color: #039be5;
       cursor: pointer;
@@ -237,8 +238,28 @@ export default class TreeNode extends mixins(Alert) {
       color: white;
     }
 
-    .am-taxonomy-tree-node:not(.is-disabled):hover & {
+    .am-tree-node:not(.is-disabled):hover & {
       color: #039be5;
+    }
+  }
+
+  &__level {
+    display: block;
+    position: absolute;
+    top: -14px;
+    left: -4px;
+    width: 40px;
+    height: 50px;
+    user-select: none;
+    &::before {
+      content: "";
+      position: absolute;
+      left: 19px;
+      height: 50px;
+      width: 1px;
+      border-left: 1px solid #ccc;
+      pointer-events: none;
+      transition: all 0.3s;
     }
   }
 }
