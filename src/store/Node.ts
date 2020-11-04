@@ -21,9 +21,7 @@ export const Node = types
   .model({
     children: types.array(types.late((): IAnyModelType => Node)),
     childrenVisible: types.optional(types.boolean, false),
-    contentTypeId: types.optional(types.string, ""),
     contentTypeUri: types.optional(types.string, ""),
-    disabled: types.optional(types.boolean, false),
     hasChildren: types.optional(types.boolean, false),
     id: types.optional(types.identifier, ""),
     label: types.optional(types.string, ""),
@@ -31,7 +29,6 @@ export const Node = types
       types.enumeration(["NONE", "LATEST", "EARLY"]),
       "NONE"
     ),
-    _links: types.optional(types.frozen(), {}),
   })
   .views((self: any) => ({
     get isLast() {

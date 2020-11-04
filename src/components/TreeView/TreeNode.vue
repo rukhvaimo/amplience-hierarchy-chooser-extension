@@ -12,8 +12,31 @@
       'is-disabled': isDisabled,
     }"
   >
+    <v-icon v-if="isDisabled" small>
+      mdi-cancel
+    </v-icon>
+    <v-checkbox
+      v-else-if="!node.isRoot"
+      v-model="isSelected"
+      color="primary"
+      @click="select(isSelected)"
+    ></v-checkbox>
     <div class="tree-node__wrapper">
-      <div class="tree-node__item" @click="select">
+      <v-tooltip
+        bottom
+        :attach="$refs.node"
+        v-model="tooltipVisible"
+        allow-overflow
+      >
+        Node is not a valid content type for addition.
+      </v-tooltip>
+      <div
+        class="tree-node__item"
+        @click="select(!isSelected)"
+        @mouseover="showTooltip"
+        @mouseleave="hideTooltip"
+        ref="node"
+      >
         <div v-if="!node.isRoot" class="tree-node__connector"></div>
         <div class="tree-node__toggle-btn-wrapper">
           <v-btn
@@ -51,12 +74,15 @@ import {
   compose,
   concat,
   ifElse,
+  includes,
   multiply,
+  not,
   pipe,
   range,
   toString,
 } from "ramda";
 import TreeStore from "@/store/Tree";
+import DynamicContent from "@/store/DynamicContent";
 import { hasChildren } from "@/utils/tree";
 import { notError } from "@/utils/helpers";
 import Alert from "@/mixins/ShowAlert.mixin";
@@ -79,24 +105,35 @@ import Alert from "@/mixins/ShowAlert.mixin";
       )(this.$props.node.nestingLevel);
     },
     isDisabled() {
-      return false;
-    },
-    isSelected(): boolean {
-      //@ts-ignore
-      return this.treeStore.isSelected(this.$props.node.id);
+      return compose(
+        not,
+        includes(
+          __,
+          //@ts-ignore
+          this.dynamicContent.allowedTypes
+        )
+      )(this.$props.node.contentTypeUri);
     },
     nestingLevels(): number[] {
       return range(0, this.$props.node.nestingLevel - 1);
     },
   },
   data: () => ({
+    allowedTypes: [],
+    isSelected: false,
     loadingChildren: false,
+    tooltipVisible: false,
   }),
+  created() {
+    //@ts-ignore
+    this.isSelected = this.treeStore.isSelected(this.$props.node.id);
+  },
 })
 export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
-  select() {
-    // this.treeStore.selectNode(this.node.id);
+  dynamicContent = DynamicContent;
+  hideTooltip() {
+    this.$data.tooltipVisible = false;
   }
   async loadChildren() {
     ifElse(
@@ -104,6 +141,17 @@ export default class TreeNode extends mixins(Alert) {
       this.toggleChildren,
       compose(this.showAlert, always("Could not load children"))
     )(await this.$props.node.loadChildren());
+  }
+  select(selected: boolean) {
+    ifElse(
+      always(selected),
+      this.treeStore.selectNode,
+      this.treeStore.deselctNode
+    )(this.$props.node.id);
+  }
+  showTooltip() {
+    //@ts-ignore
+    this.$data.tooltipVisible = this.isDisabled;
   }
   toggleChildren() {
     ifElse(
@@ -171,10 +219,10 @@ export default class TreeNode extends mixins(Alert) {
   }
   &__connector {
     position: absolute;
-    left: -29px;
+    left: -61px;
     height: 50px;
     width: 27px;
-    top: -16px;
+    top: -33px;
     user-select: none;
     &::before {
       content: "";
@@ -184,7 +232,7 @@ export default class TreeNode extends mixins(Alert) {
       border-bottom: 1px solid #ccc;
       position: absolute;
       right: 4px;
-      top: 28px;
+      top: 46px;
       .level-active & {
         border-bottom: 1px solid #1ab0f9;
       }

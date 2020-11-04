@@ -2,7 +2,7 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path } from "ramda";
+import { path, pipe, map, reject, isNil, flatten } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { FieldModel } from "./FieldModel";
 
@@ -59,6 +59,18 @@ export class Store {
   @computed
   public get listModel() {
     return this.model;
+  }
+
+  @computed
+  public get allowedTypes() {
+    return pipe(
+      //@ts-ignore
+      path(["field", "schema", "items", "allOf"]),
+      map(path(["properties", "contentType", "enum"])),
+      flatten,
+      reject(isNil)
+      //@ts-ignore
+    )(this.dcExtensionSdk);
   }
 
   public set listModel(value: Array<CardModel>) {
