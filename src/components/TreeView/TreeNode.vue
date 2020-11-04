@@ -5,7 +5,7 @@
       'padding-left': paddingLeft,
     }"
     :class="{
-      'children-visible': node.childrenVisible,
+      'children-hidden': !node.childrenVisible,
       'is-root': node.isRoot,
       'is-last': node.isLast,
       'is-selected': isSelected,
@@ -41,7 +41,7 @@
         <div class="tree-node__toggle-btn-wrapper">
           <v-btn
             class="tree-node__toggle-btn"
-            @click="toggleChildren"
+            @click.stop="toggleChildren"
             v-if="node.hasChildren"
             aria-label="Toggle children"
             icon
@@ -102,7 +102,8 @@ import Alert from "@/mixins/ShowAlert.mixin";
         multiply(PADDING),
         toString,
         concat(__, "px")
-      )(this.$props.node.nestingLevel);
+        //@ts-ignore
+      )(this.node.nestingLevel);
     },
     isDisabled() {
       return compose(
@@ -112,10 +113,12 @@ import Alert from "@/mixins/ShowAlert.mixin";
           //@ts-ignore
           this.dynamicContent.allowedTypes
         )
-      )(this.$props.node.contentTypeUri);
+        //@ts-ignore
+      )(this.node.contentTypeUri);
     },
     nestingLevels(): number[] {
-      return range(0, this.$props.node.nestingLevel - 1);
+      //@ts-ignore
+      return range(0, this.node.nestingLevel - 1);
     },
   },
   data: () => ({
@@ -126,7 +129,7 @@ import Alert from "@/mixins/ShowAlert.mixin";
   }),
   created() {
     //@ts-ignore
-    this.isSelected = this.treeStore.isSelected(this.$props.node.id);
+    this.isSelected = this.treeStore.isSelected(this.node.id);
   },
 })
 export default class TreeNode extends mixins(Alert) {
@@ -140,14 +143,18 @@ export default class TreeNode extends mixins(Alert) {
       notError,
       this.toggleChildren,
       compose(this.showAlert, always("Could not load children"))
-    )(await this.$props.node.loadChildren());
+      //@ts-ignore
+    )(await this.node.loadChildren());
   }
   select(selected: boolean) {
+    //@ts-ignore
+    this.isSelected = selected;
     ifElse(
       always(selected),
       this.treeStore.selectNode,
       this.treeStore.deselctNode
-    )(this.$props.node.id);
+      //@ts-ignore
+    )(this.node.id);
   }
   showTooltip() {
     //@ts-ignore
@@ -158,7 +165,8 @@ export default class TreeNode extends mixins(Alert) {
       hasChildren,
       (node) => node.showChildren(!node.childrenVisible),
       this.loadChildren
-    )(this.$props.node);
+      //@ts-ignore
+    )(this.node);
   }
 }
 </script>
@@ -188,6 +196,7 @@ export default class TreeNode extends mixins(Alert) {
     background: #e5e5e5;
     min-width: 160px;
     position: relative;
+    padding-right: 15px;
     z-index: 1;
 
     color: #666666;
@@ -207,6 +216,11 @@ export default class TreeNode extends mixins(Alert) {
       am-publish-status am-status-icon md-icon {
         fill: #999;
       }
+    }
+
+    .is-selected & {
+      background-color: #1ab0f9;
+      color: white;
     }
 
     am-publish-status am-status-icon {
@@ -278,15 +292,17 @@ export default class TreeNode extends mixins(Alert) {
 
   &__toggle-btn-icon {
     transition: all 0.3s;
-    .children-visible & {
-      transform: rotate(90deg) translateX(-2px);
+    transform: rotate(90deg) translateX(-2px);
+    .children-hidden & {
+      transform: none;
     }
 
-    .is-selected & {
+    .is-selected &,
+    .is-disabled.is-selected & {
       color: white;
     }
 
-    .am-tree-node:not(.is-disabled):hover & {
+    .tree-node:not(.is-disabled):hover & {
       color: #039be5;
     }
   }
