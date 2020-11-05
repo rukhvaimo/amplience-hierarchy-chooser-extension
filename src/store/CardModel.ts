@@ -16,13 +16,6 @@ export class CardModel {
           store.removeItem(this.contentItem);
         },
       },
-      {
-        label: "edit",
-        icon: "mdi-pencil",
-        action: () => {
-          store.togglePanel(this.index);
-        },
-      },
     ],
     NEW: [
       {
@@ -48,7 +41,7 @@ export class CardModel {
   ) {}
 
   get actions() {
-    return this.contentItem && this.isEmpty
+    return this.contentItem && this.isEmpty()
       ? this.ACTIONS.NEW
       : this.ACTIONS.EXISTING;
   }
@@ -57,5 +50,19 @@ export class CardModel {
     return (this.contentItem as EmptyItem)._empty;
   }
 
-  toJSON() {}
+  toJSON() {
+    if (this.isEmpty()) {
+      return this.contentItem;
+    }
+
+    const { id, contentType } = this.contentItem as ContentItemModel;
+
+    return {
+      id,
+      contentType,
+      _meta: {
+        schema: store.getItemRef(),
+      },
+    };
+  }
 }

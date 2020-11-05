@@ -122,7 +122,7 @@ export default class AmpCard extends Vue {
       &:hover {
         .card__scale {
           background-color: rgba(0, 0, 0, 0.4);
-          z-index: 10;
+          z-index: 5;
         }
       }
     }
@@ -156,7 +156,7 @@ export default class AmpCard extends Vue {
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
-    z-index: 10;
+    z-index: 6;
   }
 
   .is-new {

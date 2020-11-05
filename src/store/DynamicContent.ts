@@ -1,9 +1,10 @@
 import { SDK, init, Params } from "dc-extensions-sdk";
-import { DynamicContent, ContentItem } from "dc-management-sdk-js";
+import { DynamicContent, ContentItem, Status } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
 import { path } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
+import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { FieldModel } from "./FieldModel";
 
 type ExtensionParams = Params & {
@@ -36,6 +37,8 @@ export class Store {
   @observable panelOpen: Boolean = false;
 
   @observable activeCard: number | null = null;
+
+  @observable error: null | ErrorModel = null;
 
   @computed get loading() {
     return !this.dcExtensionSdk || !this.dcManagementSdk;
@@ -90,6 +93,7 @@ export class Store {
         this.setReadOnly(readonly)
       );
     } catch (error) {
+      this.setError(error);
       console.info("Failed to initialize", error);
     }
   }
@@ -126,10 +130,24 @@ export class Store {
     const nodeId = this.getNodeId();
 
     if (!nodeId) {
-      throw new Error("No NodeId supplied to extension");
+      throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
     }
 
-    return this.dcManagementSdk.contentItems.get(nodeId);
+    const node = await this.dcManagementSdk.contentItems.get(nodeId);
+
+    if (node.status === Status.DELETED) {
+      throw new Error(ERROR_TYPE.ARCHIVED);
+    }
+
+    if (!node.hierarchy) {
+      throw new Error(ERROR_TYPE.NOT_HIERARCHY);
+    }
+
+    if (!node.hierarchy?.root) {
+      throw new Error(ERROR_TYPE.NOT_ROOT);
+    }
+
+    return node;
   }
 
   async addItem(node: any) {
@@ -170,6 +188,12 @@ export class Store {
 
     await this.updateList(model);
     await this.dcExtensionSdk.field.setValue(model);
+  }
+
+  @action.bound setError(err: NodeError) {
+    const error = NODE_ERRORS[err.message];
+
+    this.error = error || NODE_ERRORS.CANNOT_BE_FOUND;
   }
 
   @action.bound setDynamicContent(
@@ -217,7 +241,7 @@ export class Store {
     return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 
-  private getItemRef(): string | undefined {
+  getItemRef(): string | undefined {
     return path(
       ["field", "schema", "items", "allOf", 0, "$ref"],
       this.dcExtensionSdk

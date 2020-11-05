@@ -5,8 +5,11 @@
         <p>{{ store.title }}</p>
       </v-row>
 
+      <error-box v-if="store.error" :message="store.error.message"></error-box>
+
       <draggable
         v-model="store.listModel"
+        v-if="!store.error"
         class="row"
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
@@ -37,6 +40,7 @@ import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
+import ErrorBox from "@/components/ErrorBox.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
 
 import store, { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
@@ -47,6 +51,7 @@ import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-
   components: {
     Card,
     Loading,
+    ErrorBox,
     ChooserOverlay,
     draggable,
   },
