@@ -2,9 +2,10 @@
   <div class="am-taxonomy-tree__wrapper">
     <v-virtual-scroll
       class="am-taxonomy-tree__container"
-      bench="5"
+      :bench="5"
       :items="treeStore.visibleNodes"
-      item-height="50"
+      :item-height="50"
+      :height="400"
     >
       <template v-slot:default="{ item }">
         <tree-node :node="item"></tree-node>

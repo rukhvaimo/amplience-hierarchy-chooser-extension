@@ -1,5 +1,5 @@
 import { flow, Instance, types } from "mobx-state-tree";
-import { any, propEq } from "ramda";
+import { any, propEq, reject } from "ramda";
 import { Node } from "./Node";
 import { getNodes } from "@/utils/tree";
 
@@ -16,7 +16,10 @@ const Tree = types
   }))
   .actions((self) => ({
     deselctNode(nodeId: string) {
-      self.selectedNodes.filter(({ id }) => id === nodeId);
+      self.selectedNodes.replace(
+        //@ts-ignore
+        reject(propEq("id", nodeId), self.selectedNodes)
+      );
     },
     isSelected(nodeId: string) {
       return any(propEq("id", nodeId), self.selectedNodes);

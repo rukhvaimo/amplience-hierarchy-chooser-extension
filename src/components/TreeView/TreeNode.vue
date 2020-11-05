@@ -5,28 +5,57 @@
       'padding-left': paddingLeft,
     }"
     :class="{
-      'children-visible': node.childrenVisible,
+      'children-hidden': !node.childrenVisible,
       'is-root': node.isRoot,
       'is-last': node.isLast,
       'is-selected': isSelected,
       'is-disabled': isDisabled,
     }"
   >
+    <v-icon v-if="isDisabled" small class="mr-2">
+      mdi-cancel
+    </v-icon>
+    <v-checkbox
+      v-else-if="!node.isRoot"
+      v-model="isSelected"
+      color="primary"
+      @click="select(isSelected)"
+    ></v-checkbox>
     <div class="tree-node__wrapper">
-      <div class="tree-node__item" @click="select">
+      <v-tooltip bottom :activator="$refs.node" v-model="tooltipVisible">
+        Node is not a valid content type for addition.
+      </v-tooltip>
+      <div
+        class="tree-node__item"
+        @click="select(!isSelected)"
+        @mouseover="showTooltip"
+        @mouseleave="hideTooltip"
+        ref="node"
+      >
         <div v-if="!node.isRoot" class="tree-node__connector"></div>
         <div class="tree-node__toggle-btn-wrapper">
           <v-btn
             class="tree-node__toggle-btn"
-            @click="toggleChildren"
+            @click.stop="toggleChildren"
             v-if="node.hasChildren"
             aria-label="Toggle children"
             icon
           >
-            <v-icon class="tree-node__toggle-btn-icon" v-if="!loadingChildren">
-              mdi-chevron-right
-            </v-icon>
-            <v-progress-circular indeterminate v-else></v-progress-circular>
+            <v-fade-transition mode="out-in">
+              <span v-if="loadingChildren">
+                <v-progress-circular
+                  indeterminate
+                  :size="16"
+                  color="grey"
+                  width="2"
+                ></v-progress-circular>
+              </span>
+              <span v-else>
+                <v-icon class="tree-node__toggle-btn-icon">
+                  mdi-chevron-right
+                </v-icon>
+              </span>
+            </v-fade-transition>
           </v-btn>
         </div>
         <div class="tree-node__label text-truncate">
@@ -51,12 +80,15 @@ import {
   compose,
   concat,
   ifElse,
+  includes,
   multiply,
+  not,
   pipe,
   range,
   toString,
 } from "ramda";
 import TreeStore from "@/store/Tree";
+import DynamicContent from "@/store/DynamicContent";
 import { hasChildren } from "@/utils/tree";
 import { notError } from "@/utils/helpers";
 import Alert from "@/mixins/ShowAlert.mixin";
@@ -76,41 +108,77 @@ import Alert from "@/mixins/ShowAlert.mixin";
         multiply(PADDING),
         toString,
         concat(__, "px")
-      )(this.$props.node.nestingLevel);
+        //@ts-ignore
+      )(this.node.nestingLevel);
     },
     isDisabled() {
-      return false;
-    },
-    isSelected(): boolean {
-      //@ts-ignore
-      return this.treeStore.isSelected(this.$props.node.id);
+      return compose(
+        not,
+        includes(
+          __,
+          //@ts-ignore
+          this.dynamicContent.allowedTypes
+        )
+        //@ts-ignore
+      )(this.node.contentTypeUri);
     },
     nestingLevels(): number[] {
-      return range(0, this.$props.node.nestingLevel - 1);
+      //@ts-ignore
+      return range(0, this.node.nestingLevel - 1);
     },
   },
   data: () => ({
+    allowedTypes: [],
+    isSelected: false,
     loadingChildren: false,
+    tooltipVisible: false,
   }),
+  created() {
+    //@ts-ignore
+    this.isSelected = this.treeStore.isSelected(this.node.id);
+  },
 })
 export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
-  select() {
-    // this.treeStore.selectNode(this.node.id);
+  dynamicContent = DynamicContent;
+  hideTooltip() {
+    this.$data.tooltipVisible = false;
   }
   async loadChildren() {
+    //@ts-ignore
+    this.loadingChildren = true;
+
     ifElse(
       notError,
       this.toggleChildren,
       compose(this.showAlert, always("Could not load children"))
-    )(await this.$props.node.loadChildren());
+      //@ts-ignore
+    )(await this.node.loadChildren());
+
+    //@ts-ignore
+    this.loadingChildren = false;
+  }
+  select(selected: boolean) {
+    //@ts-ignore
+    this.isSelected = selected;
+    ifElse(
+      always(selected),
+      this.treeStore.selectNode,
+      this.treeStore.deselctNode
+      //@ts-ignore
+    )(this.node.id);
+  }
+  showTooltip() {
+    //@ts-ignore
+    this.$data.tooltipVisible = this.isDisabled;
   }
   toggleChildren() {
     ifElse(
       hasChildren,
       (node) => node.showChildren(!node.childrenVisible),
       this.loadChildren
-    )(this.$props.node);
+      //@ts-ignore
+    )(this.node);
   }
 }
 </script>
@@ -140,6 +208,7 @@ export default class TreeNode extends mixins(Alert) {
     background: #e5e5e5;
     min-width: 160px;
     position: relative;
+    padding-right: 15px;
     z-index: 1;
 
     color: #666666;
@@ -161,6 +230,11 @@ export default class TreeNode extends mixins(Alert) {
       }
     }
 
+    .is-selected & {
+      background-color: #1ab0f9;
+      color: white;
+    }
+
     am-publish-status am-status-icon {
       background-color: transparent;
       md-icon {
@@ -171,10 +245,10 @@ export default class TreeNode extends mixins(Alert) {
   }
   &__connector {
     position: absolute;
-    left: -29px;
+    left: -61px;
     height: 50px;
     width: 27px;
-    top: -16px;
+    top: -33px;
     user-select: none;
     &::before {
       content: "";
@@ -184,7 +258,7 @@ export default class TreeNode extends mixins(Alert) {
       border-bottom: 1px solid #ccc;
       position: absolute;
       right: 4px;
-      top: 28px;
+      top: 46px;
       .level-active & {
         border-bottom: 1px solid #1ab0f9;
       }
@@ -230,15 +304,17 @@ export default class TreeNode extends mixins(Alert) {
 
   &__toggle-btn-icon {
     transition: all 0.3s;
-    .children-visible & {
-      transform: rotate(90deg) translateX(-2px);
+    transform: rotate(90deg);
+    .children-hidden & {
+      transform: none;
     }
 
-    .is-selected & {
+    .is-selected &,
+    .is-disabled.is-selected & {
       color: white;
     }
 
-    .am-tree-node:not(.is-disabled):hover & {
+    .tree-node:not(.is-disabled):hover & {
       color: #039be5;
     }
   }
