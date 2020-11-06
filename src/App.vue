@@ -24,9 +24,10 @@
         absolute
         temporary
         right
+        @input="onPanelChange"
         width="95vw"
       >
-        <chooser-overlay v-if="store.panelOpen" />
+        <chooser-overlay v-if="store.panelOpen" :add="add" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
@@ -35,6 +36,7 @@
 <script lang="ts">
 import draggable, { MoveEvent } from "vuedraggable"; // eslint-disable-line no-unused-vars
 
+import { clone } from "ramda";
 import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 
@@ -42,9 +44,11 @@ import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
 import ErrorBox from "@/components/ErrorBox.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
+import TreeStore from "@/store/Tree";
 
-import store, { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
-import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
+import store from "@/store/DynamicContent";
+
+import { CardModel } from "./store/CardModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
@@ -58,6 +62,8 @@ import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-
 })
 export default class App extends Vue {
   public store = store;
+  public tree = TreeStore;
+  public originalModel!: Array<CardModel>;
 
   async created() {
     this.init();
@@ -65,6 +71,31 @@ export default class App extends Vue {
 
   async init() {
     await store.initialize();
+  }
+
+  onPanelChange(open: Boolean) {
+    if (open) {
+      this.originalModel = clone(this.store.model);
+    } else {
+      this.store.updateList(this.originalModel);
+    }
+  }
+
+  async add() {
+    const nodes = this.tree.selectedNodes;
+    const value = nodes.map((node) => node.toJSON());
+
+    if (!nodes.length) {
+      return this.store.togglePanel();
+    }
+
+    const model = await store.createModel(value);
+
+    await this.store.updateList(model);
+
+    this.originalModel = clone(this.store.model);
+
+    this.store.togglePanel();
   }
 
   isDraggable($event: MoveEvent<HTMLElement>) {

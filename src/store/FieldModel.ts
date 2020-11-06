@@ -2,16 +2,17 @@ import { CardModel, EmptyItem } from "./CardModel";
 import store from "./DynamicContent";
 
 export interface ContentItemModel {
-  _meta: {
+  _meta?: {
     schema: string;
   };
   id: string;
+  label: string;
   contentType: string;
 }
 
 export class FieldModel {
   static async getDefaultValue(
-    value: Array<ContentItemModel | EmptyItem>,
+    value: Array<ContentItemModel | EmptyItem | undefined>,
     { minItems, maxItems }: { minItems: number; maxItems: number }
   ) {
     const createItem = async (
@@ -22,8 +23,7 @@ export class FieldModel {
         const parents = await store.dcManagementSdk.hierarchies.parents.get(
           (value as ContentItemModel).id
         );
-        // const path = parents.parents.map((parent) => parent.label);
-        const path = ["something", "else", "gonna keep going", "parent"];
+        const path = parents.parents.map((parent) => parent.label);
 
         return new CardModel(value, index, path);
       }

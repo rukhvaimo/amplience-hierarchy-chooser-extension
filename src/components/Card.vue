@@ -54,7 +54,6 @@ import { Observer } from "mobx-vue";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
-import { ContentItemModel } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import Visualization from "@/components/Visualization.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";

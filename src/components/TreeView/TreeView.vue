@@ -26,6 +26,8 @@ import TreeNode from "./TreeNode.vue";
 import { notError } from "@/utils/helpers";
 // eslint-disable-next-line no-unused-vars
 import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
+// eslint-disable-next-line no-unused-vars
+import { ContentItemModel } from "@/store/FieldModel";
 
 const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
 
@@ -46,6 +48,12 @@ export default class TreeView extends mixins(Alert) {
     );
 
     treeLoaded(await this.loadTree());
+
+    const selected = DynamicContentStore.model
+      .map((node) => (node.contentItem as ContentItemModel).id)
+      .filter(Boolean);
+
+    this.treeStore.setSelectedNodes(selected);
   }
 
   async loadTree() {
@@ -65,4 +73,8 @@ export default class TreeView extends mixins(Alert) {
 }
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.am-taxonomy-tree__wrapper {
+  padding: 12px;
+}
+</style>

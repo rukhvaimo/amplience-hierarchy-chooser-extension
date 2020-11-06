@@ -21,6 +21,10 @@ const Tree = types
         reject(propEq("id", nodeId), self.selectedNodes)
       );
     },
+    setSelectedNodes(nodes: string[]) {
+      self.selectedNodes.clear();
+      nodes.forEach((id) => self.selectedNodes.push(id));
+    },
     isSelected(nodeId: string) {
       return any(propEq("id", nodeId), self.selectedNodes);
     },
@@ -29,6 +33,12 @@ const Tree = types
       return nodes;
     }),
     selectNode(id: string) {
+      const existing = self.selectedNodes.find((node) => node.id === id);
+
+      if (existing) {
+        return;
+      }
+
       self.selectedNodes.push(id);
     },
     setRootNode(rootNode: any): Instance<typeof Node> {

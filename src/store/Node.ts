@@ -62,6 +62,13 @@ export const Node = types
     showChildren(visible: boolean) {
       self.childrenVisible = visible;
     },
+    toJSON() {
+      return {
+        id: self.id,
+        label: self.label,
+        contentType: self.contentTypeUri,
+      };
+    },
   }));
 
 export interface INode extends Instance<typeof Node> {}

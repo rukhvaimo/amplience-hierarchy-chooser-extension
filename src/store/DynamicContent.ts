@@ -2,10 +2,10 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem, Status } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path, pipe, map, reject, isNil, flatten } from "ramda";
+import { path, pipe, map, reject, isNil, flatten, clone } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
-import { FieldModel } from "./FieldModel";
+import { ContentItemModel, FieldModel } from "./FieldModel";
 
 type ExtensionParams = Params & {
   instance: {
@@ -13,14 +13,6 @@ type ExtensionParams = Params & {
     dcConfig?: string;
   };
 };
-
-export interface ContentItemModel {
-  _meta: {
-    schema: string;
-  };
-  id: string;
-  contentType: string;
-}
 
 export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
@@ -35,8 +27,6 @@ export class Store {
   @observable isReadOnly: Boolean = false;
 
   @observable panelOpen: Boolean = false;
-
-  @observable activeCard: number | null = null;
 
   @observable error: null | ErrorModel = null;
 
@@ -67,7 +57,7 @@ export class Store {
   @computed
   public get allowedTypes() {
     return pipe(
-      //@ts-ignore
+      // @ts-ignore
       path(["field", "schema", "items", "allOf"]),
       map(path(["properties", "contentType", "enum"])),
       flatten,
@@ -113,15 +103,8 @@ export class Store {
   async getValue() {
     try {
       const value: ContentItemModel[] = await this.dcExtensionSdk.field.getValue();
-      const minItems = this.minItems;
-      const maxItems = this.maxItems;
 
-      const model = await FieldModel.getDefaultValue(value, {
-        minItems,
-        maxItems,
-      });
-
-      return model;
+      return this.createModel(value);
     } catch (err) {
       console.info("Unable to get field value");
       return this.model;
@@ -135,7 +118,7 @@ export class Store {
       )
     );
 
-    await this.dcExtensionSdk.field.setValue(this.model);
+    await this.dcExtensionSdk.field.setValue(this.exportModel());
   }
 
   async getNode() {
@@ -183,23 +166,23 @@ export class Store {
 
     this.pushItem(contentItem);
 
-    await this.dcExtensionSdk.field.setValue(this.model);
+    await this.dcExtensionSdk.field.setValue(this.exportModel());
   }
 
   async removeItem(node: any) {
-    const model = this.model.filter((value) => {
-      if ((value.contentItem as EmptyItem)._empty) {
-        return true;
-      }
-      return node.id !== (value.contentItem as ContentItemModel).id;
-    });
+    const updated = this.model
+      .filter((value) => {
+        if ((value.contentItem as EmptyItem)._empty) {
+          return false;
+        }
+        return node.id !== (value.contentItem as ContentItemModel).id;
+      })
+      .map((item) => item.contentItem)
+      .filter(Boolean);
 
-    if (!model.length) {
-      model.push(new CardModel(CardModel.createEmptyItem(), this.model.length));
-    }
+    const model = await this.createModel(updated);
 
     await this.updateList(model);
-    await this.dcExtensionSdk.field.setValue(model);
   }
 
   @action.bound setError(err: NodeError) {
@@ -216,9 +199,8 @@ export class Store {
     this.dcManagementSdk = dcManagementSdk;
   }
 
-  @action.bound togglePanel(index: number | null = null) {
+  @action.bound togglePanel() {
     this.panelOpen = !this.panelOpen;
-    this.activeCard = this.panelOpen ? index : null;
   }
 
   @action.bound setValue(model: Array<CardModel>) {
@@ -247,6 +229,22 @@ export class Store {
 
   @action.bound setReadOnly(readonly: Boolean) {
     this.isReadOnly = readonly;
+  }
+
+  async createModel(value: Array<ContentItemModel | EmptyItem>) {
+    const minItems = this.minItems;
+    const maxItems = this.maxItems;
+
+    const model = await FieldModel.getDefaultValue(value, {
+      minItems,
+      maxItems,
+    });
+
+    return model;
+  }
+
+  exportModel() {
+    return this.model.map((card) => card.toJSON());
   }
 
   getNodeId(): string | undefined {

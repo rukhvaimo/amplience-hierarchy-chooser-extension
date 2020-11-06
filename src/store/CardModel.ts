@@ -1,6 +1,5 @@
-import { ContentItemModel } from "./DynamicContent";
-
 import store from "./DynamicContent";
+import { ContentItemModel } from "./FieldModel";
 
 export interface EmptyItem {
   _empty: boolean;
@@ -22,7 +21,7 @@ export class CardModel {
         label: "add",
         icon: "mdi-plus",
         action: () => {
-          store.togglePanel(this.index);
+          store.togglePanel();
         },
       },
     ],
@@ -55,11 +54,12 @@ export class CardModel {
       return this.contentItem;
     }
 
-    const { id, contentType } = this.contentItem as ContentItemModel;
+    const { id, label, contentType } = this.contentItem as ContentItemModel;
 
     return {
       id,
-      contentType,
+      label,
+      contentType: contentType,
       _meta: {
         schema: store.getItemRef(),
       },

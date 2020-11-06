@@ -7,29 +7,32 @@
       <v-btn depressed text @click="store.togglePanel">
         Cancel
       </v-btn>
-      <v-btn depressed color="primary" @click="store.togglePanel">
+      <v-btn
+        depressed
+        :disabled="tree.selectedNodes.length === 0"
+        color="primary"
+        @click="add"
+      >
         Add
       </v-btn>
     </v-toolbar>
-    <v-container>
-      <v-row>
-        <v-col>
-          <tree-view></tree-view>
-        </v-col>
-      </v-row>
-    </v-container>
+    <tree-view></tree-view>
     <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
+import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
 import TreeView from "./TreeView/TreeView.vue";
 import Alert from "./Alert.vue";
+
 import store from "@/store/DynamicContent";
+import TreeStore from "@/store/Tree";
+import { noop } from "vue-class-component/lib/util";
 
 @Observer
 @Component({
@@ -37,6 +40,9 @@ import store from "@/store/DynamicContent";
 })
 export default class ChooserOverlay extends Vue {
   public store = store;
+  public tree = TreeStore;
+
+  @Prop({ type: Function, default: noop }) add!: () => void;
 }
 </script>
 
