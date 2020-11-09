@@ -65,7 +65,7 @@
           </v-fade-transition>
         </v-btn>
       </div>
-      <div class="body-2 text-left text-truncate mr-2 tree-node__label">
+      <div class="body-2 text-left text-truncate tree-node__label">
         {{ node.label }}
       </div>
       <status-icon

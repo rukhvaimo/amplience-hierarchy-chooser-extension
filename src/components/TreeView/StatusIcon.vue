@@ -1,12 +1,14 @@
 <template>
-  <v-tooltip bottom>
-    <template v-slot:activator="{ on, attrs }">
-      <v-icon small class="ml-auto status-icon" v-bind="attrs" v-on="on">
-        {{ icon }}
-      </v-icon>
-    </template>
-    <span>{{ tooltip }}</span>
-  </v-tooltip>
+  <div class="ml-auto">
+    <v-tooltip bottom>
+      <template v-slot:activator="{ on, attrs }">
+        <v-icon small class="ml-2 status-icon" v-bind="attrs" v-on="on">
+          {{ icon }}
+        </v-icon>
+      </template>
+      <span>{{ tooltip }}</span>
+    </v-tooltip>
+  </div>
 </template>
 
 <script lang="ts">
@@ -48,7 +50,7 @@ export default class StatusIcon extends Vue {}
 .status-icon {
   color: #666666;
   transition: color 0.3s;
-
+  transform: translate(0, -1px);
   .is-selected & {
     color: white;
   }
