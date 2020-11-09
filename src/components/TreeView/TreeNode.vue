@@ -337,21 +337,4 @@ export default class TreeNode extends mixins(Alert) {
     transform: translate(7px, 9px);
   }
 }
-
-.status-icon {
-  color: #666666;
-  transition: color 0.3s;
-
-  .is-selected & {
-    color: white;
-  }
-
-  .tree-node:not(.is-disabled):hover & {
-    color: #039be5;
-  }
-
-  .is-disabled & {
-    color: #999;
-  }
-}
 </style>

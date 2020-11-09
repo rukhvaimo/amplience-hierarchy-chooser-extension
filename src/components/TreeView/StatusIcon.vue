@@ -44,4 +44,21 @@ import { ARCHIVED, EARLIER, LATEST } from "@/assets/icons";
 export default class StatusIcon extends Vue {}
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.status-icon {
+  color: #666666;
+  transition: color 0.3s;
+
+  .is-selected & {
+    color: white;
+  }
+
+  .tree-node:not(.is-disabled):hover & {
+    color: #039be5;
+  }
+
+  .is-disabled & {
+    color: #999;
+  }
+}
+</style>

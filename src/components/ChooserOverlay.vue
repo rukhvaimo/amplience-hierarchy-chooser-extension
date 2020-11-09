@@ -10,11 +10,16 @@
       <v-btn
         depressed
         small
-        :disabled="tree.selectedNodes.length === 0"
+        :disabled="!tree.selectedNodes.length"
         color="primary"
         @click="add"
       >
         Add
+        <v-expand-x-transition>
+          <span v-if="tree.selectedNodes.length">
+            ({{ tree.selectedNodes.length }})
+          </span>
+        </v-expand-x-transition>
       </v-btn>
     </v-toolbar>
     <tree-view></tree-view>
