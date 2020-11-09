@@ -22,51 +22,49 @@
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
     ></v-checkbox>
-    <div class="tree-node__wrapper">
-      <v-tooltip
-        bottom
-        :activator="$refs.node"
-        v-model="tooltipVisible"
-        v-if="isDisabled"
-      >
-        Node is not a valid content type for addition.
-      </v-tooltip>
-      <div
-        class="tree-node__item"
-        @click="select(!isSelected)"
-        @mouseover="showTooltip"
-        @mouseleave="hideTooltip"
-        ref="node"
-      >
-        <div v-if="!node.isRoot" class="tree-node__connector"></div>
-        <div class="tree-node__toggle-btn-wrapper">
-          <v-btn
-            class="tree-node__toggle-btn"
-            @click.stop="toggleChildren"
-            v-if="node.hasChildren"
-            aria-label="Toggle children"
-            icon
-          >
-            <v-fade-transition mode="out-in">
-              <span v-if="loadingChildren">
-                <v-progress-circular
-                  indeterminate
-                  :size="16"
-                  color="grey"
-                  width="2"
-                ></v-progress-circular>
-              </span>
-              <span v-else>
-                <v-icon class="tree-node__toggle-btn-icon">
-                  mdi-chevron-right
-                </v-icon>
-              </span>
-            </v-fade-transition>
-          </v-btn>
-        </div>
-        <div class="tree-node__label text-truncate">
-          {{ node.label }}
-        </div>
+    <v-tooltip
+      bottom
+      :activator="$refs.node"
+      v-model="tooltipVisible"
+      v-if="isDisabled"
+    >
+      Node is not a valid content type for addition.
+    </v-tooltip>
+    <div
+      class="tree-node__item"
+      @click="select(!isSelected)"
+      @mouseover="showTooltip"
+      @mouseleave="hideTooltip"
+      ref="node"
+    >
+      <div v-if="!node.isRoot" class="tree-node__connector"></div>
+      <div class="tree-node__toggle-btn-wrapper">
+        <v-btn
+          class="tree-node__toggle-btn"
+          @click.stop="toggleChildren"
+          v-if="node.hasChildren"
+          aria-label="Toggle children"
+          icon
+        >
+          <v-fade-transition mode="out-in">
+            <span v-if="loadingChildren">
+              <v-progress-circular
+                indeterminate
+                :size="16"
+                color="grey"
+                width="2"
+              ></v-progress-circular>
+            </span>
+            <span v-else>
+              <v-icon class="tree-node__toggle-btn-icon">
+                mdi-chevron-right
+              </v-icon>
+            </span>
+          </v-fade-transition>
+        </v-btn>
+      </div>
+      <div class="tree-node__label text-truncate">
+        {{ node.label }}
       </div>
     </div>
     <div
@@ -206,10 +204,6 @@ export default class TreeNode extends mixins(Alert) {
   display: flex;
   align-items: center;
   transition: opacity 0.15s;
-
-  &__wrapper {
-    position: relative;
-  }
 
   &__item {
     height: 32px;
