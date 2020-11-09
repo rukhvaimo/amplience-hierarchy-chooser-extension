@@ -230,7 +230,7 @@ export default class TreeNode extends mixins(Alert) {
     background: #e5e5e5;
     min-width: 160px;
     position: relative;
-    padding-right: 15px;
+    padding-right: 10px;
     z-index: 1;
     color: #666666;
     user-select: none;

@@ -15,6 +15,9 @@ const Tree = types
     },
   }))
   .actions((self) => ({
+    clearSelectedNodes() {
+      self.selectedNodes.clear();
+    },
     deselctNode(nodeId: string) {
       self.selectedNodes.replace(
         //@ts-ignore
@@ -22,7 +25,6 @@ const Tree = types
       );
     },
     setSelectedNodes(nodes: string[]) {
-      self.selectedNodes.clear();
       nodes.forEach((id) => self.selectedNodes.push(id));
     },
     isSelected(nodeId: string) {

@@ -27,7 +27,7 @@
         @input="onPanelChange"
         width="95vw"
       >
-        <chooser-overlay v-if="store.panelOpen" :add="add" />
+        <chooser-overlay v-if="store.panelOpen" @add="add" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
@@ -79,6 +79,7 @@ export default class App extends Vue {
     } else {
       this.store.updateList(this.originalModel);
     }
+    this.tree.clearSelectedNodes();
   }
 
   async add() {
