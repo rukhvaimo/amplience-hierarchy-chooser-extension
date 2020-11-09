@@ -10,6 +10,7 @@
       'is-last': node.isLast,
       'is-selected': isSelected,
       'is-disabled': isDisabled,
+      'has-children': node.hasChildren,
     }"
   >
     <v-icon v-if="isDisabled" class="ml-2" color="#999">
@@ -64,7 +65,7 @@
           </v-fade-transition>
         </v-btn>
       </div>
-      <div class="body-2 text-left tree-node__label text-truncate">
+      <div class="body-2 text-left text-truncate mr-2 tree-node__label">
         {{ node.label }}
       </div>
       <status-icon
@@ -76,6 +77,9 @@
       v-for="level in nestingLevels"
       :key="level"
       class="tree-node__level"
+      :style="{
+        left: getPadding(level),
+      }"
     ></div>
   </div>
 </template>
@@ -87,21 +91,18 @@ import {
   __,
   always,
   compose,
-  concat,
   equals,
   ifElse,
   includes,
-  multiply,
   not,
-  pipe,
   range,
-  toString,
   when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContent from "@/store/DynamicContent";
 import { hasChildren } from "@/utils/tree";
 import { notError } from "@/utils/helpers";
+import { getPadding } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
 import StatusIcon from "./StatusIcon.vue";
 
@@ -118,13 +119,8 @@ import StatusIcon from "./StatusIcon.vue";
   },
   computed: {
     paddingLeft(): string {
-      const PADDING = 26;
-      return pipe(
-        multiply(PADDING),
-        toString,
-        concat(__, "px")
-        //@ts-ignore
-      )(this.node.nestingLevel);
+      //@ts-ignore
+      return getPadding(this.node.nestingLevel);
     },
     isDisabled() {
       return compose(
@@ -140,6 +136,7 @@ import StatusIcon from "./StatusIcon.vue";
     nestingLevels(): number[] {
       //@ts-ignore
       return range(0, this.node.nestingLevel - 1);
+      // return pipe(range(0), filter())
     },
     showStatusIcon() {
       //@ts-ignore
@@ -160,6 +157,9 @@ import StatusIcon from "./StatusIcon.vue";
 export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
   dynamicContent = DynamicContent;
+  getPadding(nestingLevel: number) {
+    return getPadding(nestingLevel);
+  }
   hideTooltip() {
     //@ts-ignore
     when(always(this.isDisabled), () => {
@@ -230,7 +230,7 @@ export default class TreeNode extends mixins(Alert) {
     background: #e5e5e5;
     min-width: 160px;
     position: relative;
-    padding-right: 10px;
+    padding: 0 10px 0 28px;
     z-index: 1;
     color: #666666;
     user-select: none;
@@ -249,6 +249,9 @@ export default class TreeNode extends mixins(Alert) {
     .is-selected & {
       background-color: #1ab0f9;
       color: white;
+    }
+    .has-children & {
+      padding-left: 0;
     }
   }
   &__connector {
@@ -295,7 +298,7 @@ export default class TreeNode extends mixins(Alert) {
   }
 
   &__toggle-btn-icon {
-    transition: all 0.3s;
+    transition: transform 0.3s;
     transform: rotate(90deg);
 
     .children-hidden & {
@@ -317,20 +320,11 @@ export default class TreeNode extends mixins(Alert) {
     position: absolute;
     top: -14px;
     left: -1px;
-    width: 40px;
+    width: 1px;
     height: 50px;
     user-select: none;
-
-    &::before {
-      content: "";
-      position: absolute;
-      left: 19px;
-      height: 50px;
-      width: 1px;
-      border-left: 1px solid #ccc;
-      pointer-events: none;
-      transition: all 0.3s;
-    }
+    margin-left: 18px;
+    border-left: 1px solid #ccc;
   }
 
   &__checkbox {

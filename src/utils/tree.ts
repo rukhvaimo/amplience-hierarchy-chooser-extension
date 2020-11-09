@@ -17,7 +17,10 @@ import {
   prop,
   propEq,
   reduce,
+  toString,
   when,
+  multiply,
+  concat,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
 import { tryCatch } from "./helpers";
@@ -113,3 +116,6 @@ export const isLast = anyPass([isRoot, isLastChild]);
  */
 //@ts-ignore
 export const hasChildren = pipe(prop("children"), isEmpty, not);
+
+const PADDING = 26;
+export const getPadding = pipe(multiply(PADDING), toString, concat(__, "px"));

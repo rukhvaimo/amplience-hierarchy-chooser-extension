@@ -10,7 +10,7 @@
         v-if="treeStore.visibleNodes.length"
       >
         <template v-slot:default="{ item }">
-          <tree-node :node="item"></tree-node>
+          <tree-node :node="item" :key="item.id"></tree-node>
         </template>
       </v-virtual-scroll>
       <div
