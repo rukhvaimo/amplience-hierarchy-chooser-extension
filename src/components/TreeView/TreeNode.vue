@@ -45,6 +45,7 @@
           v-if="node.hasChildren"
           aria-label="Toggle children"
           icon
+          small
         >
           <v-fade-transition mode="out-in">
             <span v-if="loadingChildren">
@@ -66,6 +67,10 @@
       <div class="tree-node__label text-truncate">
         {{ node.label }}
       </div>
+      <status-icon
+        :status="node.publishingStatus"
+        v-if="showStatusIcon"
+      ></status-icon>
     </div>
     <div
       v-for="level in nestingLevels"
@@ -83,6 +88,7 @@ import {
   always,
   compose,
   concat,
+  equals,
   ifElse,
   includes,
   multiply,
@@ -97,6 +103,7 @@ import DynamicContent from "@/store/DynamicContent";
 import { hasChildren } from "@/utils/tree";
 import { notError } from "@/utils/helpers";
 import Alert from "@/mixins/ShowAlert.mixin";
+import StatusIcon from "./StatusIcon.vue";
 
 @Observer
 @Component({
@@ -105,6 +112,9 @@ import Alert from "@/mixins/ShowAlert.mixin";
       type: Object,
       required: true,
     },
+  },
+  components: {
+    StatusIcon,
   },
   computed: {
     paddingLeft(): string {
@@ -130,6 +140,10 @@ import Alert from "@/mixins/ShowAlert.mixin";
     nestingLevels(): number[] {
       //@ts-ignore
       return range(0, this.node.nestingLevel - 1);
+    },
+    showStatusIcon() {
+      //@ts-ignore
+      return not(equals(this.node.publishingStatus, "NONE"));
     },
   },
   data: () => ({
@@ -218,37 +232,23 @@ export default class TreeNode extends mixins(Alert) {
     position: relative;
     padding-right: 15px;
     z-index: 1;
-
     color: #666666;
     user-select: none;
+
     .tree-node:not(.is-disabled):hover & {
       background-color: rgba(#039be5, 0.2);
       color: #039be5;
       cursor: pointer;
-      am-publish-status am-status-icon md-icon {
-        fill: #039be5;
-      }
     }
 
     .is-disabled & {
       background-color: rgba(#e5e5e5, 0.8);
       color: #999;
-      am-publish-status am-status-icon md-icon {
-        fill: #999;
-      }
     }
 
     .is-selected & {
       background-color: #1ab0f9;
       color: white;
-    }
-
-    am-publish-status am-status-icon {
-      background-color: transparent;
-      md-icon {
-        transition: fill 0.3s;
-        fill: #666666;
-      }
     }
   }
   &__connector {
@@ -258,6 +258,7 @@ export default class TreeNode extends mixins(Alert) {
     width: 27px;
     top: -16px;
     user-select: none;
+
     &::before {
       content: "";
       display: block;
@@ -268,6 +269,7 @@ export default class TreeNode extends mixins(Alert) {
       right: 4px;
       top: 30px;
     }
+
     &::after {
       content: "";
       transition: all 0.3s;
@@ -289,13 +291,14 @@ export default class TreeNode extends mixins(Alert) {
 
   &__label {
     transform: translate(0, -1px);
-    margin-left: 5px;
     min-width: 60px;
+    text-align: left;
   }
 
   &__toggle-btn-icon {
     transition: all 0.3s;
     transform: rotate(90deg);
+
     .children-hidden & {
       transform: none;
     }
@@ -318,6 +321,7 @@ export default class TreeNode extends mixins(Alert) {
     width: 40px;
     height: 50px;
     user-select: none;
+
     &::before {
       content: "";
       position: absolute;
@@ -332,6 +336,23 @@ export default class TreeNode extends mixins(Alert) {
 
   &__checkbox {
     transform: translate(7px, 9px);
+  }
+}
+
+.status-icon {
+  color: #666666;
+  transition: color 0.3s;
+
+  .is-selected & {
+    color: white;
+  }
+
+  .tree-node:not(.is-disabled):hover & {
+    color: #039be5;
+  }
+
+  .is-disabled & {
+    color: #999;
   }
 }
 </style>

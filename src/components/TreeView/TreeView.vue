@@ -48,12 +48,6 @@ export default class TreeView extends mixins(Alert) {
     );
 
     treeLoaded(await this.loadTree());
-
-    const selected = DynamicContentStore.model
-      .map((node) => (node.contentItem as ContentItemModel).id)
-      .filter(Boolean);
-
-    this.treeStore.setSelectedNodes(selected);
   }
 
   async loadTree() {
