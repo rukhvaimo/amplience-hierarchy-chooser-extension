@@ -142,7 +142,8 @@ export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
   dynamicContent = DynamicContent;
   hideTooltip() {
-    this.$data.tooltipVisible = false;
+    //@ts-ignore
+    this.tooltipVisible = false;
   }
   async loadChildren() {
     //@ts-ignore
@@ -170,7 +171,7 @@ export default class TreeNode extends mixins(Alert) {
   }
   showTooltip() {
     //@ts-ignore
-    this.$data.tooltipVisible = this.isDisabled;
+    this.tooltipVisible = this.isDisabled;
   }
   toggleChildren() {
     ifElse(
