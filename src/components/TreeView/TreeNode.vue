@@ -12,7 +12,7 @@
       'is-disabled': isDisabled,
     }"
   >
-    <v-icon v-if="isDisabled" small class="mr-2">
+    <v-icon v-if="isDisabled" class="ml-2" color="#999">
       mdi-cancel
     </v-icon>
     <v-checkbox
@@ -64,7 +64,7 @@
           </v-fade-transition>
         </v-btn>
       </div>
-      <div class="tree-node__label text-truncate">
+      <div class="body-2 text-left tree-node__label text-truncate">
         {{ node.label }}
       </div>
       <status-icon
@@ -292,7 +292,6 @@ export default class TreeNode extends mixins(Alert) {
   &__label {
     transform: translate(0, -1px);
     min-width: 60px;
-    text-align: left;
   }
 
   &__toggle-btn-icon {
