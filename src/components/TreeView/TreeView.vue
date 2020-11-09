@@ -1,16 +1,29 @@
 <template>
-  <div class="ml-4 mt-4 am-taxonomy-tree__wrapper">
-    <v-virtual-scroll
-      class="am-taxonomy-tree__container"
-      :bench="5"
-      :items="treeStore.visibleNodes"
-      :item-height="50"
-      :height="400"
-    >
-      <template v-slot:default="{ item }">
-        <tree-node :node="item"></tree-node>
-      </template>
-    </v-virtual-scroll>
+  <div class="ml-4 mt-4">
+    <v-fade-transition mode="out-in">
+      <v-virtual-scroll
+        class="am-taxonomy-tree__container"
+        :bench="5"
+        :items="treeStore.visibleNodes"
+        :item-height="50"
+        :height="400"
+        v-if="treeStore.visibleNodes.length"
+      >
+        <template v-slot:default="{ item }">
+          <tree-node :node="item"></tree-node>
+        </template>
+      </v-virtual-scroll>
+      <div
+        class="d-flex align-center justify-center taxonomy-tree__loader"
+        v-else
+      >
+        <v-progress-circular
+          indeterminate
+          :size="32"
+          color="grey"
+        ></v-progress-circular>
+      </div>
+    </v-fade-transition>
   </div>
 </template>
 
@@ -68,7 +81,9 @@ export default class TreeView extends mixins(Alert) {
 </script>
 
 <style lang="scss" scoped>
-.am-taxonomy-tree__wrapper {
-  padding: 12px;
+.taxonomy-tree {
+  &__loader {
+    height: 200px;
+  }
 }
 </style>
