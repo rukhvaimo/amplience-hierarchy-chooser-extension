@@ -20,9 +20,15 @@
       v-model="isSelected"
       color="primary"
       @click="select(isSelected)"
+      class="ma-0 tree-node__checkbox"
     ></v-checkbox>
     <div class="tree-node__wrapper">
-      <v-tooltip bottom :activator="$refs.node" v-model="tooltipVisible">
+      <v-tooltip
+        bottom
+        :activator="$refs.node"
+        v-model="tooltipVisible"
+        v-if="isDisabled"
+      >
         Node is not a valid content type for addition.
       </v-tooltip>
       <div
@@ -86,6 +92,7 @@ import {
   pipe,
   range,
   toString,
+  when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContent from "@/store/DynamicContent";
@@ -103,7 +110,7 @@ import Alert from "@/mixins/ShowAlert.mixin";
   },
   computed: {
     paddingLeft(): string {
-      const PADDING = 31;
+      const PADDING = 26;
       return pipe(
         multiply(PADDING),
         toString,
@@ -143,7 +150,10 @@ export default class TreeNode extends mixins(Alert) {
   dynamicContent = DynamicContent;
   hideTooltip() {
     //@ts-ignore
-    this.tooltipVisible = false;
+    when(always(this.isDisabled), () => {
+      //@ts-ignore
+      this.tooltipVisible = false;
+    });
   }
   async loadChildren() {
     //@ts-ignore
@@ -171,7 +181,10 @@ export default class TreeNode extends mixins(Alert) {
   }
   showTooltip() {
     //@ts-ignore
-    this.tooltipVisible = this.isDisabled;
+    when(always(this.isDisabled), () => {
+      //@ts-ignore
+      this.tooltipVisible = true;
+    });
   }
   toggleChildren() {
     ifElse(
@@ -187,7 +200,7 @@ export default class TreeNode extends mixins(Alert) {
 <style lang="scss" scoped>
 .tree-node {
   padding-bottom: 18px;
-  min-height: 50px;
+  height: 50px;
   max-width: 100%;
   will-change: transform, opacity;
   display: flex;
@@ -246,10 +259,10 @@ export default class TreeNode extends mixins(Alert) {
   }
   &__connector {
     position: absolute;
-    left: -61px;
+    left: -53px;
     height: 50px;
     width: 27px;
-    top: -33px;
+    top: -16px;
     user-select: none;
     &::before {
       content: "";
@@ -259,14 +272,7 @@ export default class TreeNode extends mixins(Alert) {
       border-bottom: 1px solid #ccc;
       position: absolute;
       right: 4px;
-      top: 46px;
-      .level-active & {
-        border-bottom: 1px solid #1ab0f9;
-      }
-      .level-disabled & {
-        border-bottom: 1px dashed #ccc;
-        opacity: 0.5;
-      }
+      top: 30px;
     }
     &::after {
       content: "";
@@ -276,16 +282,6 @@ export default class TreeNode extends mixins(Alert) {
       position: absolute;
       right: 15px;
       height: 100%;
-      .drag-active & {
-        border-left: 1px dashed #1ab0f9;
-      }
-      .level-active & {
-        border-left: 1px solid #1ab0f9;
-      }
-      .level-disabled & {
-        border-left: 1px dashed #ccc;
-        opacity: 0.5;
-      }
     }
 
     .is-root & {
@@ -324,7 +320,7 @@ export default class TreeNode extends mixins(Alert) {
     display: block;
     position: absolute;
     top: -14px;
-    left: -4px;
+    left: -1px;
     width: 40px;
     height: 50px;
     user-select: none;
@@ -338,6 +334,10 @@ export default class TreeNode extends mixins(Alert) {
       pointer-events: none;
       transition: all 0.3s;
     }
+  }
+
+  &__checkbox {
+    transform: translate(7px, 9px);
   }
 }
 </style>
