@@ -16,7 +16,7 @@
       mdi-cancel
     </v-icon>
     <v-checkbox
-      v-else-if="!node.isRoot"
+      v-else
       v-model="isSelected"
       color="primary"
       @click="select(isSelected)"
@@ -254,9 +254,9 @@ export default class TreeNode extends mixins(Alert) {
   &__connector {
     position: absolute;
     left: -53px;
-    height: 50px;
+    height: 57px;
     width: 27px;
-    top: -16px;
+    top: -23px;
     user-select: none;
 
     &::before {
@@ -267,7 +267,7 @@ export default class TreeNode extends mixins(Alert) {
       border-bottom: 1px solid #ccc;
       position: absolute;
       right: 4px;
-      top: 30px;
+      top: 37px;
     }
 
     &::after {
@@ -285,7 +285,7 @@ export default class TreeNode extends mixins(Alert) {
     }
 
     .is-last & {
-      height: 30px !important;
+      height: 37px !important;
     }
   }
 

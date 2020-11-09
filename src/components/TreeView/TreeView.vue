@@ -1,5 +1,5 @@
 <template>
-  <div class="am-taxonomy-tree__wrapper">
+  <div class="ml-4 mt-4 am-taxonomy-tree__wrapper">
     <v-virtual-scroll
       class="am-taxonomy-tree__container"
       :bench="5"

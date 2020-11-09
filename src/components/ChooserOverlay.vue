@@ -1,14 +1,15 @@
 <template>
   <div>
     <v-toolbar flat dense class="tree-view">
-      <p class="text-justify">
+      <h1 class="text-left body-2 grey--text text--darken-2 mr-auto">
         Browse hierarchy and add content
-      </p>
-      <v-btn depressed text @click="store.togglePanel">
+      </h1>
+      <v-btn text small @click="store.togglePanel">
         Cancel
       </v-btn>
       <v-btn
         depressed
+        small
         :disabled="tree.selectedNodes.length === 0"
         color="primary"
         @click="add"
@@ -55,12 +56,6 @@ export default class ChooserOverlay extends Vue {
       flex: 1;
       margin: 0;
     }
-  }
-
-  .v-btn {
-    margin-left: 8px;
-    min-width: 80px;
-    text-transform: none;
   }
 }
 .chooser-overlay {
