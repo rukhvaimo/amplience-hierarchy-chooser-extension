@@ -31,7 +31,7 @@
 import Component, { mixins } from "vue-class-component";
 import { Observer } from "mobx-vue";
 
-import { compose, ifElse, isNil, not, when } from "ramda";
+import { compose, ifElse, isNil, not, pipe, when } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
@@ -56,15 +56,13 @@ export default class TreeView extends mixins(Alert) {
   }
 
   async init() {
-    const treeLoaded = ifElse(notError, this.setTree, () =>
-      this.showAlert("Could not load tree")
-    );
-
-    treeLoaded(await this.loadTree());
+    when(not, this.loadTree)(this.treeStore.treeLoaded);
   }
 
   async loadTree() {
-    return await loadTree(DynamicContentStore.getNodeId());
+    ifElse(notError, this.setTree, () => this.showAlert("Could not load tree"))(
+      await loadTree(DynamicContentStore.getNodeId())
+    );
   }
 
   setTree({
@@ -76,6 +74,7 @@ export default class TreeView extends mixins(Alert) {
   }) {
     TreeStore.setRootNode(node).setChildren(children);
     TreeStore.rootNode?.showChildren(true);
+    TreeStore.setTreeLoaded(true);
   }
 }
 </script>

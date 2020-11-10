@@ -8,6 +8,7 @@ const Tree = types
     rootNode: types.maybeNull(Node),
     selected: types.maybeNull(types.reference(Node)),
     selectedNodes: types.array(types.reference(Node)),
+    treeLoaded: types.optional(types.boolean, false),
   })
   .views((self) => ({
     get visibleNodes() {
@@ -26,6 +27,9 @@ const Tree = types
     },
     setSelectedNodes(nodes: string[]) {
       nodes.forEach((id) => self.selectedNodes.push(id));
+    },
+    setTreeLoaded(loaded: boolean) {
+      self.treeLoaded = loaded;
     },
     isSelected(nodeId: string) {
       return any(propEq("id", nodeId), self.selectedNodes);
