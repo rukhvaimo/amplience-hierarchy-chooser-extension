@@ -5,11 +5,8 @@
         <p>{{ store.title }}</p>
       </v-row>
 
-      <error-box v-if="store.error" :message="store.error.message"></error-box>
-
       <draggable
         v-model="store.listModel"
-        v-if="!store.error"
         class="row"
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
@@ -42,7 +39,6 @@ import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
-import ErrorBox from "@/components/ErrorBox.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
 import TreeStore from "@/store/Tree";
 
@@ -55,7 +51,6 @@ import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line
   components: {
     Card,
     Loading,
-    ErrorBox,
     ChooserOverlay,
     draggable,
   },
@@ -106,7 +101,6 @@ export default class App extends Vue {
 
   cancel() {
     this.store.togglePanel();
-    this.tree.clearSelectedNodes();
   }
 
   isDraggable($event: MoveEvent<HTMLElement>) {

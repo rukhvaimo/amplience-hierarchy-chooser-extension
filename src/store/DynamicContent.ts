@@ -87,7 +87,11 @@ export class Store {
       ]);
 
       this.setValue(model);
-      this.setRootNode(node);
+
+      if (node) {
+        this.setRootNode(node);
+      }
+
       this.setReadOnly(this.dcExtensionSdk.form.readOnly);
 
       this.dcExtensionSdk.frame.startAutoResizer();
@@ -127,27 +131,31 @@ export class Store {
   }
 
   async getNode() {
-    const nodeId = this.getNodeId();
+    try {
+      const nodeId = this.getNodeId();
 
-    if (!nodeId) {
-      throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
+      if (!nodeId) {
+        throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
+      }
+
+      const node = await this.dcManagementSdk.contentItems.get(nodeId);
+
+      if ((node.status as any) === "ARCHIVED") {
+        throw new Error(ERROR_TYPE.ARCHIVED);
+      }
+
+      if (!node.hierarchy) {
+        throw new Error(ERROR_TYPE.NOT_HIERARCHY);
+      }
+
+      if (!node.hierarchy?.root) {
+        throw new Error(ERROR_TYPE.NOT_ROOT);
+      }
+
+      return node;
+    } catch (err) {
+      this.setError(err);
     }
-
-    const node = await this.dcManagementSdk.contentItems.get(nodeId);
-
-    if (node.status === Status.DELETED) {
-      throw new Error(ERROR_TYPE.ARCHIVED);
-    }
-
-    if (!node.hierarchy) {
-      throw new Error(ERROR_TYPE.NOT_HIERARCHY);
-    }
-
-    if (!node.hierarchy?.root) {
-      throw new Error(ERROR_TYPE.NOT_ROOT);
-    }
-
-    return node;
   }
 
   async addItem(node: any) {

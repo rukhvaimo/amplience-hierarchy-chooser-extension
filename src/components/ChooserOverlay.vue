@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <v-toolbar flat dense class="tree-view">
+  <div class="chooser-overlay">
+    <v-toolbar flat dense class="tree-view" v-if="!store.error">
       <p class="text-left body-2 grey--text text--darken-2 mr-auto ">
         Browse hierarchy and add content...
       </p>
@@ -22,7 +22,12 @@
         </v-expand-x-transition>
       </v-btn>
     </v-toolbar>
-    <tree-view></tree-view>
+    <error-box
+      v-if="store.error"
+      :message="store.error.message"
+      @action="cancel"
+    ></error-box>
+    <tree-view v-if="!store.error"></tree-view>
     <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
@@ -35,6 +40,7 @@ import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
 import TreeView from "./TreeView/TreeView.vue";
+import ErrorBox from "@/components/ErrorBox.vue";
 import Alert from "./Alert.vue";
 
 import store from "@/store/DynamicContent";
@@ -42,7 +48,7 @@ import TreeStore from "@/store/Tree";
 
 @Observer
 @Component({
-  components: { Alert, TreeView },
+  components: { Alert, TreeView, ErrorBox },
 })
 export default class ChooserOverlay extends Vue {
   public store = store;
@@ -72,6 +78,8 @@ export default class ChooserOverlay extends Vue {
   }
 }
 .chooser-overlay {
+  height: 100%;
+
   &__alert {
     position: absolute;
     top: 8px;
