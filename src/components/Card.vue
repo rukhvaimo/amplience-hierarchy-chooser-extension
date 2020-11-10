@@ -103,6 +103,7 @@ export default class AmpCard extends Vue {
   position: absolute;
   padding: 16px 32px;
   width: 100%;
+  z-index: 2;
   display: flex;
   flex-direction: column;
 
@@ -212,8 +213,10 @@ export default class AmpCard extends Vue {
     position: absolute;
     top: 0;
     left: 0;
-    transform: translate(16px, 100px);
+    transform: translate(-50%, -50%);
     z-index: 1;
+    top: 55%;
+    left: 50%;
 
     img {
       max-height: 160px;
