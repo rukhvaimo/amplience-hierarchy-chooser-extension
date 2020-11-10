@@ -209,13 +209,13 @@ export default class AmpCard extends Vue {
   }
 
   &__image {
-    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
     position: absolute;
     top: 0;
     left: 0;
     transform: translate(-50%, -50%);
     z-index: 1;
-    top: 55%;
+    top: 50%;
     left: 50%;
 
     img {
