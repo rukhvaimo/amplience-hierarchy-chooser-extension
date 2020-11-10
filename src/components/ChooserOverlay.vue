@@ -1,9 +1,11 @@
 <template>
   <div class="chooser-overlay">
     <v-toolbar flat dense class="tree-view" v-if="!store.error">
-      <p class="truncate text-left body-2 grey--text text--darken-2 mr-auto ">
-        Browse hierarchy and add content...
-      </p>
+      <h1
+        class="text-truncate text-left body-2 grey--text text--darken-2 mr-auto"
+      >
+        Browse hierarchy and add content&hellip;
+      </h1>
       <v-btn depressed text @click="cancel" class="text-capitalize">
         Cancel
       </v-btn>
@@ -67,23 +69,6 @@ export default class ChooserOverlay extends Vue {
 </script>
 
 <style lang="scss">
-.tree-view {
-  .v-toolbar__content {
-    display: flex;
-
-    p {
-      flex: 1;
-      margin: 0;
-    }
-  }
-}
-
-.truncate {
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  overflow: hidden;
-  display: block;
-}
 .chooser-overlay {
   height: 100%;
 
