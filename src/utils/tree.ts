@@ -5,11 +5,14 @@ import {
   always,
   apply,
   compose,
+  concat,
   curry,
   equals,
   flatten,
+  head,
   ifElse,
   isEmpty,
+  juxt,
   last,
   not,
   path,
@@ -20,11 +23,17 @@ import {
   toString,
   when,
   multiply,
-  concat,
+  prepend,
+  until,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
-import { tryCatch } from "./helpers";
+import { toList, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
+
+//@ts-ignore
+const addParent = (nodes) =>
+  //@ts-ignore
+  pipe(head, getNodeParent, prepend(__, nodes))(nodes);
 
 const extractVisibleNodes = pipe<any[]>(
   prop<any>("children"),
@@ -119,3 +128,5 @@ export const hasChildren = pipe(prop("children"), isEmpty, not);
 
 const PADDING = 26;
 export const getPadding = pipe(multiply(PADDING), toString, concat(__, "px"));
+
+export const getNodePath = pipe(toList, until(pipe(head, isRoot), addParent));

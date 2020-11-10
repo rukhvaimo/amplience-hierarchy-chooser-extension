@@ -1,4 +1,14 @@
-import { compose, curry, equals, not, pipe, type, when } from "ramda";
+import {
+  compose,
+  curry,
+  equals,
+  identity,
+  not,
+  pipe,
+  type,
+  unapply,
+  when,
+} from "ramda";
 
 export const tryCatch = curry(
   async (left: Function, right: Function, body: any) => {
@@ -16,3 +26,5 @@ export const isError = pipe(type, equals("Error"));
 export const whenError = when(isError);
 
 export const notError = compose(not, isError);
+
+export const toList = unapply(identity);

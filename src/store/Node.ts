@@ -13,6 +13,7 @@ import {
   getChildren,
   getNestingLevel,
   getNodeParent,
+  getNodePath,
   getVisibleNodes,
   isLast,
 } from "@/utils/tree";
@@ -25,6 +26,7 @@ export const Node = types
     hasChildren: types.optional(types.boolean, false),
     id: types.optional(types.identifier, ""),
     label: types.optional(types.string, ""),
+    parentId: types.maybeNull(types.string),
     publishingStatus: types.optional(
       types.enumeration(["NONE", "LATEST", "EARLY"]),
       "NONE"
@@ -44,6 +46,10 @@ export const Node = types
     get parent() {
       //@ts-ignore
       return getNodeParent(this);
+    },
+    get path() {
+      //@ts-ignore
+      return getNodePath(self);
     },
     get visibleNodes() {
       return getVisibleNodes(self);

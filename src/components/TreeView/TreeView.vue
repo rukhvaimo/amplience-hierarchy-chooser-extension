@@ -31,7 +31,7 @@
 import Component, { mixins } from "vue-class-component";
 import { Observer } from "mobx-vue";
 
-import { compose, ifElse, isNil, not, pipe, when } from "ramda";
+import { compose, ifElse, isNil, not, when } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";

@@ -73,6 +73,7 @@
         v-if="showStatusIcon"
       ></status-icon>
     </div>
+
     <div
       v-for="level in nestingLevels"
       :key="level"
@@ -95,7 +96,12 @@ import {
   ifElse,
   includes,
   not,
+  nth,
+  pipe,
+  propEq,
   range,
+  reject,
+  subtract,
   when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
@@ -135,8 +141,14 @@ import StatusIcon from "./StatusIcon.vue";
     },
     nestingLevels(): number[] {
       //@ts-ignore
-      return range(0, this.node.nestingLevel - 1);
-      // return pipe(range(0), filter())
+      const isLast = pipe(nth(__, this.node.path), propEq("isLast", true));
+
+      return pipe(
+        range(0),
+        //@ts-ignore
+        reject(isLast)
+        //@ts-ignore
+      )(this.node.nestingLevel);
     },
     showStatusIcon() {
       //@ts-ignore
@@ -158,7 +170,7 @@ export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
   dynamicContent = DynamicContent;
   getPadding(nestingLevel: number) {
-    return getPadding(nestingLevel);
+    return pipe(subtract(__, 1), getPadding)(nestingLevel);
   }
   hideTooltip() {
     //@ts-ignore
