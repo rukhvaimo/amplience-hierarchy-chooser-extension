@@ -2,7 +2,7 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem, Status } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path, pipe, map, reject, isNil, flatten, clone } from "ramda";
+import { path, pipe, map, reject, isNil, flatten, clone, equals } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
@@ -112,13 +112,18 @@ export class Store {
   }
 
   async updateList(model: Array<CardModel>) {
-    this.setValue(
-      model.map(
-        (value, index) => new CardModel(value.contentItem, index, value.path)
-      )
+    const updated = model.map(
+      (value, index) => new CardModel(value.contentItem, index, value.path)
     );
+    const value = this.exportModel();
 
-    await this.dcExtensionSdk.field.setValue(this.exportModel());
+    this.setValue(updated);
+
+    if (equals(value, await this.dcExtensionSdk.field.getValue())) {
+      return;
+    }
+
+    await this.dcExtensionSdk.field.setValue(value);
   }
 
   async getNode() {

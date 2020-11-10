@@ -1,23 +1,23 @@
 <template>
   <div>
     <v-toolbar flat dense class="tree-view">
-      <h1 class="text-left body-2 grey--text text--darken-2 mr-auto">
-        Browse hierarchy and add content
-      </h1>
-      <v-btn text small @click="cancel">
+      <p class="text-left body-2 grey--text text--darken-2 mr-auto ">
+        Browse hierarchy and add content...
+      </p>
+      <v-btn depressed text @click="store.togglePanel" class="text-capitalize">
         Cancel
       </v-btn>
       <v-btn
         depressed
-        small
+        class="text-capitalize"
         :disabled="!tree.selectedNodes.length"
         color="primary"
         @click="add"
       >
         Add
         <v-expand-x-transition>
-          <span v-if="tree.selectedNodes.length">
-            ({{ tree.selectedNodes.length }})
+          <span v-if="tree.selectedNodes.length > 0">
+            {{ " " }} ({{ tree.selectedNodes.length }})
           </span>
         </v-expand-x-transition>
       </v-btn>

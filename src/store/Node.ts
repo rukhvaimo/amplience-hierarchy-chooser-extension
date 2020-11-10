@@ -65,7 +65,6 @@ export const Node = types
     toJSON() {
       return {
         id: self.id,
-        label: self.label,
         contentType: self.contentTypeUri,
       };
     },
