@@ -5,11 +5,8 @@
         <p>{{ store.title }}</p>
       </v-row>
 
-      <error-box v-if="store.error" :message="store.error.message"></error-box>
-
       <draggable
         v-model="store.listModel"
-        v-if="!store.error"
         class="row"
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
@@ -27,7 +24,7 @@
         @input="onPanelChange"
         width="95vw"
       >
-        <chooser-overlay v-if="store.panelOpen" @add="add" />
+        <chooser-overlay v-if="store.panelOpen" @add="add" @cancel="cancel" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
@@ -42,20 +39,18 @@ import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
 import Loading from "@/components/Loading.vue";
-import ErrorBox from "@/components/ErrorBox.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
 import TreeStore from "@/store/Tree";
 
 import store from "@/store/DynamicContent";
 
-import { CardModel } from "./store/CardModel"; // eslint-disable-line no-unused-vars
+import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
   components: {
     Card,
     Loading,
-    ErrorBox,
     ChooserOverlay,
     draggable,
   },
@@ -84,18 +79,27 @@ export default class App extends Vue {
 
   async add() {
     const nodes = this.tree.selectedNodes;
-    const value = nodes.map((node) => node.toJSON());
+    const oldValues = this.store.model.map((node) => node.toJSON());
+    const newValues = nodes.map((node) => node.toJSON());
 
     if (!nodes.length) {
       return this.store.togglePanel();
     }
 
-    const model = await store.createModel(value);
+    const updatedValue = [oldValues, newValues]
+      .flat()
+      .filter((item) => !(item as EmptyItem)._empty);
+
+    const model = await store.createModel(updatedValue);
 
     await this.store.updateList(model);
 
     this.originalModel = clone(this.store.model);
 
+    this.store.togglePanel();
+  }
+
+  cancel() {
     this.store.togglePanel();
   }
 

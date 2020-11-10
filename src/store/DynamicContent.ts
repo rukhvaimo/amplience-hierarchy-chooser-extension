@@ -2,7 +2,7 @@ import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem, Status } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path, pipe, map, reject, isNil, flatten, clone } from "ramda";
+import { path, pipe, map, reject, isNil, flatten, clone, equals } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
@@ -87,7 +87,11 @@ export class Store {
       ]);
 
       this.setValue(model);
-      this.setRootNode(node);
+
+      if (node) {
+        this.setRootNode(node);
+      }
+
       this.setReadOnly(this.dcExtensionSdk.form.readOnly);
 
       this.dcExtensionSdk.frame.startAutoResizer();
@@ -112,37 +116,46 @@ export class Store {
   }
 
   async updateList(model: Array<CardModel>) {
-    this.setValue(
-      model.map(
-        (value, index) => new CardModel(value.contentItem, index, value.path)
-      )
+    const updated = model.map(
+      (value, index) => new CardModel(value.contentItem, index, value.path)
     );
+    const value = this.exportModel();
 
-    await this.dcExtensionSdk.field.setValue(this.exportModel());
+    this.setValue(updated);
+
+    if (equals(value, await this.dcExtensionSdk.field.getValue())) {
+      return;
+    }
+
+    await this.dcExtensionSdk.field.setValue(value);
   }
 
   async getNode() {
-    const nodeId = this.getNodeId();
+    try {
+      const nodeId = this.getNodeId();
 
-    if (!nodeId) {
-      throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
+      if (!nodeId) {
+        throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
+      }
+
+      const node = await this.dcManagementSdk.contentItems.get(nodeId);
+
+      if ((node.status as any) === "ARCHIVED") {
+        throw new Error(ERROR_TYPE.ARCHIVED);
+      }
+
+      if (!node.hierarchy) {
+        throw new Error(ERROR_TYPE.NOT_HIERARCHY);
+      }
+
+      if (!node.hierarchy?.root) {
+        throw new Error(ERROR_TYPE.NOT_ROOT);
+      }
+
+      return node;
+    } catch (err) {
+      this.setError(err);
     }
-
-    const node = await this.dcManagementSdk.contentItems.get(nodeId);
-
-    if (node.status === Status.DELETED) {
-      throw new Error(ERROR_TYPE.ARCHIVED);
-    }
-
-    if (!node.hierarchy) {
-      throw new Error(ERROR_TYPE.NOT_HIERARCHY);
-    }
-
-    if (!node.hierarchy?.root) {
-      throw new Error(ERROR_TYPE.NOT_ROOT);
-    }
-
-    return node;
   }
 
   async addItem(node: any) {
@@ -251,10 +264,12 @@ export class Store {
     return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 
-  getItemRef(): string | undefined {
-    return path(
-      ["field", "schema", "items", "allOf", 0, "$ref"],
-      this.dcExtensionSdk
+  getItemRef(): string {
+    return (
+      path(
+        ["field", "schema", "items", "allOf", 0, "$ref"],
+        this.dcExtensionSdk
+      ) || ""
     );
   }
 }

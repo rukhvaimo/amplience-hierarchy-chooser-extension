@@ -13,7 +13,7 @@
 
     <div class="card__scale">
       <div class="txt-container" v-if="isEdit">
-        <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
+        <h3 ng-if="value.contentItem.label">{{ label }}</h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
 
@@ -51,9 +51,10 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { Component, Prop, Vue } from "vue-property-decorator";
+import { Component, Prop, Vue, Watch } from "vue-property-decorator";
 
 import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
+import { ContentItemModel } from "@/store/FieldModel"; // eslint-disable-line no-unused-vars
 
 import Visualization from "@/components/Visualization.vue";
 import Breadcrumbs from "@/components/Breadcrumbs.vue";
@@ -69,11 +70,23 @@ import store from "@/store/DynamicContent";
 })
 export default class AmpCard extends Vue {
   public store = store;
+  public label: string = "";
 
   @Prop(Object) value!: CardModel;
 
   get isEdit() {
     return !this.value.isEmpty();
+  }
+
+  @Watch("value.contentItem", { immediate: true })
+  async fetchLabel() {
+    if (this.isEdit) {
+      const { label } = await this.store.dcManagementSdk.contentItems.get(
+        (this.value.contentItem as ContentItemModel).id
+      );
+
+      this.label = label;
+    }
   }
 }
 </script>
@@ -90,6 +103,18 @@ export default class AmpCard extends Vue {
   position: absolute;
   padding: 16px 32px;
   width: 100%;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+
+  h3 {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    display: block;
+    min-width: 0;
+    float: left;
+  }
 }
 
 .theme--light {
@@ -184,12 +209,14 @@ export default class AmpCard extends Vue {
   }
 
   &__image {
-    width: calc(100% - 32px);
+    max-width: calc(100% - 32px);
     position: absolute;
     top: 0;
     left: 0;
-    transform: translate(16px, 100px);
+    transform: translate(-50%, -50%);
     z-index: 1;
+    top: 50%;
+    left: 50%;
 
     img {
       max-height: 160px;

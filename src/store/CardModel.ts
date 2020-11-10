@@ -9,7 +9,7 @@ export class CardModel {
   ACTIONS = {
     EXISTING: [
       {
-        label: "remove",
+        label: "Remove",
         icon: "mdi-delete-outline",
         action: () => {
           store.removeItem(this.contentItem);
@@ -18,7 +18,7 @@ export class CardModel {
     ],
     NEW: [
       {
-        label: "add",
+        label: "Add",
         icon: "mdi-plus",
         action: () => {
           store.togglePanel();
@@ -49,16 +49,15 @@ export class CardModel {
     return (this.contentItem as EmptyItem)._empty;
   }
 
-  toJSON() {
+  toJSON(): EmptyItem | ContentItemModel {
     if (this.isEmpty()) {
       return this.contentItem;
     }
 
-    const { id, label, contentType } = this.contentItem as ContentItemModel;
+    const { id, contentType } = this.contentItem as ContentItemModel;
 
     return {
       id,
-      label,
       contentType: contentType,
       _meta: {
         schema: store.getItemRef(),

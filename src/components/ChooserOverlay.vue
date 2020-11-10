@@ -1,28 +1,33 @@
 <template>
-  <div>
-    <v-toolbar flat dense class="tree-view">
-      <h1 class="text-left body-2 grey--text text--darken-2 mr-auto">
-        Browse hierarchy and add content
-      </h1>
-      <v-btn text small @click="cancel">
+  <div class="chooser-overlay">
+    <v-toolbar flat dense class="tree-view" v-if="!store.error">
+      <p class="truncate text-left body-2 grey--text text--darken-2 mr-auto ">
+        Browse hierarchy and add content...
+      </p>
+      <v-btn depressed text @click="cancel" class="text-capitalize">
         Cancel
       </v-btn>
       <v-btn
         depressed
-        small
+        class="text-capitalize"
         :disabled="!tree.selectedNodes.length"
         color="primary"
         @click="add"
       >
         Add
         <v-expand-x-transition>
-          <span v-if="tree.selectedNodes.length">
-            ({{ tree.selectedNodes.length }})
+          <span v-if="tree.selectedNodes.length > 0">
+            {{ " " }} ({{ tree.selectedNodes.length }})
           </span>
         </v-expand-x-transition>
       </v-btn>
     </v-toolbar>
-    <tree-view></tree-view>
+    <error-box
+      v-if="store.error"
+      :message="store.error.message"
+      @action="cancel"
+    ></error-box>
+    <tree-view v-if="!store.error"></tree-view>
     <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
@@ -30,11 +35,12 @@
 <script lang="ts">
 import { Observer } from "mobx-vue";
 import { getSnapshot } from "mobx-state-tree";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Emit, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
 import TreeView from "./TreeView/TreeView.vue";
+import ErrorBox from "@/components/ErrorBox.vue";
 import Alert from "./Alert.vue";
 
 import store from "@/store/DynamicContent";
@@ -42,17 +48,20 @@ import TreeStore from "@/store/Tree";
 
 @Observer
 @Component({
-  components: { Alert, TreeView },
+  components: { Alert, TreeView, ErrorBox },
 })
 export default class ChooserOverlay extends Vue {
   public store = store;
   public tree = TreeStore;
+
+  @Emit("add")
   add() {
-    this.$emit("add", getSnapshot(this.tree.selectedNodes));
+    return getSnapshot(this.tree.selectedNodes);
   }
 
-  cancel() {
-    this.store.togglePanel();
+  @Emit("cancel")
+  cancel(e: Event) {
+    return e;
   }
 }
 </script>
@@ -68,7 +77,16 @@ export default class ChooserOverlay extends Vue {
     }
   }
 }
+
+.truncate {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  display: block;
+}
 .chooser-overlay {
+  height: 100%;
+
   &__alert {
     position: absolute;
     top: 8px;

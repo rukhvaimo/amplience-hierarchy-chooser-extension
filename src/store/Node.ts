@@ -17,6 +17,7 @@ import {
   getVisibleNodes,
   isLast,
 } from "@/utils/tree";
+import { ContentItemModel } from "./FieldModel";
 
 export const Node = types
   .model({
@@ -68,10 +69,9 @@ export const Node = types
     showChildren(visible: boolean) {
       self.childrenVisible = visible;
     },
-    toJSON() {
+    toJSON(): ContentItemModel {
       return {
         id: self.id,
-        label: self.label,
         contentType: self.contentTypeUri,
       };
     },
