@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-sheet class="app" :class="{ 'is-readonly': store.isReadOnly }">
-      <v-row class="title-row">
+      <v-row class="px-3">
         <p>{{ store.title }}</p>
       </v-row>
 
@@ -113,20 +113,11 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
-.app {
-  font-family: "Roboto", sans-serif;
-  text-align: center;
-  color: #2c3e50;
-  padding: 16px;
-  height: 100%;
-}
-
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
 }
-
-.title-row {
-  padding: 0 12px;
+.v-btn {
+  letter-spacing: normal;
 }
 </style>

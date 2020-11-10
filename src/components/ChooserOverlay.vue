@@ -1,19 +1,25 @@
 <template>
   <div class="chooser-overlay">
-    <v-toolbar flat dense class="tree-view" v-if="!store.error">
+    <div v-if="!store.error" class="d-flex align-center pl-6">
       <h1
         class="text-truncate text-left body-2 grey--text text--darken-2 mr-auto"
       >
         Browse hierarchy and add content&hellip;
       </h1>
-      <v-btn depressed text @click="cancel" class="text-capitalize">
+      <v-btn
+        text
+        @click="cancel"
+        class="text-capitalize font-weight-regular"
+        height="30"
+      >
         Cancel
       </v-btn>
       <v-btn
         depressed
-        class="text-capitalize"
+        class="text-capitalize font-weight-regular"
         :disabled="!tree.selectedNodes.length"
         color="primary"
+        height="30"
         @click="add"
       >
         Add
@@ -23,7 +29,7 @@
           </span>
         </v-expand-x-transition>
       </v-btn>
-    </v-toolbar>
+    </div>
     <error-box
       v-if="store.error"
       :message="store.error.message"
