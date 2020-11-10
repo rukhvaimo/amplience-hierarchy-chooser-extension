@@ -49,7 +49,7 @@ export class CardModel {
     return (this.contentItem as EmptyItem)._empty;
   }
 
-  toJSON() {
+  toJSON(): EmptyItem | ContentItemModel {
     if (this.isEmpty()) {
       return this.contentItem;
     }

@@ -27,7 +27,7 @@
         @input="onPanelChange"
         width="95vw"
       >
-        <chooser-overlay v-if="store.panelOpen" @add="add" />
+        <chooser-overlay v-if="store.panelOpen" @add="add" @cancel="cancel" />
       </v-navigation-drawer>
     </v-sheet>
   </v-app>
@@ -48,7 +48,7 @@ import TreeStore from "@/store/Tree";
 
 import store from "@/store/DynamicContent";
 
-import { CardModel } from "./store/CardModel"; // eslint-disable-line no-unused-vars
+import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
@@ -84,19 +84,29 @@ export default class App extends Vue {
 
   async add() {
     const nodes = this.tree.selectedNodes;
-    const value = nodes.map((node) => node.toJSON());
+    const oldValues = this.store.model.map((node) => node.toJSON());
+    const newValues = nodes.map((node) => node.toJSON());
 
     if (!nodes.length) {
       return this.store.togglePanel();
     }
 
-    const model = await store.createModel(value);
+    const updatedValue = [oldValues, newValues]
+      .flat()
+      .filter((item) => !(item as EmptyItem)._empty);
+
+    const model = await store.createModel(updatedValue);
 
     await this.store.updateList(model);
 
     this.originalModel = clone(this.store.model);
 
     this.store.togglePanel();
+  }
+
+  cancel() {
+    this.store.togglePanel();
+    this.tree.clearSelectedNodes();
   }
 
   isDraggable($event: MoveEvent<HTMLElement>) {

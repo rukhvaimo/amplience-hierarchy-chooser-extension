@@ -256,10 +256,12 @@ export class Store {
     return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 
-  getItemRef(): string | undefined {
-    return path(
-      ["field", "schema", "items", "allOf", 0, "$ref"],
-      this.dcExtensionSdk
+  getItemRef(): string {
+    return (
+      path(
+        ["field", "schema", "items", "allOf", 0, "$ref"],
+        this.dcExtensionSdk
+      ) || ""
     );
   }
 }

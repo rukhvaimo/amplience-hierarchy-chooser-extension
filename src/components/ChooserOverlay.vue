@@ -4,7 +4,7 @@
       <p class="text-left body-2 grey--text text--darken-2 mr-auto ">
         Browse hierarchy and add content...
       </p>
-      <v-btn depressed text @click="store.togglePanel" class="text-capitalize">
+      <v-btn depressed text @click="cancel" class="text-capitalize">
         Cancel
       </v-btn>
       <v-btn
@@ -30,7 +30,7 @@
 <script lang="ts">
 import { Observer } from "mobx-vue";
 import { getSnapshot } from "mobx-state-tree";
-import { Component, Vue } from "vue-property-decorator";
+import { Component, Emit, Vue } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
@@ -47,12 +47,15 @@ import TreeStore from "@/store/Tree";
 export default class ChooserOverlay extends Vue {
   public store = store;
   public tree = TreeStore;
+
+  @Emit("add")
   add() {
-    this.$emit("add", getSnapshot(this.tree.selectedNodes));
+    return getSnapshot(this.tree.selectedNodes);
   }
 
-  cancel() {
-    this.store.togglePanel();
+  @Emit("cancel")
+  cancel(e: Event) {
+    return e;
   }
 }
 </script>
