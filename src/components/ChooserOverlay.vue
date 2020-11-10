@@ -16,8 +16,8 @@
       >
         Add
         <v-expand-x-transition>
-          <span v-if="tree.selectedNodes.length > 0">
-            {{ " " }} ({{ tree.selectedNodes.length }})
+          <span v-if="tree.selectedNodes.length" class="ml-1">
+            ({{ tree.selectedNodes.length }})
           </span>
         </v-expand-x-transition>
       </v-btn>
