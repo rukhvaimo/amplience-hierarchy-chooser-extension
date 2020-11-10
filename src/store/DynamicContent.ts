@@ -1,8 +1,19 @@
 import { SDK, init, Params } from "dc-extensions-sdk";
-import { DynamicContent, ContentItem, Status } from "dc-management-sdk-js";
+import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
-import { path, pipe, map, reject, isNil, flatten, clone, equals } from "ramda";
+import {
+  always,
+  path,
+  pipe,
+  map,
+  reject,
+  invoker,
+  isNil,
+  flatten,
+  equals,
+  ifElse,
+} from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
@@ -271,6 +282,18 @@ export class Store {
         this.dcExtensionSdk
       ) || ""
     );
+  }
+
+  setComponentHeight(height: number): void {
+    this.dcExtensionSdk.frame.setHeight(height);
+  }
+
+  autoSizeComponent(shouldAutosize: boolean): void {
+    ifElse(
+      always(shouldAutosize),
+      invoker(0, "startAutoResizer"),
+      invoker(0, "stopAutoResizer")
+    )(this.dcExtensionSdk.frame);
   }
 }
 

@@ -70,8 +70,12 @@ export default class App extends Vue {
 
   onPanelChange(open: Boolean) {
     if (open) {
+      const OVERLAY_HEIGHT = 500;
+      this.store.autoSizeComponent(false);
+      this.store.setComponentHeight(OVERLAY_HEIGHT);
       this.originalModel = clone(this.store.model);
     } else {
+      this.store.autoSizeComponent(true);
       this.store.updateList(this.originalModel);
     }
     this.tree.clearSelectedNodes();
