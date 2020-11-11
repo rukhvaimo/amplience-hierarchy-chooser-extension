@@ -103,7 +103,6 @@ import {
   reject,
   subtract,
   unless,
-  when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContent from "@/store/DynamicContent";

@@ -82,8 +82,8 @@ export default class ChooserOverlay extends Mixins(ShowAlert) {
     return e;
   }
 
-  checkLength(length: number) {
-    //selected > remainingitems
+  checkLength() {
+    // selected > remainingitems
     // when(gt(this.store.maxItems), () =>
     //   this.showAlert("Maximum number of content items has been reached")
     // )(length);
