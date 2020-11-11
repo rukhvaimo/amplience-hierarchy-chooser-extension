@@ -1,6 +1,7 @@
 <template>
   <v-card
     elevation="2"
+    :disabled="isDisabled"
     :class="{
       'is-last': store.isLast(value),
       'is-edit': isEdit,
@@ -76,6 +77,10 @@ export default class AmpCard extends Vue {
 
   get isEdit() {
     return !this.value.isEmpty();
+  }
+
+  get isDisabled() {
+    return this.value.index === this.store.maxItems;
   }
 
   @Watch("value.contentItem", { immediate: true })
@@ -236,6 +241,12 @@ export default class AmpCard extends Vue {
     vertical-align: middle;
     color: rgba(221, 221, 221, 0.5);
     z-index: 2;
+  }
+}
+
+@media (max-width: 320px) {
+  .card__image {
+    top: 55%;
   }
 }
 </style>

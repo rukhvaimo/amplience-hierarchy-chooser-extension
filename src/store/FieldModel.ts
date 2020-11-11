@@ -27,7 +27,7 @@ export class FieldModel {
         return new CardModel(value, index, path);
       }
 
-      return new CardModel(value, index);
+      return new CardModel(value || CardModel.createEmptyItem(), index);
     };
 
     const createModel = async () => {
@@ -50,7 +50,7 @@ export class FieldModel {
 
     const model = await createModel();
 
-    if (!maxItems || maxItems > model.length || !model.length) {
+    if (!maxItems || maxItems >= model.length || !model.length) {
       model.push(new CardModel(CardModel.createEmptyItem(), model.length));
     }
 
