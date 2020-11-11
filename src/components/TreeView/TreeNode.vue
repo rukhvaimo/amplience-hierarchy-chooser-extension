@@ -9,7 +9,7 @@
       'is-root': node.isRoot,
       'is-last': node.isLast,
       'is-selected': isSelected,
-      'is-disabled': isDisabled,
+      'is-disabled': isDisabled || preventSelection,
       'has-children': node.hasChildren,
     }"
   >
@@ -22,6 +22,7 @@
       color="primary"
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
+      :disabled="preventSelection"
     ></v-checkbox>
     <v-tooltip
       bottom
@@ -87,14 +88,19 @@
 
 <script lang="ts">
 import Component, { mixins } from "vue-class-component";
+import { reaction } from "mobx";
 import { Observer } from "mobx-vue";
 import {
   __,
   always,
+  and,
   compose,
+  forEach,
+  gte,
   equals,
   ifElse,
   includes,
+  length,
   not,
   nth,
   pipe,
@@ -103,7 +109,6 @@ import {
   reject,
   subtract,
   unless,
-  when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContent from "@/store/DynamicContent";
@@ -151,6 +156,10 @@ import StatusIcon from "./StatusIcon.vue";
         //@ts-ignore
       )(this.node.nestingLevel);
     },
+    selected() {
+      //@ts-ignore
+      return this.treeStore.selectedNodes;
+    },
     showStatusIcon() {
       //@ts-ignore
       return not(equals(this.node.publishingStatus, "NONE"));
@@ -160,16 +169,46 @@ import StatusIcon from "./StatusIcon.vue";
     allowedTypes: [],
     isSelected: false,
     loadingChildren: false,
+    preventSelection: false,
     tooltipVisible: false,
+    watchers: [],
   }),
   created() {
     //@ts-ignore
     this.isSelected = this.treeStore.isSelected(this.node.id);
+    //@ts-ignore
+    this.watchers = [
+      reaction(
+        //@ts-ignore
+        () => this.treeStore.selectedNodes.length,
+        () => {
+          //@ts-ignore
+          this.preventSelection = and(
+            //@ts-ignore
+            not(this.isSelected),
+            //@ts-ignore
+            pipe(
+              //@ts-ignore
+              length,
+              //@ts-ignore
+              gte(__, this.dynamicContent.remainingItems)
+              //@ts-ignore
+            )(this.treeStore.selectedNodes)
+          );
+        },
+        { fireImmediately: true }
+      ),
+    ];
+  },
+  destroyed() {
+    //@ts-ignore
+    forEach((watcher) => watcher(), this.watchers);
   },
 })
 export default class TreeNode extends mixins(Alert) {
   treeStore = TreeStore;
   dynamicContent = DynamicContent;
+
   getPadding(nestingLevel: number) {
     return pipe(subtract(__, 1), getPadding)(nestingLevel);
   }
@@ -184,7 +223,7 @@ export default class TreeNode extends mixins(Alert) {
     ifElse(
       notError,
       this.toggleChildren,
-      compose(this.showAlert, always("Could not load children"))
+      () => this.showAlert("Could not load children")
       //@ts-ignore
     )(await this.node.loadChildren());
 

@@ -4,15 +4,19 @@ import { action, computed, observable } from "mobx";
 
 import {
   always,
-  path,
-  pipe,
-  map,
-  reject,
-  invoker,
-  isNil,
-  flatten,
   equals,
+  flatten,
   ifElse,
+  invoker,
+  is,
+  isNil,
+  length,
+  map,
+  path,
+  pathEq,
+  pipe,
+  reject,
+  subtract,
 } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
@@ -54,6 +58,12 @@ export class Store {
 
   @computed get minItems(): number {
     return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
+  }
+
+  @computed get remainingItems(): number {
+    const isEmpty = pathEq(["contentItem", "_empty"], true);
+    //@ts-ignore
+    return pipe(reject(isEmpty), length, subtract(this.maxItems))(this.model);
   }
 
   @computed get title(): string {

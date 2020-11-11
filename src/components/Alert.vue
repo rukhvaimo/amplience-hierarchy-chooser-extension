@@ -2,16 +2,16 @@
   <v-alert
     dark
     close-text="Close"
-    icon="mdi-alert-outline"
+    icon="mdi-alert"
     transition="fade-transition"
     v-model="global.alertVisible"
   >
-    <div class="d-flex">
-      <div class="mr-4">
+    <div class="d-flex align-center">
+      <div class="mr-4 body-2">
         {{ global.alertText }}
       </div>
       <v-btn small icon @click="global.showAlert(false)" class="ml-auto">
-        <v-icon>mdi-close-circle</v-icon>
+        <v-icon small>mdi-close</v-icon>
       </v-btn>
     </div>
   </v-alert>

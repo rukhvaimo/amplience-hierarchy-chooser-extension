@@ -10,25 +10,26 @@ import {
   equals,
   flatten,
   head,
+  identity,
   ifElse,
   isEmpty,
-  juxt,
   last,
+  multiply,
   not,
   path,
   pipe,
+  prepend,
   prop,
   propEq,
   reduce,
   toString,
-  when,
-  multiply,
-  prepend,
   until,
+  when,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
 import { toList, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
+import Tree from "@/store/Tree";
 
 //@ts-ignore
 const addParent = (nodes) =>
@@ -67,7 +68,7 @@ const isLastChild = (node: any) => equals(getLastChildId(node), node.id);
  */
 export const getNodes = tryCatch(
   (id: string) => Store.dcManagementSdk.hierarchies.children.get(id),
-  always
+  identity
 );
 
 /**

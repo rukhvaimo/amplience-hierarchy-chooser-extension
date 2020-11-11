@@ -6,7 +6,7 @@
         :bench="5"
         :items="treeStore.visibleNodes"
         :item-height="50"
-        :height="400"
+        :height="445"
         v-if="treeStore.visibleNodes.length"
       >
         <template v-slot:default="{ item }">
@@ -31,7 +31,7 @@
 import Component, { mixins } from "vue-class-component";
 import { Observer } from "mobx-vue";
 
-import { compose, ifElse, isNil, not, when } from "ramda";
+import { complement, equals, ifElse, isNil, when } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
@@ -42,7 +42,7 @@ import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
 // eslint-disable-next-line no-unused-vars
 import { ContentItemModel } from "@/store/FieldModel";
 
-const loadTree: any = when(compose(not, isNil), TreeStore.loadTree);
+const loadTree: any = when(complement(isNil), TreeStore.loadTree);
 
 @Observer
 @Component({
@@ -56,7 +56,7 @@ export default class TreeView extends mixins(Alert) {
   }
 
   async init() {
-    when(not, this.loadTree)(this.treeStore.treeLoaded);
+    when(equals(false), this.loadTree)(this.treeStore.treeLoaded);
   }
 
   async loadTree() {

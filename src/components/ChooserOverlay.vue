@@ -17,7 +17,7 @@
       <v-btn
         depressed
         class="text-capitalize font-weight-regular"
-        :disabled="!tree.selectedNodes.length"
+        :disabled="!tree.selectedNodes.length || tree.treeDisabled"
         color="primary"
         height="30"
         @click="add"
@@ -55,6 +55,7 @@ import ShowAlert from "@/mixins/ShowAlert.mixin";
 
 import store from "@/store/DynamicContent";
 import TreeStore from "@/store/Tree";
+import { ifElse, lte } from "ramda";
 
 @Observer
 @Component({
@@ -83,10 +84,14 @@ export default class ChooserOverlay extends Mixins(ShowAlert) {
   }
 
   checkLength(length: number) {
-    //selected > remainingitems
-    // when(gt(this.store.maxItems), () =>
-    //   this.showAlert("Maximum number of content items has been reached")
-    // )(length);
+    ifElse(
+      lte(this.store.remainingItems),
+      () => {
+        this.showAlert("Maximum number of content items has been reached");
+        this.tree.disableTree();
+      },
+      this.tree.enableTree
+    )(length);
   }
 }
 </script>
