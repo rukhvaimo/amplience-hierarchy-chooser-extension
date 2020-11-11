@@ -130,9 +130,9 @@ export class Store {
     const updated = model.map(
       (value, index) => new CardModel(value.contentItem, index, value.path)
     );
-    const value = this.exportModel();
-
     this.setValue(updated);
+
+    const value = this.exportModel();
 
     if (equals(value, await this.dcExtensionSdk.field.getValue())) {
       return;
