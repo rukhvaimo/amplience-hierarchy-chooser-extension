@@ -15,7 +15,7 @@
 import { prop } from "ramda";
 import Vue from "vue";
 import Component from "vue-class-component";
-import { ARCHIVED, EARLIER, LATEST } from "@/assets/icons";
+import { ARCHIVED, EARLY, LATEST } from "@/assets/icons";
 
 @Component({
   props: {
@@ -34,11 +34,11 @@ import { ARCHIVED, EARLIER, LATEST } from "@/assets/icons";
   data: () => ({
     statuses: {
       ARCHIVED,
-      EARLIER,
+      EARLY,
       LATEST,
     },
     tooltips: {
-      EARLIER: "Published (earlier)",
+      EARLY: "Published (early)",
       LATEST: "Published (latest)",
     },
   }),
