@@ -1,6 +1,6 @@
 <template>
   <div class="chooser-overlay">
-    <div v-if="!store.error" class="d-flex align-center pl-6">
+    <div v-if="!store.error" class="d-flex align-center px-6 pt-3">
       <h1
         class="text-truncate text-left body-2 grey--text text--darken-2 mr-auto"
       >
@@ -42,14 +42,16 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
+import { reaction } from "mobx";
 import { getSnapshot } from "mobx-state-tree";
-import { Component, Emit, Vue } from "vue-property-decorator";
+import { Component, Emit, Mixins } from "vue-property-decorator";
 import { ContentItemModel } from "dc-extensions-sdk"; // eslint-disable-line no-unused-vars
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 
 import TreeView from "./TreeView/TreeView.vue";
 import ErrorBox from "@/components/ErrorBox.vue";
 import Alert from "./Alert.vue";
+import ShowAlert from "@/mixins/ShowAlert.mixin";
 
 import store from "@/store/DynamicContent";
 import TreeStore from "@/store/Tree";
@@ -58,9 +60,17 @@ import TreeStore from "@/store/Tree";
 @Component({
   components: { Alert, TreeView, ErrorBox },
 })
-export default class ChooserOverlay extends Vue {
+export default class ChooserOverlay extends Mixins(ShowAlert) {
   public store = store;
   public tree = TreeStore;
+  public watcher = reaction(
+    () => this.tree.selectedNodes.length,
+    this.checkLength
+  );
+
+  destroyed() {
+    this.watcher();
+  }
 
   @Emit("add")
   add() {
@@ -70,6 +80,13 @@ export default class ChooserOverlay extends Vue {
   @Emit("cancel")
   cancel(e: Event) {
     return e;
+  }
+
+  checkLength(length: number) {
+    //selected > remainingitems
+    // when(gt(this.store.maxItems), () =>
+    //   this.showAlert("Maximum number of content items has been reached")
+    // )(length);
   }
 }
 </script>

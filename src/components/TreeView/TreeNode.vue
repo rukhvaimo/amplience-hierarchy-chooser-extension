@@ -102,6 +102,7 @@ import {
   range,
   reject,
   subtract,
+  unless,
   when,
 } from "ramda";
 import TreeStore from "@/store/Tree";
@@ -174,10 +175,7 @@ export default class TreeNode extends mixins(Alert) {
   }
   hideTooltip() {
     //@ts-ignore
-    when(always(this.isDisabled), () => {
-      //@ts-ignore
-      this.tooltipVisible = false;
-    });
+    this.tooltipVisible = false;
   }
   async loadChildren() {
     //@ts-ignore
@@ -194,21 +192,21 @@ export default class TreeNode extends mixins(Alert) {
     this.loadingChildren = false;
   }
   select(selected: boolean) {
-    //@ts-ignore
-    this.isSelected = selected;
-    ifElse(
-      always(selected),
-      this.treeStore.selectNode,
-      this.treeStore.deselctNode
+    unless(equals(true), () => {
       //@ts-ignore
-    )(this.node.id);
+      this.isSelected = selected;
+      ifElse(
+        always(selected),
+        this.treeStore.selectNode,
+        this.treeStore.deselctNode
+        //@ts-ignore
+      )(this.node.id);
+      //@ts-ignore
+    })(this.isDisabled);
   }
   showTooltip() {
     //@ts-ignore
-    when(always(this.isDisabled), () => {
-      //@ts-ignore
-      this.tooltipVisible = true;
-    });
+    this.tooltipVisible = true;
   }
   toggleChildren() {
     ifElse(
