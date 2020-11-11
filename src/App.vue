@@ -33,7 +33,7 @@
 <script lang="ts">
 import draggable, { MoveEvent } from "vuedraggable"; // eslint-disable-line no-unused-vars
 
-import { clone } from "ramda";
+import { equals } from "ramda";
 import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 
@@ -68,17 +68,27 @@ export default class App extends Vue {
     await store.initialize();
   }
 
-  onPanelChange(open: Boolean) {
+  async onPanelChange(open: Boolean) {
     if (open) {
       const OVERLAY_HEIGHT = 500;
       this.store.autoSizeComponent(false);
       this.store.setComponentHeight(OVERLAY_HEIGHT);
-      this.originalModel = clone(this.store.model);
+      this.originalModel = [...this.store.model];
     } else {
       this.store.autoSizeComponent(true);
+      this.tree.clearSelectedNodes();
+
+      if (
+        equals(
+          this.store.exportModel(this.originalModel),
+          await this.store.dcExtensionSdk.field.getValue()
+        )
+      ) {
+        return;
+      }
+
       this.store.updateList(this.originalModel);
     }
-    this.tree.clearSelectedNodes();
   }
 
   async add() {
@@ -90,17 +100,19 @@ export default class App extends Vue {
       return this.store.togglePanel();
     }
 
-    const updatedValue = [oldValues, newValues]
-      .flat()
-      .filter((item) => !(item as EmptyItem)._empty);
+    try {
+      const updatedValue = [oldValues, newValues]
+        .flat()
+        .filter((item) => !(item as EmptyItem)._empty);
 
-    const model = await store.createModel(updatedValue);
+      const model = await store.createModel(updatedValue);
 
-    await this.store.updateList(model);
+      await this.store.updateList(model);
 
-    this.originalModel = clone(this.store.model);
-
-    this.store.togglePanel();
+      this.originalModel = [...this.store.model];
+    } finally {
+      this.store.togglePanel();
+    }
   }
 
   cancel() {

@@ -12,7 +12,7 @@ export class CardModel {
         label: "Remove",
         icon: "mdi-delete-outline",
         action: () => {
-          store.removeItem(this.contentItem);
+          store.removeItem(this.index);
         },
       },
     ],
@@ -58,7 +58,7 @@ export class CardModel {
 
     return {
       id,
-      contentType: contentType,
+      contentType,
       _meta: {
         schema: store.getItemRef(),
       },

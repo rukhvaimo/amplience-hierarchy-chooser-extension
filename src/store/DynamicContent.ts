@@ -169,40 +169,16 @@ export class Store {
     }
   }
 
-  async addItem(node: any) {
-    const schema = this.getItemRef();
-
-    if (!schema) {
-      throw new Error("Schema is not set up for a List");
-    }
-
-    const contentItem = Object.assign(
-      {},
-      {
-        id: node.id,
-        label: node.label,
-        contentType: node.contentTypeUri,
-        _meta: {
-          schema,
-        },
-      }
-    );
-
-    this.pushItem(contentItem);
-
-    await this.dcExtensionSdk.field.setValue(this.exportModel());
-  }
-
-  async removeItem(node: any) {
+  async removeItem(index: number) {
     const updated = this.model
-      .filter((value) => {
+      .filter((value, i) => {
         if ((value.contentItem as EmptyItem)._empty) {
           return false;
         }
-        return node.id !== (value.contentItem as ContentItemModel).id;
+        return index !== i;
       })
-      .map((item) => item.contentItem)
-      .filter(Boolean);
+      .filter(Boolean)
+      .map((value) => value.toJSON());
 
     const model = await this.createModel(updated);
 
@@ -267,8 +243,8 @@ export class Store {
     return model;
   }
 
-  exportModel() {
-    return this.model.map((card) => card.toJSON());
+  exportModel(model?: CardModel[]) {
+    return (model || this.model).map((card) => card.toJSON());
   }
 
   getNodeId(): string | undefined {
@@ -282,6 +258,12 @@ export class Store {
         this.dcExtensionSdk
       ) || ""
     );
+  }
+
+  hasHitLimit(selected: any[]) {
+    const model = this.model.filter((item) => !this.isEmpty(item));
+
+    return selected.length + model.length >= this.maxItems;
   }
 
   setComponentHeight(height: number): void {
