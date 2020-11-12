@@ -2,7 +2,7 @@
   <div class="ml-auto">
     <v-tooltip bottom>
       <template v-slot:activator="{ on, attrs }">
-        <v-icon small class="ml-2 status-icon" v-bind="attrs" v-on="on">
+        <v-icon size="20" class="ml-2 status-icon" v-bind="attrs" v-on="on">
           {{ icon }}
         </v-icon>
       </template>
