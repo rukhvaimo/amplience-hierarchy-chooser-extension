@@ -76,9 +76,10 @@ export class Store {
   }
 
   @computed
-  public get allowedTypes() {
+  public get allowedTypes(): string[] {
+    // @ts-ignore
     return pipe(
-      // @ts-ignore
+      //@ts-ignore
       path(["field", "schema", "items", "allOf"]),
       map(path(["properties", "contentType", "enum"])),
       flatten,

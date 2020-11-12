@@ -29,7 +29,6 @@ import {
 import { getParent } from "mobx-state-tree";
 import { toList, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
-import Tree from "@/store/Tree";
 
 //@ts-ignore
 const addParent = (nodes) =>
@@ -127,7 +126,8 @@ export const isLast = anyPass([isRoot, isLastChild]);
 //@ts-ignore
 export const hasChildren = pipe(prop("children"), isEmpty, not);
 
-const PADDING = 26;
-export const getPadding = pipe(multiply(PADDING), toString, concat(__, "px"));
+export const getPadding = curry((padding: number, amount: number) =>
+  pipe(multiply(padding), toString, concat(__, "px"))(amount)
+);
 
 export const getNodePath = pipe(toList, until(pipe(head, isRoot), addParent));

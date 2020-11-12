@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import Component, { mixins } from "vue-class-component";
+import { Component, Mixins } from "vue-property-decorator";
 import { Observer } from "mobx-vue";
 
 import { complement, equals, ifElse, isNil, when } from "ramda";
@@ -48,7 +48,7 @@ const loadTree: any = when(complement(isNil), TreeStore.loadTree);
 @Component({
   components: { TreeNode },
 })
-export default class TreeView extends mixins(Alert) {
+export default class TreeView extends Mixins(Alert) {
   treeStore = TreeStore;
 
   created() {

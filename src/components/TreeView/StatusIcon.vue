@@ -12,17 +12,12 @@
 </template>
 
 <script lang="ts">
-// @ts-ignore
 import { prop } from "ramda";
 import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { ARCHIVED, EARLY, LATEST } from "@/assets/icons";
 
-@Component({
-  props: {
-    status: { required: true, type: String },
-  },
-})
+@Component
 export default class StatusIcon extends Vue {
   @Prop({ required: true, type: String })
   status!: string;
