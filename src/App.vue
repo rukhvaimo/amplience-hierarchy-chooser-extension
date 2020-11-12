@@ -1,6 +1,12 @@
 <template>
   <v-app>
-    <v-sheet class="app" :class="{ 'is-readonly': store.isReadOnly }">
+    <v-sheet
+      class="app"
+      :class="{
+        'is-readonly': store.isReadOnly,
+        'is-panel-open': store.panelOpen,
+      }"
+    >
       <v-row class="px-3">
         <p>{{ store.title }}</p>
       </v-row>
@@ -135,5 +141,9 @@ export default class App extends Vue {
 }
 .v-btn {
   letter-spacing: normal;
+}
+
+.is-panel-open {
+  height: 500px;
 }
 </style>
