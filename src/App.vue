@@ -84,12 +84,10 @@ export default class App extends Vue {
       this.store.autoSizeComponent(true);
       this.tree.clearSelectedNodes();
 
-      if (
-        equals(
-          this.store.exportModel(this.originalModel),
-          await this.store.dcExtensionSdk.field.getValue()
-        )
-      ) {
+      const model = this.store.exportModel(this.originalModel);
+      const value = await this.store.dcExtensionSdk.field.getValue();
+
+      if (equals(model, value)) {
         return;
       }
 
