@@ -12,38 +12,40 @@
 </template>
 
 <script lang="ts">
+// @ts-ignore
 import { prop } from "ramda";
-import Vue from "vue";
-import Component from "vue-class-component";
+import { Component, Prop, Vue } from "vue-property-decorator";
+
 import { ARCHIVED, EARLY, LATEST } from "@/assets/icons";
 
 @Component({
   props: {
     status: { required: true, type: String },
   },
-  computed: {
-    icon() {
-      //@ts-ignore
-      return prop(this.status, this.statuses);
-    },
-    tooltip() {
-      //@ts-ignore
-      return prop(this.status, this.tooltips);
-    },
-  },
-  data: () => ({
-    statuses: {
-      ARCHIVED,
-      EARLY,
-      LATEST,
-    },
-    tooltips: {
-      EARLY: "Published (early)",
-      LATEST: "Published (latest)",
-    },
-  }),
 })
-export default class StatusIcon extends Vue {}
+export default class StatusIcon extends Vue {
+  @Prop({ required: true, type: String })
+  status!: string;
+
+  statuses = {
+    ARCHIVED,
+    EARLY,
+    LATEST,
+  };
+  tooltips = {
+    EARLY: "Published (early)",
+    LATEST: "Published (latest)",
+  };
+
+  get icon() {
+    //@ts-ignore
+    return prop(this.status, this.statuses);
+  }
+  get tooltip() {
+    //@ts-ignore
+    return prop(this.status, this.tooltips);
+  }
+}
 </script>
 
 <style lang="scss" scoped>
