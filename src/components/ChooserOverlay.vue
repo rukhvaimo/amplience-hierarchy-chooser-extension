@@ -106,4 +106,8 @@ export default class ChooserOverlay extends Mixins(ShowAlert) {
     right: 8px;
   }
 }
+
+.v-navigation-drawer__content {
+  overflow: hidden;
+}
 </style>

@@ -135,6 +135,10 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+html {
+  overflow: hidden;
+}
+
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
@@ -145,5 +149,6 @@ export default class App extends Vue {
 
 .is-panel-open {
   height: 500px;
+  overflow: hidden;
 }
 </style>
