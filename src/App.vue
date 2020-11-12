@@ -137,6 +137,10 @@ html {
   overflow: hidden;
 }
 
+.app {
+  padding-left: 1px;
+}
+
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
