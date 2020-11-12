@@ -6,7 +6,7 @@
         :bench="5"
         :items="treeStore.visibleNodes"
         :item-height="50"
-        :height="445"
+        :height="442"
         v-if="treeStore.visibleNodes.length"
       >
         <template v-slot:default="{ item }">

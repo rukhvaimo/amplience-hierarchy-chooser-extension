@@ -1,6 +1,12 @@
 <template>
   <v-app>
-    <v-sheet class="app" :class="{ 'is-readonly': store.isReadOnly }">
+    <v-sheet
+      class="app"
+      :class="{
+        'is-readonly': store.isReadOnly,
+        'is-panel-open': store.panelOpen,
+      }"
+    >
       <v-row class="px-3">
         <p>{{ store.title }}</p>
       </v-row>
@@ -78,12 +84,10 @@ export default class App extends Vue {
       this.store.autoSizeComponent(true);
       this.tree.clearSelectedNodes();
 
-      if (
-        equals(
-          this.store.exportModel(this.originalModel),
-          await this.store.dcExtensionSdk.field.getValue()
-        )
-      ) {
+      const model = this.store.exportModel(this.originalModel);
+      const value = await this.store.dcExtensionSdk.field.getValue();
+
+      if (equals(model, value)) {
         return;
       }
 
@@ -129,11 +133,24 @@ export default class App extends Vue {
 </script>
 
 <style lang="scss">
+html {
+  overflow: hidden;
+}
+
+.app {
+  padding-left: 1px;
+}
+
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
 }
 .v-btn {
   letter-spacing: normal;
+}
+
+.is-panel-open {
+  height: 500px;
+  overflow: hidden;
 }
 </style>

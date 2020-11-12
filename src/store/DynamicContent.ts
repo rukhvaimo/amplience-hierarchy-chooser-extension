@@ -255,7 +255,22 @@ export class Store {
   }
 
   exportModel(model?: CardModel[]) {
-    return (model || this.model).map((card) => card.toJSON());
+    return this.clean((model || this.model).map((card) => card.toJSON()));
+  }
+
+  clean(model: Array<ContentItemModel | EmptyItem>) {
+    const length = model.length;
+    const last = model[length - 1];
+
+    if ((last as EmptyItem)._empty) {
+      const value = [...model];
+
+      value.pop();
+
+      return value;
+    }
+
+    return model;
   }
 
   getNodeId(): string | undefined {
