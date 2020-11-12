@@ -108,7 +108,8 @@ import {
   range,
   reject,
   subtract,
-  unless,
+  when,
+  where,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 import DynamicContent from "@/store/DynamicContent";
@@ -231,17 +232,27 @@ export default class TreeNode extends mixins(Alert) {
     this.loadingChildren = false;
   }
   select(selected: boolean) {
-    unless(equals(true), () => {
-      //@ts-ignore
-      this.isSelected = selected;
-      ifElse(
-        always(selected),
-        this.treeStore.selectNode,
-        this.treeStore.deselctNode
+    when(
+      where({
+        isDisabled: equals(false),
+        preventSelection: equals(false),
+      }),
+      () => {
         //@ts-ignore
-      )(this.node.id);
+        this.isSelected = selected;
+        ifElse(
+          always(selected),
+          this.treeStore.selectNode,
+          this.treeStore.deselctNode
+          //@ts-ignore
+        )(this.node.id);
+      }
+    )({
       //@ts-ignore
-    })(this.isDisabled);
+      isDisabled: this.isDisabled,
+      //@ts-ignore
+      preventSelection: this.preventSelection,
+    });
   }
   showTooltip() {
     //@ts-ignore

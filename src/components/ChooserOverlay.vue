@@ -17,7 +17,7 @@
       <v-btn
         depressed
         class="text-capitalize font-weight-regular"
-        :disabled="!tree.selectedNodes.length || tree.treeDisabled"
+        :disabled="!tree.selectedNodes.length"
         color="primary"
         height="30"
         @click="add"
