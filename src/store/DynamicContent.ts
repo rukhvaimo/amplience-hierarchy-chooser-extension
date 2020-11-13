@@ -95,11 +95,7 @@ export class Store {
   async initialize() {
     try {
       const dcExtensionSdk = await init<any, ExtensionParams>();
-      const dcManagementSdk = new DynamicContent(
-        {} as any,
-        {},
-        dcExtensionSdk.client
-      );
+      const dcManagementSdk = new DynamicContent({}, {}, dcExtensionSdk.client);
 
       this.setDynamicContent(dcManagementSdk, dcExtensionSdk);
 
