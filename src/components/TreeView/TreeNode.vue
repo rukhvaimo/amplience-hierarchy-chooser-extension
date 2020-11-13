@@ -9,12 +9,13 @@
       'is-root': node.isRoot,
       'is-last': node.isLast,
       'is-selected': isSelected,
-      'is-disabled': isDisabled || preventSelection,
+      'is-disabled': isInvalid || preventSelection,
+      'is-invalid': isInvalid,
       'has-children': node.hasChildren,
     }"
   >
     <v-checkbox
-      v-if="!isDisabled"
+      v-if="!isInvalid"
       v-model="isSelected"
       color="primary"
       @click="select(isSelected)"
@@ -115,13 +116,13 @@ export default class TreeNode extends Mixins(Alert) {
   node!: INode;
 
   get paddingAmount() {
-    return this.isDisabled ? 56 : 26;
+    return this.isInvalid ? 56 : 26;
   }
 
   get paddingLeft(): string {
     return getPadding(this.paddingAmount, this.node.nestingLevel);
   }
-  get isDisabled() {
+  get isInvalid() {
     return compose(
       not,
       includes(
@@ -207,7 +208,7 @@ export default class TreeNode extends Mixins(Alert) {
   select(selected: boolean) {
     when(
       where({
-        isDisabled: equals(false),
+        isInvalid: equals(false),
         preventSelection: equals(false),
       }),
       () => {
@@ -219,7 +220,7 @@ export default class TreeNode extends Mixins(Alert) {
         )(this.node.id);
       }
     )({
-      isDisabled: this.isDisabled,
+      isInvalid: this.isInvalid,
       preventSelection: this.preventSelection,
     });
   }
@@ -296,7 +297,7 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 4px;
       top: 37px;
-      .is-disabled & {
+      .is-invalid & {
         top: 30px;
         right: -20px;
         width: 35px;
@@ -321,12 +322,12 @@ export default class TreeNode extends Mixins(Alert) {
       height: 37px;
     }
 
-    .is-disabled & {
+    .is-invalid & {
       top: -16px;
       height: 50px;
     }
 
-    .is-last.is-disabled & {
+    .is-last.is-invalid & {
       height: 31px;
     }
   }
@@ -364,7 +365,7 @@ export default class TreeNode extends Mixins(Alert) {
     user-select: none;
     margin-left: 18px;
     border-left: 1px solid #ccc;
-    .is-disabled & {
+    .is-invalid & {
       margin-left: 16px;
     }
   }
