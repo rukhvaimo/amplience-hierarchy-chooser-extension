@@ -10,17 +10,15 @@
       'is-last': node.isLast,
       'is-selected': isSelected,
       'is-disabled': isInvalid || preventSelection,
-      'is-invalid': isInvalid,
       'has-children': node.hasChildren,
     }"
   >
     <v-checkbox
-      v-if="!isInvalid"
       v-model="isSelected"
       color="primary"
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
-      :disabled="preventSelection"
+      :disabled="preventSelection || isInvalid"
     ></v-checkbox>
     <div class="tree-node__item" @click="select(!isSelected)" ref="node">
       <div v-if="!node.isRoot" class="tree-node__connector"></div>
@@ -115,9 +113,7 @@ export default class TreeNode extends Mixins(Alert) {
   @Prop({ type: Object, required: true })
   node!: INode;
 
-  get paddingAmount() {
-    return this.isInvalid ? 56 : 26;
-  }
+  paddingAmount: number = 26;
 
   get paddingLeft(): string {
     return getPadding(this.paddingAmount, this.node.nestingLevel);
@@ -297,11 +293,6 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 4px;
       top: 37px;
-      .is-invalid & {
-        top: 30px;
-        right: -20px;
-        width: 35px;
-      }
     }
 
     &::after {
@@ -320,15 +311,6 @@ export default class TreeNode extends Mixins(Alert) {
 
     .is-last & {
       height: 37px;
-    }
-
-    .is-invalid & {
-      top: -16px;
-      height: 50px;
-    }
-
-    .is-last.is-invalid & {
-      height: 31px;
     }
   }
 
@@ -365,9 +347,6 @@ export default class TreeNode extends Mixins(Alert) {
     user-select: none;
     margin-left: 18px;
     border-left: 1px solid #ccc;
-    .is-invalid & {
-      margin-left: 16px;
-    }
   }
 
   &__checkbox {
