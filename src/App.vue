@@ -112,7 +112,8 @@ export default class App extends Vue {
       const model = await store.createModel(updatedValue);
 
       await this.store.updateList(model);
-
+      this.originalModel = [...this.store.model];
+    } catch (err) {
       this.originalModel = [...this.store.model];
     } finally {
       this.store.togglePanel();

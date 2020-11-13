@@ -14,7 +14,7 @@
     "@mdi/font": "^5.6.55",
     "core-js": "^3.6.5",
     "dc-extensions-sdk": "https://github.com/amplience/dc-extensions-sdk#feature/CMP-7270",
-    "dc-management-sdk-js": "https://github.com/amplience/dc-management-sdk-js#feature/CMP-7269",
+    "dc-management-sdk-js": "git+https://github.com/amplience/dc-management-sdk-js.git#feature/CMP-7269",
     "mobx": "^5.15.7",
     "mobx-state-tree": "^3.17.2",
     "mobx-vue": "^2.0.11",
