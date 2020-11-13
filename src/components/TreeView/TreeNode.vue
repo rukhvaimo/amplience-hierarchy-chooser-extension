@@ -51,9 +51,10 @@
       <div class="body-2 text-left text-truncate tree-node__label">
         {{ node.label }}
       </div>
+      <disabled-icon v-if="isInvalid"></disabled-icon>
       <status-icon
         :status="node.publishingStatus"
-        v-if="showStatusIcon"
+        v-else-if="showStatusIcon"
       ></status-icon>
     </div>
 
@@ -101,11 +102,13 @@ import { hasChildren } from "@/utils/tree";
 import { notError } from "@/utils/helpers";
 import { getPadding } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
+import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
 
 @Observer
 @Component({
   components: {
+    DisabledIcon,
     StatusIcon,
   },
 })
