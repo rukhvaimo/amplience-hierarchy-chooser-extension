@@ -37,7 +37,7 @@ $ npm run build
   "title": "title",
   "type": "array",
   "ui:extension": {
-    "name": "<extension name here>",
+    "name": "<extension name>",
     "params": {
       "nodeId": "<root node ID>"
     }
@@ -64,7 +64,7 @@ $ npm run build
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "<schema name here>",
+  "$id": "<schema name>",
   "title": "Title",
   "description": "Description",
   "allOf": [
@@ -80,9 +80,9 @@ $ npm run build
       "minItems": 2,
       "maxItems": 5,
       "ui:extension": {
-        "name": "<extension name here>",
+        "name": "<extension name>",
         "params": {
-          "nodeId": "<root node id here>"
+          "nodeId": "<root node ID>"
         }
       },
       "items": {
