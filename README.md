@@ -24,11 +24,11 @@ $ npm run build
 
 ## Registering the extension
 
-- Register your extension in Dynamic Content
-- Add your custom extension url or use our hosted version: https://dev-dc-extension-hierarchy-chooser.dev.adis.ws
+- Register the extension in Dynamic Content
+- Add the extension url or use our hosted version: https://dev-dc-extension-hierarchy-chooser.dev.adis.ws
 - Give the extension the following permissions:
   - Read access
-  - Allow Same Origin
+  - Allow same origin
 
 ### Example snippet
 
