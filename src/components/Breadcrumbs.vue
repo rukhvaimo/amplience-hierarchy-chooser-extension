@@ -20,6 +20,9 @@ import {
   thunkify,
   when,
   isNil,
+  last,
+  equals,
+  head,
 } from "ramda";
 import { Component, Prop, Ref, Vue, Watch } from "vue-property-decorator";
 import { notEmpty } from "@/utils/helpers";
@@ -58,11 +61,11 @@ export default class Breadcrumbs extends Vue {
   }
 
   isLast(item: BreadcrumbModel) {
-    return this.crumbs.indexOf(item) === this.crumbs.length - 1;
+    return pipe(last, equals(item))(this.crumbs);
   }
 
   isFirst(item: BreadcrumbModel) {
-    return this.crumbs.indexOf(item) === 0;
+    return pipe(head, equals(item))(this.crumbs);
   }
 
   private collapse(items: Array<BreadcrumbModel>): Array<BreadcrumbModel> {
