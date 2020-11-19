@@ -18,9 +18,9 @@ $ npm run build
 
 ## Installation parameters
 
-| Parameter | Default   | Notes                                                           | Required |
-| --------- | --------- | --------------------------------------------------------------- | -------- |
-| nodeId    | undefined | The ID of the node you want to use as the root node of the tree | true     |
+| Parameter | Default   | Notes                                                  | Required |
+| --------- | --------- | ------------------------------------------------------ | -------- |
+| nodeId    | undefined | The ID of the node to use as the root node of the tree | true     |
 
 ## Registering the extension
 
