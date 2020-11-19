@@ -2,7 +2,7 @@
 
 # dc-extension-hierarchy-chooser
 
-> Selection of Content Links and Content References from a hierarchy tree.
+> Allows selection of Content Links and Content References from a hierarchy tree.
 
 ## dev
 
@@ -16,92 +16,91 @@ $ npm run serve
 $ npm run build
 ```
 
-## Register the extension
+## Installation parameters
 
-hosted version https://dev-dc-extension-hierarchy-chooser.dev.adis.ws
+| Parameter | Default   | Notes                                                           | Required |
+| --------- | --------- | --------------------------------------------------------------- | -------- |
+| nodeId    | undefined | The ID of the node you want to use as the root node of the tree | true     |
 
-- Name your extension
-- Add your extension url or use our hosted version
-- Add Permissionhosted versions
-    - Read access
-    - Allow Same Origin
+## Registering the extension
 
-### Here is a snippet so you can add your extension easily
+- Register your extension in Dynamic Content
+- Add your custom extension url or use our hosted version: https://dev-dc-extension-hierarchy-chooser.dev.adis.ws
+- Give the extension the following permissions:
+  - Read access
+  - Allow Same Origin
+
+### Example snippet
 
 ```json
 {
-    "title": "title",
-    "type": "array",
-    "ui:extension": {
-        "name": "<your name of extension here>",
-        "params": {
-            "nodeId": ""
-        }
-    },
-    "items": {
-        "allOf": [
-            {
-                "$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content-link"
-            },
-            {
-                "properties": {
-                    "contentType": {
-                        "enum": [
-                            "https://example.schema.com"
-                        ]
-                    }
-                }
-            }
-        ]
+  "title": "title",
+  "type": "array",
+  "ui:extension": {
+    "name": "<extension name here>",
+    "params": {
+      "nodeId": "<root node ID>"
     }
+  },
+  "items": {
+    "allOf": [
+      {
+        "$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content-link"
+      },
+      {
+        "properties": {
+          "contentType": {
+            "enum": ["https://example.schema.com"]
+          }
+        }
+      }
+    ]
+  }
 }
 ```
-## Content Type Schema
 
-Here is a basic schema just including the your node id, content types you wish to select and the name of your extension.
+### Sample schema
 
 ```json
 {
-	"$schema": "http://json-schema.org/draft-07/schema#",
-	"$id": "<schema name here>",
-	"title": "Title",
-	"description": "Description",
-	"allOf": [
-		{
-			"$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content"
-		}
-	],
-	"type": "object",
-	"properties": {
-		"treeNodes": {
-			"title": "title",
-			"type": "array",
-			"minItems": 2,
-			"maxItems": 5,
-			"ui:extension": {
-				"name": "<your name of extension here>",
-				"params": {
-					"nodeId": "<node id here>"
-				}
-			},
-			"items": {
-				"allOf": [
-					{
-						"$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content-link"
-					},
-					{
-						"properties": {
-							"contentType": {
-								"enum": [
-									"https://example.schema.com"
-								]
-							}
-						}
-					}
-				]
-			}
-		}
-	},
-	"propertyOrder": []
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "<schema name here>",
+  "title": "Title",
+  "description": "Description",
+  "allOf": [
+    {
+      "$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content"
+    }
+  ],
+  "type": "object",
+  "properties": {
+    "treeNodes": {
+      "title": "title",
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "ui:extension": {
+        "name": "<extension name here>",
+        "params": {
+          "nodeId": "<root node id here>"
+        }
+      },
+      "items": {
+        "allOf": [
+          {
+            "$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content-link"
+          },
+          {
+            "properties": {
+              "contentType": {
+                "enum": ["https://example.schema.com"]
+              }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "propertyOrder": []
 }
 ```
