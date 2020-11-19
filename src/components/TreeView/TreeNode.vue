@@ -101,7 +101,6 @@ import {
   when,
   where,
   __,
-  propSatisfies,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
@@ -171,13 +170,11 @@ export default class TreeNode extends Mixins(Alert) {
     )(this.node);
   }
 
-  get selected(): object[] {
-    //@ts-ignore
+  get selected() {
     return this.treeStore.selectedNodes;
   }
 
   get showStatusIcon(): boolean {
-    //@ts-ignore
     return not(equals(this.node.publishingStatus, "NONE"));
   }
 
@@ -216,12 +213,7 @@ export default class TreeNode extends Mixins(Alert) {
   }
 
   getTreeLinePadding(nestingLevel: number) {
-    return pipe(
-      subtract(__, 1),
-      //@ts-ignore
-      getPadding(this.paddingAmount)
-      //@ts-ignore
-    )(nestingLevel);
+    return pipe(subtract(__, 1), getPadding(this.paddingAmount))(nestingLevel);
   }
 
   async loadChildren() {

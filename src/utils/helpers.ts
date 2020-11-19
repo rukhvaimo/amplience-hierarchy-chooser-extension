@@ -4,6 +4,7 @@ import {
   curry,
   equals,
   identity,
+  isEmpty,
   pipe,
   toString,
   type,
@@ -32,3 +33,5 @@ export const notError = complement(isError);
 export const toList = unapply(identity);
 
 export const toPx = pipe(toString, concat(__, "px"));
+
+export const notEmpty = complement(isEmpty);

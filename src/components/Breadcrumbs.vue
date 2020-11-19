@@ -11,8 +11,18 @@
 </template>
 
 <script lang="ts">
-import { pipe, insert, reject } from "ramda";
+import {
+  pipe,
+  insert,
+  reject,
+  ifElse,
+  always,
+  thunkify,
+  when,
+  isNil,
+} from "ramda";
 import { Component, Prop, Ref, Vue, Watch } from "vue-property-decorator";
+import { notEmpty } from "@/utils/helpers";
 
 export interface BreadcrumbModel {
   text: string;
@@ -35,11 +45,16 @@ export default class Breadcrumbs extends Vue {
 
   @Watch("items", { immediate: true })
   process(items: Array<string>) {
-    if (!this.breadcrumbs) {
-      requestAnimationFrame(() => this.process(items));
-      return;
-    }
-    this.crumbs = this.handleCrumbs([...items]);
+    pipe(
+      ifElse(
+        always(isNil(this.breadcrumbs)),
+        pipe(thunkify(this.process), requestAnimationFrame, always([])),
+        this.handleCrumbs
+      ),
+      when(notEmpty, (crumbs) => {
+        this.crumbs = crumbs;
+      })
+    )(items);
   }
 
   isLast(item: BreadcrumbModel) {
