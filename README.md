@@ -2,7 +2,7 @@
 
 # dc-extension-hierarchy-chooser
 
-> Allows selection of Content Links and Content References from a hierarchy tree.
+> Allows selection of content links and content references from a hierarchy tree.
 
 ## dev
 
