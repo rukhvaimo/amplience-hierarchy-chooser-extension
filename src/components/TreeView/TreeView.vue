@@ -36,6 +36,7 @@ import TreeStore from "@/store/Tree";
 import DynamicContentStore from "@/store/DynamicContent";
 import Alert from "@/mixins/ShowAlert.mixin";
 import TreeNode from "./TreeNode.vue";
+import NodeTransition from "@/components/NodeTransition.vue";
 import { notError } from "@/utils/helpers";
 // eslint-disable-next-line no-unused-vars
 import { HierarchyChildren, HierarchyNode } from "dc-management-sdk-js";
@@ -46,7 +47,7 @@ const loadTree: any = when(complement(isNil), TreeStore.loadTree);
 
 @Observer
 @Component({
-  components: { TreeNode },
+  components: { NodeTransition, TreeNode },
 })
 export default class TreeView extends Mixins(Alert) {
   treeStore = TreeStore;

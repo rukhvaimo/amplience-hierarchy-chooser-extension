@@ -25,19 +25,27 @@ import {
   toString,
   until,
   when,
+  findIndex,
+  subtract,
+  includes,
+  eqProps,
+  nth,
+  of,
+  complement,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
-import { toList, tryCatch } from "./helpers";
+import { toList, toPx, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
+import { INode } from "@/store/Node";
 
 //@ts-ignore
 const addParent = (nodes) =>
   //@ts-ignore
   pipe(head, getNodeParent, prepend(__, nodes))(nodes);
 
-const extractVisibleNodes = pipe<any[]>(
-  prop<any>("children"),
+const extractVisibleNodes = pipe(
   //@ts-ignore
+  prop("children"),
   reduce(
     (visibleNodes: any[], child: any) => [...visibleNodes, child.visibleNodes],
     []
@@ -83,10 +91,10 @@ export const getChildren = async (id: string) => {
  * Gets all nodes visible in the tree
  */
 export const getVisibleNodes = ifElse(
-  propEq<any>("childrenVisible", true),
+  propEq("childrenVisible", true),
   //@ts-ignore
   (node) => [node, ...extractVisibleNodes(node)],
-  (node) => [node]
+  of
 );
 
 /**
@@ -126,8 +134,45 @@ export const isLast = anyPass([isRoot, isLastChild]);
 //@ts-ignore
 export const hasChildren = pipe(prop("children"), isEmpty, not);
 
+/**
+ * Calculates the node padding
+ */
 export const getPadding = curry((padding: number, amount: number) =>
-  pipe(multiply(padding), toString, concat(__, "px"))(amount)
+  pipe(multiply(padding), toPx)(amount)
 );
 
+/**
+ * Gets the path to a given node
+ */
 export const getNodePath = pipe(toList, until(pipe(head, isRoot), addParent));
+
+/**
+ * Gets the previous rendered node
+ */
+export const previousNode = curry((root: INode, node: INode) => {
+  const visibleNodes = getVisibleNodes(root);
+  return pipe(
+    //@ts-ignore
+    prop("id"),
+    propEq("id"),
+    //@ts-ignore
+    findIndex(__, visibleNodes),
+    subtract(1),
+    //@ts-ignore
+    nth(__, visibleNodes)
+    //@ts-ignore
+  )(node);
+});
+
+/**
+ * Is the node type valid?
+ */
+export const isValidType = curry((allowedTypes: string[], type: string) =>
+  includes(type, allowedTypes)
+);
+
+/**
+ * Is the node type invalid?
+ */
+//@ts-ignore
+export const isInvalidType = complement(isValidType);

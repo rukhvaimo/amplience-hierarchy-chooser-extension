@@ -1,13 +1,15 @@
 import {
-  compose,
+  __,
+  concat,
   curry,
   equals,
   identity,
-  not,
   pipe,
+  toString,
   type,
   unapply,
   when,
+  complement,
 } from "ramda";
 
 export const tryCatch = curry(
@@ -25,6 +27,8 @@ export const isError = pipe(type, equals("Error"));
 //@ts-ignore
 export const whenError = when(isError);
 
-export const notError = compose(not, isError);
+export const notError = complement(isError);
 
 export const toList = unapply(identity);
+
+export const toPx = pipe(toString, concat(__, "px"));

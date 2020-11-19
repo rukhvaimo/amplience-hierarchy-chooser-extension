@@ -10,15 +10,18 @@
       'is-last': node.isLast,
       'is-selected': isSelected,
       'is-disabled': isInvalid || preventSelection,
+      'is-invalid': isInvalid,
       'has-children': node.hasChildren,
+      'previous-disabled': previousNodeDisabled,
     }"
   >
     <v-checkbox
       v-model="isSelected"
+      v-if="!isInvalid"
       color="primary"
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
-      :disabled="preventSelection || isInvalid"
+      :disabled="preventSelection"
     ></v-checkbox>
     <div class="tree-node__item" @click="select(!isSelected)" ref="node">
       <div v-if="!node.isRoot" class="tree-node__connector"></div>
@@ -63,7 +66,7 @@
       :key="level"
       class="tree-node__level"
       :style="{
-        left: getPadding(level),
+        left: getTreeLinePadding(level),
       }"
     ></div>
   </div>
@@ -74,33 +77,39 @@ import { Component, Prop, Mixins } from "vue-property-decorator";
 import { reaction } from "mobx";
 import { Observer } from "mobx-vue";
 import {
-  __,
+  add,
   always,
   and,
-  compose,
-  forEach,
   gte,
   equals,
+  F,
+  forEach,
+  identity,
   ifElse,
-  includes,
+  isNil,
   length,
+  multiply,
   not,
   nth,
+  or,
   pipe,
+  prop,
   propEq,
   range,
   reject,
   subtract,
   when,
   where,
+  __,
+  propSatisfies,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
 import { hasChildren } from "@/utils/tree";
-import { notError } from "@/utils/helpers";
-import { getPadding } from "@/utils/tree";
+import { notError, toPx } from "@/utils/helpers";
+import { getPadding, isInvalidType, isRoot, previousNode } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
 import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
@@ -119,18 +128,21 @@ export default class TreeNode extends Mixins(Alert) {
   paddingAmount: number = 26;
 
   get paddingLeft(): string {
-    return getPadding(this.paddingAmount, this.node.nestingLevel);
+    //@ts-ignore
+    return pipe(
+      multiply(this.node.nestingLevel),
+      ifElse(always(this.isInvalid), add(32), identity),
+      toPx
+    )(this.paddingAmount);
   }
-  get isInvalid() {
-    return compose(
-      not,
-      includes(
-        __,
 
-        this.dynamicContent.allowedTypes
-      )
-    )(this.node.contentTypeUri);
+  get isInvalid() {
+    return isInvalidType(
+      this.dynamicContent.allowedTypes,
+      this.node.contentTypeUri
+    );
   }
+
   get nestingLevels(): number[] {
     //@ts-ignore
     const isLast = pipe(nth(__, this.node.path), propEq("isLast", true));
@@ -142,6 +154,23 @@ export default class TreeNode extends Mixins(Alert) {
       //@ts-ignore
     )(this.node.nestingLevel);
   }
+
+  get previousNodeDisabled() {
+    return pipe(
+      previousNode(TreeStore.rootNode as INode),
+      ifElse(
+        or(isRoot, isNil),
+        F,
+        pipe(
+          prop("contentTypeUri"),
+          //@ts-ignore
+          isInvalidType(this.dynamicContent.allowedTypes)
+        )
+      )
+      //@ts-ignore
+    )(this.node);
+  }
+
   get selected(): object[] {
     //@ts-ignore
     return this.treeStore.selectedNodes;
@@ -186,7 +215,7 @@ export default class TreeNode extends Mixins(Alert) {
     forEach((watcher) => watcher(), this.watchers);
   }
 
-  getPadding(nestingLevel: number) {
+  getTreeLinePadding(nestingLevel: number) {
     return pipe(
       subtract(__, 1),
       //@ts-ignore
@@ -244,6 +273,14 @@ export default class TreeNode extends Mixins(Alert) {
   align-items: center;
   transition: opacity 0.15s;
 
+  &.is-root {
+    position: relative;
+    z-index: 1;
+    &.is-invalid {
+      padding-left: 1px !important;
+    }
+  }
+
   &__item {
     height: 32px;
     border-radius: 32px;
@@ -296,6 +333,10 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 4px;
       top: 37px;
+      .is-invalid & {
+        right: -20px;
+        width: 36px;
+      }
     }
 
     &::after {
@@ -306,6 +347,10 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 15px;
       height: 100%;
+      .previous-disabled & {
+        height: 50px;
+        top: -12px;
+      }
     }
 
     .is-root & {
