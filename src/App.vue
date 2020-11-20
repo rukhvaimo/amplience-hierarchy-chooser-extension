@@ -17,8 +17,13 @@
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
       >
-        <v-col cols="auto" v-for="value in store.model" :key="value.id">
-          <card :value="value"></card>
+        <v-col
+          cols="auto"
+          v-for="value in store.model"
+          :key="value.contentItem.id || value.index"
+        >
+          <card :value="value" v-if="store.cardType !== 'CHIP'"></card>
+          <chip :value="value" v-if="store.cardType === 'CHIP'"> </chip>
         </v-col>
       </draggable>
 
