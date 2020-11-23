@@ -225,6 +225,7 @@ export default class TreeNode extends Mixins(Alert) {
 
     this.loadingChildren = false;
   }
+
   select(selected: boolean) {
     when(
       where({
