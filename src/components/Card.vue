@@ -6,6 +6,7 @@
       'is-last': store.isLast(value),
       'is-edit': isEdit,
       'is-new': !isEdit,
+      'is-small': store.cardType === 'SMALL',
     }"
   >
     <div class="card__image" v-if="isEdit">
@@ -96,7 +97,7 @@ export default class AmpCard extends Vue {
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .v-card {
   margin: 0 10px 10px 0;
   width: 350px;
@@ -128,6 +129,31 @@ export default class AmpCard extends Vue {
 
     .mdi {
       color: #e9eaeb;
+    }
+
+    &.is-small {
+      width: 180px;
+      height: 180px;
+
+      .card__count {
+        font-size: 48px;
+      }
+
+      .txt-container {
+        padding: 4px 8px;
+
+        h3 {
+          font-size: 13px;
+        }
+
+        .v-breadcrumbs__item {
+          font-size: 11px;
+        }
+      }
+
+      .v-breadcrumbs {
+        padding: 0;
+      }
     }
 
     &.is-last,
@@ -171,7 +197,7 @@ export default class AmpCard extends Vue {
 
   .v-btn {
     &:hover {
-      background-color: #039be5 !important;
+      background-color: var(--v-primary-base) !important;
 
       .mdi {
         color: white;
@@ -222,9 +248,9 @@ export default class AmpCard extends Vue {
     z-index: 1;
     top: 50%;
     left: 50%;
+    max-height: 160px;
 
     img {
-      max-height: 160px;
       max-width: 100%;
     }
   }

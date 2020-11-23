@@ -12,6 +12,7 @@
       </v-row>
 
       <draggable
+        v-if="!store.loading"
         v-model="store.listModel"
         class="row"
         :move="isDraggable"
@@ -49,11 +50,13 @@ import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
+import Chip from "@/components/Chip.vue";
 import Loading from "@/components/Loading.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
+
 import TreeStore from "@/store/Tree";
 
-import store from "@/store/DynamicContent";
+import store, { CardType } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
 
@@ -61,6 +64,7 @@ import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line
 @Component({
   components: {
     Card,
+    Chip,
     Loading,
     ChooserOverlay,
     draggable,

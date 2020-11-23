@@ -22,10 +22,16 @@ import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
 
+export enum CardType {
+  CHIP = "CHIP",
+  LARGE = "LARGE",
+  SMALL = "SMALL",
+}
+
 type ExtensionParams = Params & {
   instance: {
     nodeId: string;
-    dcConfig?: string;
+    type: CardType;
   };
 };
 
@@ -45,9 +51,7 @@ export class Store {
 
   @observable error: null | ErrorModel = null;
 
-  @computed get loading() {
-    return !this.dcExtensionSdk || !this.dcManagementSdk;
-  }
+  @observable loading: Boolean = true;
 
   @computed get maxItems(): number {
     return (
@@ -68,6 +72,17 @@ export class Store {
 
   @computed get title(): string {
     return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
+  }
+
+  @computed get cardType() {
+    return this.params.type || CardType.LARGE;
+  }
+
+  @computed get params(): ExtensionParams["instance"] {
+    return (
+      path(["params", "instance"], this.dcExtensionSdk) ||
+      ({} as ExtensionParams["instance"])
+    );
   }
 
   @computed
@@ -119,6 +134,8 @@ export class Store {
     } catch (error) {
       this.setError(error);
       console.info("Failed to initialize", error);
+    } finally {
+      this.setLoading(false);
     }
   }
 
@@ -190,6 +207,10 @@ export class Store {
     const model = await this.createModel(updated);
 
     await this.updateList(model);
+  }
+
+  @action.bound setLoading(loading: Boolean) {
+    this.loading = loading;
   }
 
   @action.bound setError(err: NodeError) {
@@ -270,7 +291,7 @@ export class Store {
   }
 
   getNodeId(): string | undefined {
-    return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
+    return this.params.nodeId;
   }
 
   getItemRef(): string {
