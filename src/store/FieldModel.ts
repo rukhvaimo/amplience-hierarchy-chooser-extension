@@ -6,6 +6,7 @@ export interface ContentItemModel {
     schema: string;
   };
   id: string;
+  label?: string;
   contentType: string;
 }
 
