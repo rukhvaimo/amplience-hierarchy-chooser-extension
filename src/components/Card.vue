@@ -84,8 +84,8 @@ export default class AmpCard extends Vue {
   }
 
   @Watch("value.contentItem", { immediate: true })
-  async fetchLabel() {
-    if (this.isEdit) {
+  async fetchLabel(val: ContentItemModel, old: ContentItemModel) {
+    if (this.isEdit && (!this.label || val.id !== old.id)) {
       const { label } = await this.store.dcManagementSdk.contentItems.get(
         (this.value.contentItem as ContentItemModel).id
       );
