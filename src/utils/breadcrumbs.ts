@@ -2,6 +2,7 @@ import {
   add,
   allPass,
   always,
+  append,
   apply,
   applySpec,
   assoc,
@@ -14,22 +15,22 @@ import {
   head,
   identity,
   ifElse,
-  inc,
   indexOf,
   insert,
   last,
   length,
   lt,
+  lte,
   max,
   multiply,
   nth,
   pipe,
   prop,
   propEq,
+  propSatisfies,
   reduce,
   reject,
   subtract,
-  tap,
   where,
   __,
 } from "ramda";
@@ -38,6 +39,11 @@ export type BreadcrumbModel = {
   text: string;
   collapse: Boolean;
   width: number;
+};
+
+export type BreadcrumbReducer = {
+  crumbs: BreadcrumbModel[];
+  crumbsWidth: number;
 };
 
 /**
@@ -196,3 +202,52 @@ export const hideCrumbs = curry(
       [crumbs]
     )
 );
+
+/**
+ * measures a breadcrumb element
+ */
+export const measure = curry(($: Document, nodeText: string) => {
+  const el = $.createElement("span");
+
+  el.classList.add("breadcrumbs__measure");
+  el.innerText = nodeText;
+  $.querySelector(".v-application")?.appendChild(el);
+
+  const width = el.scrollWidth;
+
+  el.remove();
+
+  return {
+    width,
+    text: nodeText,
+    collapse: false,
+  };
+});
+
+export const handleCrumb = (
+  breadcrumbs: BreadcrumbReducer,
+  baseWidth: number,
+  elementWidth: number,
+  item: BreadcrumbModel
+) => {
+  apply(
+    ifElse(
+      propSatisfies(lte(__, elementWidth), "crumbsWidth"),
+      applySpec({
+        //@ts-ignore
+        crumbs: pipe(prop("crumbs"), append(item)),
+        crumbsWidth: prop("crumbsWidth"),
+      }),
+      applySpec({
+        //@ts-ignore
+        crumbs: pipe(prop("crumbs"), append(assoc("collapse", true, item))),
+        crumbsWidth: pipe(
+          prop("crumbsWidth"),
+          subtract(__, item.width),
+          add(baseWidth)
+        ),
+      })
+    ),
+    [breadcrumbs]
+  );
+};

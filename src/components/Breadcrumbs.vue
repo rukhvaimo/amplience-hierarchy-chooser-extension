@@ -12,7 +12,6 @@
 import {
   apply,
   pipe,
-  insert,
   ifElse,
   always,
   thunkify,
@@ -23,38 +22,29 @@ import {
   reduce,
   where,
   prop,
-  values,
-  allPass,
-  equals,
-  subtract,
   __,
-  length,
-  gte,
-  assoc,
-  nth,
-  reject,
   props,
-  applySpec,
-  indexOf,
-  complement,
-  lt,
+  map,
 } from "ramda";
 import { Component, Prop, Ref, Vue, Watch } from "vue-property-decorator";
 import { notEmpty } from "@/utils/helpers";
 
-// eslint-disable-next-line no-unused-vars
-import { BreadcrumbModel, handleHide, hideCrumbs } from "@/utils/breadcrumbs";
+/* eslint-disable no-unused-vars */
+import {
+  BreadcrumbModel,
+  BreadcrumbReducer,
+  handleCrumb,
+  handleHide,
+  hideCrumbs,
+  measure,
+} from "@/utils/breadcrumbs";
+/* eslint-enable no-unused-vars */
 import { reduceIdx } from "@/utils/helpers";
 import {
   getTailCrumbsWidth,
   getTotalBreadcrumbsWidth,
   shouldCollapse,
 } from "@/utils/breadcrumbs";
-
-type BreadcrumbReducer = {
-  crumbs: BreadcrumbModel[];
-  crumbsWidth: number;
-};
 
 @Component
 export default class Breadcrumbs extends Vue {
@@ -92,6 +82,7 @@ export default class Breadcrumbs extends Vue {
       //@ts-ignore
       always(gt(crumbsWidth, offsetWidth)),
       pipe(
+        //@ts-ignore
         reduce(this.handleCrumb, { crumbs: [], crumbsWidth }),
         ifElse(
           where({
@@ -123,48 +114,18 @@ export default class Breadcrumbs extends Vue {
   }
 
   private measure(items: Array<string>): Array<BreadcrumbModel> {
-    return items.map((node) => {
-      const el = document.createElement("span");
-      const app = document.querySelector(".v-application");
-
-      el.classList.add("breadcrumbs__measure");
-      el.innerText = node;
-
-      (app as Element).appendChild(el);
-
-      const width = el.scrollWidth;
-
-      el.remove();
-
-      return {
-        width,
-        text: node,
-        collapse: false,
-      };
-    });
+    return map(measure(document), items);
   }
 
-  private handleCrumb(
-    { crumbsWidth, crumbs }: BreadcrumbReducer,
-    item: BreadcrumbModel
-  ) {
+  private handleCrumb(breadcrumbs: BreadcrumbReducer, item: BreadcrumbModel) {
     const BASE_WIDTH = 10;
 
-    if (crumbsWidth <= this.breadcrumbs.$el.offsetWidth) {
-      const resizedCrumbs = [...crumbs, item];
-
-      return {
-        crumbs: resizedCrumbs,
-        crumbsWidth,
-      };
-    }
-
-    const resizedCrumbs = [...crumbs, { ...item, collapse: true }];
-
-    return {
-      crumbs: resizedCrumbs,
-      crumbsWidth: crumbsWidth - item.width + BASE_WIDTH,
-    };
+    return handleCrumb(
+      breadcrumbs,
+      BASE_WIDTH,
+      this.breadcrumbs.$el.offsetWidth,
+      item
+    );
   }
 }
 </script>
