@@ -5,6 +5,9 @@
       :class="{
         'is-readonly': store.isReadOnly,
         'is-panel-open': store.panelOpen,
+        'is-small': store.cardType === 'SMALL',
+        'is-large': store.cardType === 'LARGE',
+        'is-chip': store.cardType === 'CHIP',
       }"
     >
       <v-row class="px-3">
@@ -151,16 +154,25 @@ html {
   padding-left: 1px;
 }
 
+.v-btn {
+  letter-spacing: normal;
+}
+
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
-}
-.v-btn {
-  letter-spacing: normal;
 }
 
 .is-panel-open {
   height: 500px;
   overflow: hidden;
+}
+
+.is-chip .col {
+  padding: 8px;
+}
+
+.is-small .col {
+  padding: 10px;
 }
 </style>

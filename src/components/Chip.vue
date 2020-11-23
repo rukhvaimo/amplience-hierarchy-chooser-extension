@@ -1,40 +1,44 @@
 <template>
-  <v-chip
-    small
-    :close="!value.isEmpty()"
-    :class="{
-      'is-last': store.isLast(value),
-      'is-edit': isEdit,
-      'is-new': !isEdit,
-    }"
-    :ripple="false"
-    close-icon="mdi-window-close"
-    @click:close="store.removeItem(value.index)"
-    @click="!isEdit ? store.togglePanel() : noop"
-  >
-    <v-tooltip
-      v-if="!value.isEmpty()"
-      content-class="chip-tooltip"
-      :bottom="true"
-      :disabled="hideTooltip"
-      :open-on-click="false"
+  <v-hover v-slot="{ hover }">
+    <v-chip
+      small
+      :close="!value.isEmpty()"
+      :class="{
+        'is-last': store.isLast(value),
+        'is-edit': isEdit,
+        'is-new': !isEdit,
+      }"
+      :ripple="false"
+      close-icon="mdi-window-close"
+      @click:close="store.removeItem(value.index)"
+      @click="!isEdit ? store.togglePanel() : noop"
     >
-      <template v-slot:activator="{ on, attrs }">
-        <span v-bind="attrs" v-on="on" @mousedown="setHideTooltip(true)">{{
-          label
-        }}</span>
-      </template>
+      <v-tooltip
+        v-if="!value.isEmpty()"
+        content-class="chip-tooltip"
+        :bottom="true"
+        :disabled="hideTooltip"
+        :open-on-click="false"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <span v-bind="attrs" v-on="on" @mousedown="setHideTooltip(true)">{{
+            label
+          }}</span>
+        </template>
 
-      <span v-for="(item, index) in tooltip" :key="index">{{ item }}</span>
-    </v-tooltip>
-    <span v-if="value.isEmpty() && !store.isLast(value)">{{
-      value.index + 1
-    }}</span>
-    <span class="v-chip__add" v-if="value.isEmpty() && store.isLast(value)">
-      Add
-    </span>
-    <v-icon class="v-chip__add-icon">mdi-plus</v-icon>
-  </v-chip>
+        <span v-for="(item, index) in tooltip" :key="index">{{ item }}</span>
+      </v-tooltip>
+      <span
+        class="v-chip__count"
+        v-if="value.isEmpty() && !store.isLast(value)"
+        >{{ hover ? "Add" : value.index + 1 }}</span
+      >
+      <span class="v-chip__add" v-if="value.isEmpty() && store.isLast(value)">
+        Add
+      </span>
+      <v-icon class="v-chip__add-icon">mdi-plus</v-icon>
+    </v-chip>
+  </v-hover>
 </template>
 
 <script lang="ts">
@@ -125,15 +129,15 @@ export default class Chip extends Vue {
     }
 
     &.is-edit {
-      background-color: #f2f2f2;
+      background-color: var(--v-light_grey-base);
 
       .v-chip__content {
         font-weight: 400;
-        color: #7f7f77;
+        color: var(--v-text-base);
       }
 
       .v-chip__close {
-        color: #7f7f7f;
+        color: var(--v-text-base);
       }
 
       .v-chip__add-icon {
@@ -142,7 +146,7 @@ export default class Chip extends Vue {
     }
 
     &.is-last {
-      background-color: #bfbfbf;
+      background-color: var(--v-dark_grey-base);
     }
 
     &.is-new:hover {

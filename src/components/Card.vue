@@ -125,10 +125,10 @@ export default class AmpCard extends Vue {
 
 .theme--light {
   .v-card {
-    background-color: #e9eaeb;
+    background-color: var(--v-light_grey-base);
 
     .mdi {
-      color: #e9eaeb;
+      color: var(--v-light_grey-base);
     }
 
     &.is-small {
@@ -183,14 +183,14 @@ export default class AmpCard extends Vue {
     }
 
     &:hover {
-      background-color: #c9cccf;
+      background-color: var(--v-dark_grey-base);
 
       .btn-container {
         display: block;
       }
 
       .mdi {
-        color: #c9cccf;
+        color: var(--v-dark_grey-base);
       }
     }
   }
