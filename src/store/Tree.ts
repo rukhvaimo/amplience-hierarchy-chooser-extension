@@ -3,7 +3,7 @@ import { any, propEq, reject } from "ramda";
 import { Node } from "./Node";
 import { getNodes } from "@/utils/tree";
 
-const Tree = types
+export const Tree = types
   .model({
     rootNode: types.maybeNull(Node),
     selected: types.maybeNull(types.reference(Node)),

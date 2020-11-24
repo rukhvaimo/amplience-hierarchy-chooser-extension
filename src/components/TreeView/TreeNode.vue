@@ -125,6 +125,14 @@ export default class TreeNode extends Mixins(Alert) {
   node!: INode;
 
   paddingAmount: number = 26;
+  treeStore = TreeStore;
+  dynamicContent = DynamicContent;
+  allowedTypes: string[] = [];
+  isSelected: boolean = false;
+  loadingChildren: boolean = false;
+  preventSelection: boolean = false;
+  tooltipVisible: boolean = false;
+  watchers: Function[] = [];
 
   get paddingLeft(): string {
     //@ts-ignore
@@ -177,15 +185,6 @@ export default class TreeNode extends Mixins(Alert) {
   get showStatusIcon(): boolean {
     return not(equals(this.node.publishingStatus, "NONE"));
   }
-
-  treeStore = TreeStore;
-  dynamicContent = DynamicContent;
-  allowedTypes: string[] = [];
-  isSelected: boolean = false;
-  loadingChildren: boolean = false;
-  preventSelection: boolean = false;
-  tooltipVisible: boolean = false;
-  watchers: Function[] = [];
 
   created() {
     this.isSelected = this.treeStore.isSelected(this.node.id);
