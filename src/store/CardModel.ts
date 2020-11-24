@@ -59,6 +59,7 @@ export class CardModel {
     return {
       id,
       contentType,
+      path: this.path,
       label,
       _meta: {
         schema: store.getItemRef(),

@@ -74,6 +74,7 @@ export const Node = types
         id: self.id,
         contentType: self.contentTypeUri,
         label: self.label,
+        path: (self.path as ContentItemModel[]).map((item) => item.label),
       };
     },
     toJSON(): ContentItemModel {
