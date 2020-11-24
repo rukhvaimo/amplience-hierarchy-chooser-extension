@@ -58,6 +58,7 @@ import TreeStore from "@/store/Tree";
 import store, { CardType } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
+import { ContentItemModel } from "./store/FieldModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
@@ -106,7 +107,7 @@ export default class App extends Vue {
   async add() {
     const nodes = this.tree.selectedNodes;
     const oldValues = this.store.model.map((node) => node.export());
-    const newValues = nodes.map((node) => node.export());
+    const newValues = nodes.map((node) => node.export()) as ContentItemModel[];
 
     if (!nodes.length) {
       return this.store.togglePanel();
