@@ -71,14 +71,6 @@ export default class App extends Vue {
   public tree = TreeStore;
   public originalModel!: Array<CardModel>;
 
-  async created() {
-    this.init();
-  }
-
-  async init() {
-    await store.initialize();
-  }
-
   async onPanelChange(open: Boolean) {
     if (open) {
       const OVERLAY_HEIGHT = 500;

@@ -186,7 +186,7 @@ export default class TreeNode extends Mixins(Alert) {
     return not(equals(this.node.publishingStatus, "NONE"));
   }
 
-  created() {
+  async created() {
     this.isSelected = this.treeStore.isSelected(this.node.id);
     this.watchers = [
       reaction(

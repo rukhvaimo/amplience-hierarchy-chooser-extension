@@ -92,11 +92,14 @@ export class Store {
     this.updateList(value);
   }
 
+  constructor() {
+    this.initialize();
+  }
+
   async initialize() {
     try {
       const dcExtensionSdk = await init<any, ExtensionParams>();
       const dcManagementSdk = new DynamicContent({}, {}, dcExtensionSdk.client);
-
       this.setDynamicContent(dcManagementSdk, dcExtensionSdk);
 
       const [model, node] = await Promise.all([
