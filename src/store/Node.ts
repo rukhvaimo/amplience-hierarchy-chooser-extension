@@ -69,6 +69,14 @@ export const Node = types
     showChildren(visible: boolean) {
       self.childrenVisible = visible;
     },
+    export() {
+      return {
+        id: self.id,
+        contentType: self.contentTypeUri,
+        label: self.label,
+        path: (self.path as ContentItemModel[]).map((item) => item.label),
+      };
+    },
     toJSON(): ContentItemModel {
       return {
         id: self.id,

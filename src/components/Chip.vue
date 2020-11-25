@@ -22,7 +22,7 @@
       >
         <template v-slot:activator="{ on, attrs }">
           <span v-bind="attrs" v-on="on" @mousedown="setHideTooltip(true)">{{
-            label
+            value.contentItem.label
           }}</span>
         </template>
 
@@ -43,7 +43,7 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { CardModel } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 import { ContentItemModel } from "@/store/FieldModel"; // eslint-disable-line no-unused-vars
@@ -56,7 +56,6 @@ export default class Chip extends Vue {
   public store = store;
   public noop = () => {};
   public hideTooltip: boolean = false;
-  public label: string = "";
 
   @Prop(Object) value!: CardModel;
 
@@ -70,7 +69,10 @@ export default class Chip extends Vue {
 
   get tooltip() {
     if (this.isEdit) {
-      return [...this.value.path, this.label];
+      return [
+        ...this.value.path,
+        (this.value.contentItem as ContentItemModel).label,
+      ];
     }
 
     return [];
@@ -80,17 +82,6 @@ export default class Chip extends Vue {
     this.hideTooltip = value;
 
     setTimeout(() => (this.hideTooltip = false), 100);
-  }
-
-  @Watch("value.contentItem", { immediate: true })
-  async fetchLabel(val: ContentItemModel, old: ContentItemModel) {
-    if (this.isEdit && (!this.label || val.id !== old.id)) {
-      const { label } = await this.store.dcManagementSdk.contentItems.get(
-        (this.value.contentItem as ContentItemModel).id
-      );
-
-      this.label = label;
-    }
   }
 }
 </script>

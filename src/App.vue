@@ -21,11 +21,7 @@
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
       >
-        <v-col
-          cols="auto"
-          v-for="value in store.model"
-          :key="value.contentItem.id || value.index"
-        >
+        <v-col cols="auto" v-for="value in store.model" :key="value.index">
           <card :value="value" v-if="store.cardType !== 'CHIP'"></card>
           <chip :value="value" v-if="store.cardType === 'CHIP'"> </chip>
         </v-col>
@@ -62,6 +58,7 @@ import TreeStore from "@/store/Tree";
 import store, { CardType } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
+import { ContentItemModel } from "./store/FieldModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
@@ -109,8 +106,8 @@ export default class App extends Vue {
 
   async add() {
     const nodes = this.tree.selectedNodes;
-    const oldValues = this.store.model.map((node) => node.toJSON());
-    const newValues = nodes.map((node) => node.toJSON());
+    const oldValues = this.store.model.map((node) => node.export());
+    const newValues = nodes.map((node) => node.export()) as ContentItemModel[];
 
     if (!nodes.length) {
       return this.store.togglePanel();

@@ -49,6 +49,24 @@ export class CardModel {
     return (this.contentItem as EmptyItem)._empty;
   }
 
+  export() {
+    if (this.isEmpty()) {
+      return this.contentItem;
+    }
+
+    const { id, contentType, label } = this.contentItem as ContentItemModel;
+
+    return {
+      id,
+      contentType,
+      path: this.path,
+      label,
+      _meta: {
+        schema: store.getItemRef(),
+      },
+    };
+  }
+
   toJSON(): EmptyItem | ContentItemModel {
     if (this.isEmpty()) {
       return this.contentItem;

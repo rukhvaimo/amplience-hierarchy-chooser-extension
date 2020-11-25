@@ -143,7 +143,21 @@ export class Store {
     try {
       const value: ContentItemModel[] = await this.dcExtensionSdk.field.getValue();
 
-      return this.createModel(value);
+      const withLabel = await Promise.all(
+        value.map(async (item) => {
+          if (item.id) {
+            const { label } = await this.dcManagementSdk.contentItems.get(
+              item.id
+            );
+
+            item.label = label;
+          }
+
+          return item;
+        })
+      );
+
+      return this.createModel(withLabel);
     } catch (err) {
       console.info("Unable to get field value");
       return this.model;
@@ -202,7 +216,7 @@ export class Store {
         return index !== i;
       })
       .filter(Boolean)
-      .map((value) => value.toJSON());
+      .map((value) => value.export());
 
     const model = await this.createModel(updated);
 

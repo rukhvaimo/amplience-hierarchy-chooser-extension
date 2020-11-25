@@ -15,7 +15,7 @@
 
     <div class="card__scale">
       <div class="txt-container" v-if="isEdit">
-        <h3 ng-if="value.contentItem.label">{{ label }}</h3>
+        <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
 
@@ -53,7 +53,7 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 import { ContentItemModel } from "@/store/FieldModel"; // eslint-disable-line no-unused-vars
@@ -72,7 +72,6 @@ import store from "@/store/DynamicContent";
 })
 export default class AmpCard extends Vue {
   public store = store;
-  public label: string = "";
 
   @Prop(Object) value!: CardModel;
 
@@ -82,17 +81,6 @@ export default class AmpCard extends Vue {
 
   get isDisabled() {
     return this.value.index === this.store.maxItems;
-  }
-
-  @Watch("value.contentItem", { immediate: true })
-  async fetchLabel(val: ContentItemModel, old: ContentItemModel) {
-    if (this.isEdit && (!this.label || val.id !== old.id)) {
-      const { label } = await this.store.dcManagementSdk.contentItems.get(
-        (this.value.contentItem as ContentItemModel).id
-      );
-
-      this.label = label;
-    }
   }
 }
 </script>
