@@ -148,7 +148,7 @@ html {
 }
 
 .app {
-  padding-left: 1px;
+  padding-left: 5px;
 }
 
 .v-btn {
