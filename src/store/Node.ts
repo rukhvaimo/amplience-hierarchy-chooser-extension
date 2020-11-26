@@ -70,11 +70,17 @@ export const Node = types
       self.childrenVisible = visible;
     },
     export() {
+      const path = [
+        ...(self.path as ContentItemModel[]).map((item) => item.label),
+      ];
+
+      path.pop();
+
       return {
         id: self.id,
         contentType: self.contentTypeUri,
         label: self.label,
-        path: (self.path as ContentItemModel[]).map((item) => item.label),
+        path,
       };
     },
     toJSON(): ContentItemModel {
