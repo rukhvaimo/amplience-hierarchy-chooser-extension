@@ -211,18 +211,13 @@ export const previousNodeDisabled = (
  */
 export const paddingLeft = (
   nestingLevel: number,
-  allowedTypes: string[],
-  contentTypeUri: string,
+  isInvalid: boolean,
   padding: number
 ) =>
   apply(
     pipe(
       multiply(nestingLevel),
-      ifElse(
-        always(isInvalidType(allowedTypes, contentTypeUri)),
-        add(32),
-        identity
-      ),
+      ifElse(always(isInvalid), add(32), identity),
       toPx
     ),
     [padding]
