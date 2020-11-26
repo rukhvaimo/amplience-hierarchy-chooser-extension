@@ -9,6 +9,7 @@
         'is-new': !isEdit,
       }"
       :ripple="false"
+      :disabled="isDisabled"
       close-icon="mdi-window-close"
       @click:close="store.removeItem(value.index)"
       @click="!isEdit ? store.togglePanel() : noop"
