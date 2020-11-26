@@ -1,3 +1,4 @@
+const webpack = require("webpack");
 const ReWireMockPlugin = require("rewiremock/webpack/plugin");
 
 module.exports = {
@@ -12,6 +13,7 @@ module.exports = {
     plugins: [
       new (require("rewiremock/webpack/plugin"))(),
       new ReWireMockPlugin(),
+      new webpack.HotModuleReplacementPlugin(),
     ],
   },
 };

@@ -29,6 +29,9 @@ import {
   nth,
   of,
   complement,
+  F,
+  isNil,
+  or,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
 import { toList, toPx, tryCatch } from "./helpers";
@@ -173,3 +176,27 @@ export const isValidType = curry((allowedTypes: string[], type: string) =>
  */
 //@ts-ignore
 export const isInvalidType = complement(isValidType);
+
+/**
+ * Is the previous node disabled?
+ */
+export const previousNodeDisabled = (
+  rootNode: INode,
+  allowedTypes: string[],
+  node: INode
+) =>
+  apply(
+    pipe(
+      previousNode(rootNode),
+      ifElse(
+        or(isRoot, isNil),
+        F,
+        pipe(
+          prop("contentTypeUri"),
+          //@ts-ignore
+          isInvalidType(allowedTypes)
+        )
+      )
+    ),
+    [node]
+  );

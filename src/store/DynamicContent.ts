@@ -92,10 +92,6 @@ export class Store {
     this.updateList(value);
   }
 
-  constructor() {
-    this.initialize();
-  }
-
   async initialize() {
     try {
       const dcExtensionSdk = await init<any, ExtensionParams>();

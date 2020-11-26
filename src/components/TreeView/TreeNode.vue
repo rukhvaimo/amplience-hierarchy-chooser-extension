@@ -82,18 +82,14 @@ import {
   and,
   gte,
   equals,
-  F,
   forEach,
   identity,
   ifElse,
-  isNil,
   length,
   multiply,
   not,
   nth,
-  or,
   pipe,
-  prop,
   propEq,
   range,
   reject,
@@ -106,9 +102,9 @@ import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
-import { hasChildren } from "@/utils/tree";
+import { hasChildren, previousNodeDisabled } from "@/utils/tree";
 import { notError, toPx } from "@/utils/helpers";
-import { getPadding, isInvalidType, isRoot, previousNode } from "@/utils/tree";
+import { getPadding, isInvalidType } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
 import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
@@ -163,19 +159,11 @@ export default class TreeNode extends Mixins(Alert) {
   }
 
   get previousNodeDisabled() {
-    return pipe(
-      previousNode(TreeStore.rootNode as INode),
-      ifElse(
-        or(isRoot, isNil),
-        F,
-        pipe(
-          prop("contentTypeUri"),
-          //@ts-ignore
-          isInvalidType(this.dynamicContent.allowedTypes)
-        )
-      )
-      //@ts-ignore
-    )(this.node);
+    return previousNodeDisabled(
+      TreeStore.rootNode as INode,
+      this.dynamicContent.allowedTypes,
+      this.node
+    );
   }
 
   get selected() {

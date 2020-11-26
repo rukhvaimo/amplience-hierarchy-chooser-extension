@@ -14,15 +14,16 @@ addPlugin(plugins.mockThroughByDefault);
 
 resolveExtensions([".vue", ".js", ".ts"]);
 
-rewiremock("dc-extensions-sdk").with({
-  init() {
-    console.log("MOCKED");
-  },
-  SDK: {},
-  params: {},
+rewiremock("dc-extensions-sdk").mockThrough((name, value) => {
+  console.log(name, value);
+  return {
+    init() {
+      console.log("MOCKED");
+    },
+    SDK: {},
+    params: {},
+  };
 });
-
-rewiremock.enable();
 
 overrideEntryPoint(module);
 
