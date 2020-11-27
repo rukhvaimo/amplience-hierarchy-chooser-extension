@@ -54,7 +54,7 @@
       <div class="body-2 text-left text-truncate tree-node__label">
         {{ node.label }}
       </div>
-      <disabled-icon v-if="isInvalid"></disabled-icon>
+      <disabled-icon v-if="isInvalid" :node="node"></disabled-icon>
       <status-icon
         :status="node.publishingStatus"
         v-else-if="showStatusIcon"
@@ -77,22 +77,15 @@ import { Component, Prop, Mixins } from "vue-property-decorator";
 import { reaction } from "mobx";
 import { Observer } from "mobx-vue";
 import {
-  add,
   always,
   and,
-  gte,
   equals,
   forEach,
-  identity,
+  gt,
   ifElse,
-  length,
-  multiply,
   not,
-  nth,
+  or,
   pipe,
-  propEq,
-  range,
-  reject,
   subtract,
   when,
   where,
@@ -102,9 +95,15 @@ import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
-import { hasChildren, previousNodeDisabled } from "@/utils/tree";
-import { notError, toPx } from "@/utils/helpers";
-import { getPadding, isInvalidType } from "@/utils/tree";
+import {
+  hasChildren,
+  nestingLevels,
+  paddingLeft,
+  preventSelection,
+  previousNode,
+} from "@/utils/tree";
+import { notError } from "@/utils/helpers";
+import { getPadding, isInvalidType, previousNodeDisabled } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
 import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
@@ -131,38 +130,40 @@ export default class TreeNode extends Mixins(Alert) {
   watchers: Function[] = [];
 
   get paddingLeft(): string {
-    //@ts-ignore
-    return pipe(
-      multiply(this.node.nestingLevel),
-      ifElse(always(this.isInvalid), add(32), identity),
-      toPx
-    )(this.paddingAmount);
+    return paddingLeft(
+      this.node.nestingLevel,
+      this.isInvalid,
+      this.paddingAmount
+    );
+  }
+
+  get isArchived() {
+    return equals(this.node.status, "ARCHIVED");
   }
 
   get isInvalid() {
-    return isInvalidType(
-      this.dynamicContent.allowedTypes,
-      this.node.contentTypeUri
+    return or(
+      isInvalidType(this.dynamicContent.allowedTypes, this.node.contentTypeUri),
+      this.isArchived
     );
   }
 
   get nestingLevels(): number[] {
-    //@ts-ignore
-    const isLast = pipe(nth(__, this.node.path), propEq("isLast", true));
-
-    return pipe(
-      range(0),
-      //@ts-ignore
-      reject(isLast)
-      //@ts-ignore
-    )(this.node.nestingLevel);
+    return nestingLevels(this.node.path as INode[], this.node.nestingLevel);
   }
 
   get previousNodeDisabled() {
-    return previousNodeDisabled(
+    const prevNode = previousNode(
       TreeStore.rootNode as INode,
-      this.dynamicContent.allowedTypes,
       this.node
+    ) as INode;
+    return and(
+      previousNodeDisabled(
+        TreeStore.rootNode as INode,
+        this.dynamicContent.allowedTypes,
+        this.node
+      ),
+      gt(this.node.nestingLevel, prevNode.nestingLevel)
     );
   }
 
@@ -180,15 +181,11 @@ export default class TreeNode extends Mixins(Alert) {
       reaction(
         () => this.treeStore.selectedNodes.length,
         () => {
-          this.preventSelection = and(
-            not(this.isSelected),
-            pipe(
-              //@ts-ignore
-              length,
-              gte(__, this.dynamicContent.remainingItems)
-              //@ts-ignore
-            )(this.treeStore.selectedNodes)
-          );
+          this.preventSelection = preventSelection(
+            this.isSelected,
+            this.dynamicContent.remainingItems,
+            this.treeStore.selectedNodes
+          ) as boolean;
         },
         { fireImmediately: true }
       ),

@@ -13,6 +13,7 @@ import {
   ifElse,
   isEmpty,
   last,
+  length,
   multiply,
   not,
   path,
@@ -32,6 +33,10 @@ import {
   F,
   isNil,
   or,
+  and,
+  gte,
+  range,
+  reject,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
 import { toList, toPx, tryCatch } from "./helpers";
@@ -157,7 +162,7 @@ export const previousNode = curry((root: INode, node: INode) => {
     propEq("id"),
     //@ts-ignore
     findIndex(__, visibleNodes),
-    subtract(1),
+    subtract(__, 1),
     //@ts-ignore
     nth(__, visibleNodes)
     //@ts-ignore
@@ -199,4 +204,52 @@ export const previousNodeDisabled = (
       )
     ),
     [node]
+  );
+
+/**
+ * Get the left padding amount
+ */
+export const paddingLeft = (
+  nestingLevel: number,
+  isInvalid: boolean,
+  padding: number
+) =>
+  apply(
+    pipe(
+      multiply(nestingLevel),
+      ifElse(always(isInvalid), add(32), identity),
+      toPx
+    ),
+    [padding]
+  );
+
+/**
+ * Get an array of the node's nesting levels
+ */
+export const nestingLevels = (path: INode[], nestingLevel: number) =>
+  apply(
+    pipe(
+      range(0),
+      //@ts-ignore
+      reject(pipe(nth(__, path), propEq("isLast", true)))
+    ),
+    [nestingLevel]
+  );
+
+/**
+ * Should selection be prevented?
+ */
+export const preventSelection = (
+  isSelected: boolean,
+  remainingItems: number,
+  selectedNodes: INode[]
+) =>
+  apply(
+    pipe(
+      //@ts-ignore
+      length,
+      gte(__, remainingItems),
+      and(not(isSelected))
+    ),
+    [selectedNodes]
   );
