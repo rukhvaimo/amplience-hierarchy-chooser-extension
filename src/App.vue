@@ -8,6 +8,7 @@
         'is-small': store.cardType === 'small',
         'is-large': store.cardType === 'large',
         'is-chip': store.cardType === 'chip',
+        'is-dragging': isDragging,
       }"
     >
       <v-row class="px-3">
@@ -20,6 +21,8 @@
         class="row"
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
+        @start="isDragging = true"
+        @end="isDragging = false"
       >
         <v-col cols="auto" v-for="value in store.model" :key="value.index">
           <card :value="value" v-if="store.cardType !== 'chip'"></card>
@@ -73,6 +76,7 @@ import { ContentItemModel } from "./store/FieldModel"; // eslint-disable-line no
 export default class App extends Vue {
   public store = store;
   public tree = TreeStore;
+  public isDragging = false;
   public originalModel!: Array<CardModel>;
 
   async created() {
@@ -171,5 +175,9 @@ html {
 
 .is-small .col {
   padding: 10px;
+}
+
+.is-dragging .v-chip {
+  pointer-events: none;
 }
 </style>
