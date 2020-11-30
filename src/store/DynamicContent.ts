@@ -23,9 +23,9 @@ import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
 
 export enum CardType {
-  CHIP = "CHIP",
-  LARGE = "LARGE",
-  SMALL = "SMALL",
+  CHIP = "chip",
+  LARGE = "large",
+  SMALL = "small",
 }
 
 type ExtensionParams = Params & {
@@ -75,7 +75,7 @@ export class Store {
   }
 
   @computed get cardType() {
-    return this.params.type || CardType.LARGE;
+    return (this.params.type || CardType.LARGE).toLowerCase();
   }
 
   @computed get params(): ExtensionParams["instance"] {

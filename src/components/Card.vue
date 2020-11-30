@@ -6,7 +6,7 @@
       'is-last': store.isLast(value),
       'is-edit': isEdit,
       'is-new': !isEdit,
-      'is-small': store.cardType === 'SMALL',
+      'is-small': store.cardType === 'small',
     }"
   >
     <div class="card__image" v-if="isEdit">

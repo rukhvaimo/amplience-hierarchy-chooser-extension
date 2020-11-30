@@ -5,9 +5,9 @@
       :class="{
         'is-readonly': store.isReadOnly,
         'is-panel-open': store.panelOpen,
-        'is-small': store.cardType === 'SMALL',
-        'is-large': store.cardType === 'LARGE',
-        'is-chip': store.cardType === 'CHIP',
+        'is-small': store.cardType === 'small',
+        'is-large': store.cardType === 'large',
+        'is-chip': store.cardType === 'chip',
       }"
     >
       <v-row class="px-3">
@@ -22,8 +22,8 @@
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
       >
         <v-col cols="auto" v-for="value in store.model" :key="value.index">
-          <card :value="value" v-if="store.cardType !== 'CHIP'"></card>
-          <chip :value="value" v-if="store.cardType === 'CHIP'"> </chip>
+          <card :value="value" v-if="store.cardType !== 'chip'"></card>
+          <chip :value="value" v-if="store.cardType === 'chip'"> </chip>
         </v-col>
       </draggable>
 
