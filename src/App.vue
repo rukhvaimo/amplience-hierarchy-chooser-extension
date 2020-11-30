@@ -100,7 +100,11 @@ export default class App extends Vue {
         return;
       }
 
-      this.store.updateList(this.originalModel);
+      try {
+        await this.store.updateList(this.originalModel);
+      } catch (err) {
+        console.info("Invalid model value");
+      }
     }
   }
 
@@ -124,6 +128,7 @@ export default class App extends Vue {
       this.originalModel = [...this.store.model];
     } catch (err) {
       this.originalModel = [...this.store.model];
+      console.info("Invalid model value");
     } finally {
       this.store.togglePanel();
     }
