@@ -5,6 +5,7 @@
     icon="mdi-alert"
     transition="fade-transition"
     v-model="global.alertVisible"
+    class="alert"
   >
     <div class="d-flex align-center">
       <div class="mr-4 body-2">
@@ -30,4 +31,8 @@ export default class Alert extends Vue {
 }
 </script>
 
-<style></style>
+<style lang="scss" scoped>
+.alert {
+  z-index: 1;
+}
+</style>
