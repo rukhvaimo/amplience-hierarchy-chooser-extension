@@ -54,7 +54,7 @@
       <div class="body-2 text-left text-truncate tree-node__label">
         {{ node.label }}
       </div>
-      <disabled-icon v-if="isInvalid"></disabled-icon>
+      <disabled-icon v-if="isInvalid" :node="node"></disabled-icon>
       <status-icon
         :status="node.publishingStatus"
         v-else-if="showStatusIcon"
@@ -84,6 +84,7 @@ import {
   gt,
   ifElse,
   not,
+  or,
   pipe,
   subtract,
   when,
@@ -123,16 +124,19 @@ export default class TreeNode extends Mixins(Alert) {
   get paddingLeft(): string {
     return paddingLeft(
       this.node.nestingLevel,
-      this.dynamicContent.allowedTypes,
-      this.node.contentTypeUri,
+      this.isInvalid,
       this.paddingAmount
     );
   }
 
+  get isArchived() {
+    return equals(this.node.status, "ARCHIVED");
+  }
+
   get isInvalid() {
-    return isInvalidType(
-      this.dynamicContent.allowedTypes,
-      this.node.contentTypeUri
+    return or(
+      isInvalidType(this.dynamicContent.allowedTypes, this.node.contentTypeUri),
+      this.isArchived
     );
   }
 
