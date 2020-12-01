@@ -36,7 +36,6 @@ export const Node = types
   })
   .views((self: any) => ({
     get isLast() {
-      //@ts-ignore
       return isLast(self);
     },
     get isRoot(): boolean {
@@ -46,21 +45,18 @@ export const Node = types
       return getNestingLevel(self);
     },
     get parent() {
-      //@ts-ignore
       return getNodeParent(this);
     },
     get path() {
-      //@ts-ignore
       return getNodePath(self);
     },
     get visibleNodes() {
       return getVisibleNodes(self);
     },
   }))
-  .actions((self) => ({
+  .actions((self: any) => ({
     loadChildren: flow(function*() {
-      const nodes = yield getChildren(self.id);
-      //@ts-ignore
+      const nodes: any[] = yield getChildren(self.id);
       when(notError, self.setChildren)(nodes);
       return nodes;
     }),

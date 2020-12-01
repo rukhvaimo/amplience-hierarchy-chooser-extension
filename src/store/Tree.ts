@@ -60,4 +60,6 @@ export const Tree = types
     },
   }));
 
+export interface ITree extends Instance<typeof Tree> {}
+
 export default Tree.create();

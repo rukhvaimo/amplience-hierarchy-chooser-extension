@@ -7,8 +7,8 @@ export function getNode(options = {}) {
     contentTypeUri: Faker.internet.url(),
     label: Faker.lorem.word(),
     publishingStatus: Faker.helpers.randomize(["NONE", "LATEST", "EARLY"]),
-    root: Faker.helpers.randomize([true, false]),
-    hasChildren: Faker.helpers.randomize([true, false]),
+    root: Faker.random.boolean(),
+    hasChildren: Faker.random.boolean(),
     repositoryId: Faker.random.uuid(),
     _links: {
       self: {

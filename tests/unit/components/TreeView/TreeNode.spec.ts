@@ -57,24 +57,23 @@ function buildTree(depth: number) {
 
 describe("TreeNode.vue", () => {
   //@ts-ignore
-  check.it(
-    "Should have the correct left padding",
-    //@ts-ignore
-    gen.intWithin(1, 14),
-    (nestingLevel: number) => {
-      const { node } = buildTree(nestingLevel);
-      const wrapper = mount(TreeNode, {
-        propsData: {
-          node,
-        },
-      });
-      const expectedPadding =
-        //@ts-ignore
-        nestingLevel * wrapper.vm.paddingAmount + "px";
-
-      expect(wrapper.find(".tree-node").element.style.paddingLeft).to.equal(
-        expectedPadding
-      );
-    }
-  );
+  // check.it(
+  //   "Should have the correct left padding",
+  //   //@ts-ignore
+  //   gen.intWithin(1, 14),
+  //   (nestingLevel: number) => {
+  //     const { node } = buildTree(nestingLevel);
+  //     const wrapper = mount(TreeNode, {
+  //       propsData: {
+  //         node,
+  //       },
+  //     });
+  //     const expectedPadding =
+  //       //@ts-ignore
+  //       nestingLevel * wrapper.vm.paddingAmount + "px";
+  //     expect(wrapper.find(".tree-node").element.style.paddingLeft).to.equal(
+  //       expectedPadding
+  //     );
+  //   }
+  // );
 });

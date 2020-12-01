@@ -43,14 +43,12 @@ import { toList, toPx, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
 import { INode } from "@/store/Node";
 
-//@ts-ignore
-const addParent = (nodes) =>
+const addParent = (nodes: INode[]): INode[] =>
   //@ts-ignore
   pipe(head, getNodeParent, prepend(__, nodes))(nodes);
 
 const extractVisibleNodes = pipe(
-  //@ts-ignore
-  prop("children"),
+  prop<string, INode[]>("children"),
   reduce(
     (visibleNodes: any[], child: any) => [...visibleNodes, child.visibleNodes],
     []
@@ -63,17 +61,16 @@ const incrementParentLevel = pipe(
   add(1)
 );
 
-//@ts-ignore
-const getParentOfNode = apply(curry(getParent), [__, 2]);
+const getParentOfNode = apply(curry<any>(getParent), [__, 2]);
 
 const getLastChildId = pipe(
   path<any>(["parent", "children"]),
   last,
-  //@ts-ignore
-  prop("id")
+  prop<string, INode>("id")
 );
-//@ts-ignore
-const isLastChild = (node: any) => equals(getLastChildId(node), node.id);
+
+const isLastChild = (node: INode): boolean =>
+  equals<any>(getLastChildId(node), node.id);
 
 /**
  * Gets nodes from the SDK
@@ -97,7 +94,6 @@ export const getChildren = async (id: string) => {
  */
 export const getVisibleNodes = ifElse(
   propEq("childrenVisible", true),
-  //@ts-ignore
   (node) => [node, ...extractVisibleNodes(node)],
   of
 );
@@ -105,14 +101,12 @@ export const getVisibleNodes = ifElse(
 /**
  * Checks if the node is a root node
  */
-//@ts-ignore
-export const isRoot: any = pipe<boolean>(prop("isRoot"), equals(true));
+export const isRoot: any = pipe(prop<string, boolean>("isRoot"), equals(true));
 
 /**
  * Checks if the node is not a root node
  */
-//@ts-ignore
-export const notRoot: any = compose<boolean>(not, isRoot);
+export const notRoot: any = compose<Function, boolean>(not, isRoot);
 
 /**
  * Gets the nesting level of a node
@@ -122,9 +116,8 @@ export const getNestingLevel = ifElse(isRoot, always(0), incrementParentLevel);
 /**
  * Gets the parent of the node
  */
-export const getNodeParent = when(
+export const getNodeParent: Function = when<boolean, Function>(
   notRoot,
-  //@ts-ignore
   getParentOfNode
 );
 
@@ -136,8 +129,12 @@ export const isLast = anyPass([isRoot, isLastChild]);
 /**
  * Checks id the node has children
  */
-//@ts-ignore
-export const hasChildren = pipe(prop("children"), isEmpty, not);
+
+export const hasChildren = pipe(
+  prop<string, INode[]>("children"),
+  isEmpty,
+  not
+);
 
 /**
  * Calculates the node padding
@@ -149,7 +146,11 @@ export const getPadding = curry((padding: number, amount: number) =>
 /**
  * Gets the path to a given node
  */
-export const getNodePath = pipe(toList, until(pipe(head, isRoot), addParent));
+export const getNodePath: Function = pipe(
+  //@ts-ignore
+  toList,
+  until(pipe(head, isRoot), addParent)
+);
 
 /**
  * Gets the previous rendered node
@@ -157,8 +158,7 @@ export const getNodePath = pipe(toList, until(pipe(head, isRoot), addParent));
 export const previousNode = curry((root: INode, node: INode) => {
   const visibleNodes = getVisibleNodes(root);
   return pipe(
-    //@ts-ignore
-    prop("id"),
+    prop<string, INode>("id"),
     propEq("id"),
     //@ts-ignore
     findIndex(__, visibleNodes),
