@@ -104,7 +104,9 @@ export class Store {
   }
 
   public set listModel(value: Array<CardModel>) {
-    this.updateList(value);
+    this.updateList(value).catch(() => {
+      console.info("Invalid model value");
+    });
   }
 
   async initialize() {
@@ -220,7 +222,11 @@ export class Store {
 
     const model = await this.createModel(updated);
 
-    await this.updateList(model);
+    try {
+      await this.updateList(model);
+    } catch (err) {
+      console.info("Invalid model value");
+    }
   }
 
   @action.bound setLoading(loading: Boolean) {
