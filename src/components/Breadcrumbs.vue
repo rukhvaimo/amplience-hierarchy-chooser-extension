@@ -79,17 +79,14 @@ export default class Breadcrumbs extends Vue {
     const offsetWidth = this.breadcrumbs.$el.offsetWidth;
 
     return ifElse(
-      //@ts-ignore
-      always(gt(crumbsWidth, offsetWidth)),
+      always<any>(gt(crumbsWidth, offsetWidth)),
       pipe(
-        //@ts-ignore
-        reduce(this.handleCrumb, { crumbs: [], crumbsWidth }),
+        reduce<any, any>(this.handleCrumb, { crumbs: [], crumbsWidth }),
         ifElse(
           where({
             crumbsWidth: gt(__, offsetWidth),
           }),
-          //@ts-ignore
-          pipe(props(["crumbs", "crumbsWidth"]), apply(this.hide)),
+          pipe(props(["crumbs", "crumbsWidth"]), apply<any, any>(this.hide)),
           prop("crumbs")
         )
       ),
@@ -100,8 +97,11 @@ export default class Breadcrumbs extends Vue {
   private hide(items: Array<BreadcrumbModel>, width: number) {
     return pipe(
       reduceIdx(
-        //@ts-ignore
-        handleHide(this.breadcrumbs.$el.offsetWidth, this.DIVIDER_WIDTH, items),
+        handleHide<any, any>(
+          this.breadcrumbs.$el.offsetWidth,
+          this.DIVIDER_WIDTH,
+          items
+        ),
         {
           crumbs: items,
           crumbsWidth: getTailCrumbsWidth(width, items),
