@@ -115,6 +115,16 @@ export default class AmpCard extends Vue {
   .v-card {
     background-color: var(--v-light_grey-base);
 
+    .v-btn {
+      &:hover {
+        background-color: var(--v-primary-base) !important;
+
+        .mdi {
+          color: white;
+        }
+      }
+    }
+
     .mdi {
       color: var(--v-light_grey-base);
     }
@@ -179,16 +189,6 @@ export default class AmpCard extends Vue {
 
       .mdi {
         color: var(--v-dark_grey-base);
-      }
-    }
-  }
-
-  .v-btn {
-    &:hover {
-      background-color: var(--v-primary-base) !important;
-
-      .mdi {
-        color: white;
       }
     }
   }
