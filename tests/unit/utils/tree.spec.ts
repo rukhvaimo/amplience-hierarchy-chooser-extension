@@ -103,4 +103,34 @@ describe("tree.ts", () => {
       }
     );
   });
+
+  describe("getNodeParent", () => {
+    //@ts-ignore
+    check.it(
+      "Gets the parent of a given node",
+      gen.intWithin(0, 14).then((depth) => {
+        const { node } = buildTree(tree, depth, true);
+        return { depth, node };
+      }),
+      ({ depth, node }: { depth: number; node: INode }) => {
+        const visibleNodes = treeUtils.getVisibleNodes(tree.rootNode);
+        const parent = treeUtils.getNodeParent(node);
+        if (depth === 0) {
+          expect(parent.id).to.equal(tree.rootNode?.id);
+        } else {
+          expect(parent.id).to.equal(visibleNodes[depth - 1].id);
+        }
+      }
+    );
+  });
+
+  // describe("isLast", () => {
+  //   //@ts-ignore
+  //   check.it("Returns true if node is last");
+
+  //   //@ts-ignore
+  //   check.it("Returns false if node is not last");
+
+  //   it("Returns true if node is rootNode");
+  // });
 });

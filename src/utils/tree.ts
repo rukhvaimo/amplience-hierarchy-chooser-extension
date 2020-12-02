@@ -127,13 +127,12 @@ export const getNodeParent: Function = when<boolean, Function>(
 export const isLast = anyPass([isRoot, isLastChild]);
 
 /**
- * Checks id the node has children
+ * Checks if the node has children
  */
 
 export const hasChildren = pipe(
-  prop<string, INode[]>("children"),
-  isEmpty,
-  not
+  prop<string, INode>("children"),
+  complement(isEmpty)
 );
 
 /**
