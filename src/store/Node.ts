@@ -32,6 +32,7 @@ export const Node = types
       types.enumeration(["NONE", "LATEST", "EARLY"]),
       "NONE"
     ),
+    status: types.optional(types.enumeration(["ACTIVE", "ARCHIVED"]), "ACTIVE"),
   })
   .views((self: any) => ({
     get isLast() {

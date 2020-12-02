@@ -6,13 +6,24 @@
           >mdi-cancel</v-icon
         >
       </template>
-      <span>Node is not a valid content type for addition</span>
+      <span v-if="node.status === 'ARCHIVED'">
+        Node is archived
+      </span>
+      <span v-else>Node is not a valid content type for addition</span>
     </v-tooltip>
   </div>
 </template>
 
-<script>
-export default {};
+<script lang="ts">
+import { Component, Prop, Vue } from "vue-property-decorator";
+// eslint-disable-next-line no-unused-vars
+import { INode } from "@/store/Node";
+
+@Component
+export default class extends Vue {
+  @Prop({ type: Object, required: true })
+  node!: INode;
+}
 </script>
 
 <style lang="scss" scoped>
