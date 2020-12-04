@@ -277,7 +277,7 @@ export default class TreeNode extends Mixins(Alert) {
 
     .tree-node:not(.is-disabled):hover & {
       background-color: rgba(#039be5, 0.2);
-      color: #039be5;
+      color: var(--v-primary-base);
       cursor: pointer;
     }
 
@@ -359,7 +359,7 @@ export default class TreeNode extends Mixins(Alert) {
     }
 
     .tree-node:not(.is-disabled):hover & {
-      color: #039be5;
+      color: var(--v-primary-base);
     }
   }
 

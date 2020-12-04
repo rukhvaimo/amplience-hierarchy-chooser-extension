@@ -21,6 +21,7 @@ $ npm run build
 | Parameter | Default   | Notes                                                  | Required |
 | --------- | --------- | ------------------------------------------------------ | -------- |
 | nodeId    | undefined | The ID of the node to use as the root node of the tree | true     |
+| type      | 'large'   | Display settings options: large, small, chip  | false     |
 
 ## Registering the extension
 
@@ -82,7 +83,8 @@ $ npm run build
       "ui:extension": {
         "name": "<extension name>",
         "params": {
-          "nodeId": "<root node ID>"
+          "nodeId": "<root node ID>",
+          "type": "chip"
         }
       },
       "items": {

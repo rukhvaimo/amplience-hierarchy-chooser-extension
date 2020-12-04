@@ -53,7 +53,7 @@ export default class StatusIcon extends Vue {
   }
 
   .tree-node:not(.is-disabled):hover & {
-    color: #039be5;
+    color: var(--v-primary-base);
   }
 
   .is-disabled & {
