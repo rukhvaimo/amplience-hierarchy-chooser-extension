@@ -90,12 +90,16 @@ export default class Chip extends Vue {
 <style lang="scss">
 .theme--light {
   .v-chip {
-    min-width: 48px;
-    padding: 0 4px;
+    height: 32px;
+    border-radius: 16px;
+    padding: 0 10px;
+    min-width: 54px;
+    line-height: 32px;
     font-weight: 700;
 
     .v-chip__content {
       width: 100%;
+      font-size: 13px;
       color: white;
       justify-content: center;
 
