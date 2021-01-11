@@ -4,9 +4,9 @@ import { action, computed, observable } from "mobx";
 
 import {
   always,
+  defaultTo,
   equals,
   flatten,
-  identity,
   ifElse,
   invoker,
   isNil,
@@ -29,6 +29,10 @@ type ExtensionParams = Params & {
   };
 };
 
+function getSchemaProp(prop: string, defaultValue: any, store: any): any {
+  return pipe(path(["field", "schema", prop]), defaultTo(defaultValue))(store);
+}
+
 export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
   @observable dcExtensionSdk!: DcExtension;
@@ -50,14 +54,15 @@ export class Store {
   }
 
   @computed get maxItems(): number {
-    return (
-      path(["field", "schema", "maxItems"], this.dcExtensionSdk) ||
-      Number.MAX_SAFE_INTEGER
+    return getSchemaProp(
+      "maxItems",
+      Number.MAX_SAFE_INTEGER,
+      this.dcExtensionSdk
     );
   }
 
   @computed get minItems(): number {
-    return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
+    return getSchemaProp("minItems", 0, this.dcExtensionSdk);
   }
 
   @computed get remainingItems(): number {
@@ -67,10 +72,7 @@ export class Store {
   }
 
   @computed get title(): string {
-    return pipe(
-      path(["field", "schema", "title"]),
-      ifElse(isNil, always(""), identity)
-    )(this.dcExtensionSdk);
+    return getSchemaProp("title", "", this.dcExtensionSdk);
   }
 
   @computed
