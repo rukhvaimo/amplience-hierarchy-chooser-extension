@@ -6,9 +6,9 @@ import {
   always,
   equals,
   flatten,
+  identity,
   ifElse,
   invoker,
-  is,
   isNil,
   length,
   map,
@@ -67,7 +67,10 @@ export class Store {
   }
 
   @computed get title(): string {
-    return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
+    return pipe(
+      path(["field", "schema", "title"]),
+      ifElse(isNil, always(""), identity)
+    )(this.dcExtensionSdk);
   }
 
   @computed

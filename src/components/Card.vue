@@ -27,7 +27,12 @@
     </div>
 
     <div class="btn-container">
-      <v-tooltip bottom v-for="action in value.actions" :key="action.label">
+      <v-tooltip
+        bottom
+        v-for="action in value.actions"
+        :key="action.label"
+        open-delay="300"
+      >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             fab
