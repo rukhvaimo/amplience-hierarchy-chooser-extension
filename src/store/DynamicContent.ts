@@ -245,7 +245,6 @@ export class Store {
   async createModel(value: Array<ContentItemModel | EmptyItem>) {
     const minItems = this.minItems;
     const maxItems = this.maxItems;
-
     const model = await FieldModel.getDefaultValue(value, {
       minItems,
       maxItems,

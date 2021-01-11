@@ -156,6 +156,7 @@ export const getNodePath: Function = pipe(
  */
 export const previousNode = curry((root: INode, node: INode) => {
   const visibleNodes = getVisibleNodes(root);
+
   return pipe(
     prop<string, INode>("id"),
     propEq("id"),

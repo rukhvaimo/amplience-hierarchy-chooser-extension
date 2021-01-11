@@ -91,11 +91,12 @@ import {
   where,
   __,
 } from "ramda";
-import TreeStore from "@/store/Tree";
+import TreeStore, { Tree } from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
 import {
+  getNodePath,
   hasChildren,
   nestingLevels,
   paddingLeft,
@@ -157,6 +158,7 @@ export default class TreeNode extends Mixins(Alert) {
       TreeStore.rootNode as INode,
       this.node
     ) as INode;
+
     return and(
       previousNodeDisabled(
         TreeStore.rootNode as INode,
