@@ -91,12 +91,11 @@ import {
   where,
   __,
 } from "ramda";
-import TreeStore, { Tree } from "@/store/Tree";
+import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
 import {
-  getNodePath,
   hasChildren,
   nestingLevels,
   paddingLeft,
@@ -203,6 +202,7 @@ export default class TreeNode extends Mixins(Alert) {
   }
 
   async loadChildren() {
+    console.log("YEP");
     this.loadingChildren = true;
 
     ifElse(notError, this.toggleChildren, () =>
@@ -223,7 +223,7 @@ export default class TreeNode extends Mixins(Alert) {
         ifElse(
           always(selected),
           this.treeStore.selectNode,
-          this.treeStore.deselctNode
+          this.treeStore.deselectNode
         )(this.node.id);
       }
     )({

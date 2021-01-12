@@ -63,6 +63,12 @@ export const Node = types
     setChildren(children: any[]) {
       self.children.replace(children.map((child) => ({ ...child })));
     },
+    setContentTypeUri(uri: string) {
+      self.contentTypeUri = uri;
+    },
+    setStatus(status: string) {
+      self.status = status;
+    },
     showChildren(visible: boolean) {
       self.childrenVisible = visible;
     },

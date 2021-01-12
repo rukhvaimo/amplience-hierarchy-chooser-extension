@@ -1,5 +1,11 @@
-import { flow, Instance, types } from "mobx-state-tree";
-import { any, propEq, reject } from "ramda";
+import {
+  applySnapshot,
+  flow,
+  getSnapshot,
+  Instance,
+  types,
+} from "mobx-state-tree";
+import { any, propEq, reject, unless } from "ramda";
 import { Node } from "./Node";
 import { getNodes } from "@/utils/tree";
 
@@ -20,7 +26,7 @@ export const Tree = types
     clearSelectedNodes() {
       self.selectedNodes.clear();
     },
-    deselctNode(nodeId: string) {
+    deselectNode(nodeId: string) {
       self.selectedNodes.replace(
         //@ts-ignore
         reject(propEq("id", nodeId), self.selectedNodes)
@@ -45,14 +51,11 @@ export const Tree = types
       const nodes = yield getNodes(id);
       return nodes;
     }),
+    reset() {
+      applySnapshot(self, initialState);
+    },
     selectNode(id: string) {
-      const existing = self.selectedNodes.find((node) => node.id === id);
-
-      if (existing) {
-        return;
-      }
-
-      self.selectedNodes.push(id);
+      unless(this.isSelected, (id) => self.selectedNodes.push(id))(id);
     },
     setRootNode(rootNode: any): Instance<typeof Node> {
       self.rootNode = Node.create({ ...rootNode });
@@ -60,6 +63,9 @@ export const Tree = types
     },
   }));
 
+const store = Tree.create();
+const initialState = getSnapshot(store);
+
 export interface ITree extends Instance<typeof Tree> {}
 
-export default Tree.create();
+export default store;
