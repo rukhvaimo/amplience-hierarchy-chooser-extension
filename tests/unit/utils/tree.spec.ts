@@ -9,7 +9,7 @@ import Faker from "faker";
 
 import * as treeUtils from "@/utils/tree";
 
-require("mocha-testcheck").install();
+require("jasmine-check").install();
 
 let tree: ITree;
 

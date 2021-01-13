@@ -202,7 +202,6 @@ export default class TreeNode extends Mixins(Alert) {
   }
 
   async loadChildren() {
-    console.log("YEP");
     this.loadingChildren = true;
 
     ifElse(notError, this.toggleChildren, () =>

@@ -1,3 +1,22 @@
+import faker from "faker";
+import { map, pipe, range } from "ramda";
+import { getNode } from "../tests/data/Node";
 export class DynamicContent {
-  constructor() {}
+  constructor() {
+    this.hierarchies = {
+      children: {
+        async get() {
+          return getNode({
+            root: true,
+            hasChildren: true,
+            childrenVisible: true,
+            children: pipe(
+              range(1),
+              map(() => getNode())
+            )(faker.random.number(201)),
+          });
+        },
+      },
+    };
+  }
 }

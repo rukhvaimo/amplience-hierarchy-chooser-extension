@@ -257,6 +257,7 @@ describe("TreeNode.vue", () => {
     });
     it("Should show status icon if not is valid", () => {
       const node = buildTree(faker.random.number(12));
+      node?.setPublishingStatus("LATEST");
       const wrapper = mount(TreeNode, {
         propsData: {
           node,

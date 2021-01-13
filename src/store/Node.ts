@@ -66,6 +66,9 @@ export const Node = types
     setContentTypeUri(uri: string) {
       self.contentTypeUri = uri;
     },
+    setPublishingStatus(status: string) {
+      self.publishingStatus = status;
+    },
     setStatus(status: string) {
       self.status = status;
     },
