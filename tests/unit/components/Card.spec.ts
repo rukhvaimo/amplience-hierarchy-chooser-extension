@@ -25,7 +25,7 @@ describe("Card.vue", () => {
         localVue,
         vuetify,
         propsData: {
-          value: DynamicContent.model[0],
+          value: DynamicContent.model[1],
         },
       });
       expect(wrapper.find(".v-card").classes()).toContain("is-last");

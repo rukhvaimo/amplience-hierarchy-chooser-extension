@@ -1,22 +1,31 @@
+import { isError } from "@/utils/helpers";
 import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
 import {
   always,
-  defaultTo,
+  andThen,
+  cond,
   equals,
   flatten,
+  identity,
   ifElse,
   invoker,
   isNil,
   length,
   map,
+  otherwise,
   path,
   pathEq,
+  pathOr,
+  pathSatisfies,
   pipe,
+  propEq,
+  propSatisfies,
   reject,
   subtract,
+  T,
 } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
@@ -30,7 +39,25 @@ type ExtensionParams = Params & {
 };
 
 function getSchemaProp(prop: string, defaultValue: any, store: any): any {
-  return pipe(path(["field", "schema", prop]), defaultTo(defaultValue))(store);
+  return pathOr(defaultValue, ["field", "schema", prop], store);
+}
+
+const checkNodeForErrors = cond([
+  [propEq("status", "ARCHIVED"), alwaysError(ERROR_TYPE.ARCHIVED)],
+  [propSatisfies(isNil, "hierarchy"), alwaysError(ERROR_TYPE.NOT_HIERARCHY)],
+  [
+    pathSatisfies(equals(false), ["hierarchy", "root"]),
+    alwaysError(ERROR_TYPE.NOT_ROOT),
+  ],
+  [T, identity],
+]);
+
+function alwaysError(error: string) {
+  return always(getError(error));
+}
+
+function getError(error: string) {
+  return Error(error);
 }
 
 export type DcExtension = SDK<any, ExtensionParams>;
@@ -80,6 +107,10 @@ export class Store {
     return this.model;
   }
 
+  public set listModel(value: Array<CardModel>) {
+    this.updateList(value);
+  }
+
   @computed
   public get allowedTypes(): string[] {
     // @ts-ignore
@@ -91,10 +122,6 @@ export class Store {
       reject(isNil)
       //@ts-ignore
     )(this.dcExtensionSdk);
-  }
-
-  public set listModel(value: Array<CardModel>) {
-    this.updateList(value);
   }
 
   async initialize() {
@@ -153,31 +180,21 @@ export class Store {
   }
 
   async getNode() {
-    try {
-      const nodeId = this.getNodeId();
+    const nodeId = this.getNodeId();
 
-      if (!nodeId) {
-        throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
-      }
-
-      const node = await this.dcManagementSdk.contentItems.get(nodeId);
-
-      if ((node.status as any) === "ARCHIVED") {
-        throw new Error(ERROR_TYPE.ARCHIVED);
-      }
-
-      if (!node.hierarchy) {
-        throw new Error(ERROR_TYPE.NOT_HIERARCHY);
-      }
-
-      if (!node.hierarchy?.root) {
-        throw new Error(ERROR_TYPE.NOT_ROOT);
-      }
-
-      return node;
-    } catch (err) {
-      this.setError(err);
-    }
+    return pipe(
+      ifElse(
+        isNil,
+        async () => getError(ERROR_TYPE.CANNOT_BE_FOUND),
+        pipe(
+          //@ts-ignore
+          this.dcManagementSdk.contentItems.get,
+          andThen(checkNodeForErrors),
+          otherwise(getError)
+        )
+      ),
+      andThen(ifElse(isError, this.setError, identity))
+    )(nodeId);
   }
 
   async removeItem(index: number) {
@@ -272,8 +289,8 @@ export class Store {
     return model;
   }
 
-  getNodeId(): string | undefined {
-    return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
+  getNodeId(): string | null {
+    return pathOr(null, ["params", "instance", "nodeId"], this.dcExtensionSdk);
   }
 
   getItemRef(): string {

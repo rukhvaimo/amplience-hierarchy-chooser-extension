@@ -14,6 +14,7 @@ export const SDK = {
   },
   frame: {
     startAutoResizer() {},
+    stopAutoResizer() {},
     setHeight() {},
   },
   field: {
@@ -25,7 +26,7 @@ export const SDK = {
         }))
       )(faker.random.number(1, 20));
     },
-    setValue() {},
+    async setValue() {},
     schema: {
       items: {
         allOf: [
@@ -42,11 +43,13 @@ export const SDK = {
           },
         ],
       },
+      minItems: 1,
+      maxItems: 5,
     },
   },
   params: {
     instance: {
-      nodeId: faker.random.uuid,
+      nodeId: faker.random.uuid(),
     },
   },
   contentItems: {

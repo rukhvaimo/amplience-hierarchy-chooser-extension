@@ -1,9 +1,10 @@
 import faker from "faker";
+import { mergeDeepLeft } from "ramda";
 
-export function getContentItem() {
+export function getContentItem(contentItem = {}) {
   const uuid = faker.random.uuid();
   const parentId = faker.random.uuid();
-  return {
+  return mergeDeepLeft(contentItem, {
     id: uuid,
     contentRepositoryId: faker.random.uuid(),
     folderId: null,
@@ -101,5 +102,5 @@ export function getContentItem() {
         href: `https://qa-titan-apigateway.adis.ws/v2/content/content-items/search/findByIdWithChildren?id=${uuid}`,
       },
     },
-  };
+  });
 }

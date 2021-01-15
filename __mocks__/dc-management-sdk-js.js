@@ -1,5 +1,5 @@
 import faker from "faker";
-import { map, pipe, range } from "ramda";
+import { addIndex, map, pipe, range } from "ramda";
 import { getNode } from "../tests/data/Node";
 import { getContentItem } from "../tests/data/ContentItem";
 export class DynamicContent {
@@ -15,6 +15,23 @@ export class DynamicContent {
               range(1),
               map(() => getNode())
             )(faker.random.number(201)),
+          });
+        },
+      },
+      parents: {
+        async get() {
+          const mpaIndexed = addIndex(map);
+          const numParents = faker.random.number(200);
+          return getNode({
+            parents: pipe(
+              range(1),
+              mpaIndexed((val, idx) => {
+                return getNode({
+                  root: idx === 0,
+                  hasChildren: true,
+                });
+              })
+            )(numParents),
           });
         },
       },
