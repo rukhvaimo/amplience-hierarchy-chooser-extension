@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import { buildTree } from "../../helpers";
 import { Tree, ITree } from "@/store/Tree";
 import { Node, INode } from "@/store/Node";
@@ -58,9 +57,9 @@ describe("tree.ts", () => {
         const visibleNodes = treeUtils.getVisibleNodes(tree.rootNode);
         if (showChildren) {
           // depth +1 because we need to include the root node
-          expect(visibleNodes.length).to.equal(depth + 1);
+          expect(visibleNodes.length).toEqual(depth + 1);
         } else {
-          expect(visibleNodes.length).to.equal(1);
+          expect(visibleNodes.length).toEqual(1);
         }
       }
     );
@@ -73,7 +72,7 @@ describe("tree.ts", () => {
       gen.boolean.then(getTree),
       ({ root, node }: { root: boolean; node: INode }) => {
         const isRoot = treeUtils.isRoot(node);
-        expect(isRoot).to.equal(root);
+        expect(isRoot).toEqual(root);
       }
     );
   });
@@ -84,7 +83,7 @@ describe("tree.ts", () => {
       "Returns the complement of isRoot",
       gen.boolean.then(getTree),
       ({ node }: { root: boolean; node: INode }) => {
-        expect(treeUtils.notRoot(node)).to.equal(!treeUtils.isRoot(node));
+        expect(treeUtils.notRoot(node)).toEqual(!treeUtils.isRoot(node));
       }
     );
   });
@@ -99,7 +98,7 @@ describe("tree.ts", () => {
       }),
       ({ depth, node }: { depth: number; node: INode }) => {
         const nestingLevel = treeUtils.getNestingLevel(node);
-        expect(nestingLevel).to.equal(depth);
+        expect(nestingLevel).toEqual(depth);
       }
     );
   });
@@ -116,9 +115,9 @@ describe("tree.ts", () => {
         const visibleNodes = treeUtils.getVisibleNodes(tree.rootNode);
         const parent = treeUtils.getNodeParent(node);
         if (depth === 0) {
-          expect(parent.id).to.equal(tree.rootNode?.id);
+          expect(parent.id).toEqual(tree.rootNode?.id);
         } else {
-          expect(parent.id).to.equal(visibleNodes[depth - 1].id);
+          expect(parent.id).toEqual(visibleNodes[depth - 1].id);
         }
       }
     );

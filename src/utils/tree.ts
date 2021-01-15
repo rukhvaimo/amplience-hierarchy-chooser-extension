@@ -39,7 +39,7 @@ import {
   reject,
 } from "ramda";
 import { getParent } from "mobx-state-tree";
-import { toList, toPx, tryCatch } from "./helpers";
+import { toPx, tryCatch } from "./helpers";
 import Store from "@/store/DynamicContent";
 import { INode } from "@/store/Node";
 
@@ -147,7 +147,7 @@ export const getPadding = curry((padding: number, amount: number) =>
  */
 export const getNodePath: Function = pipe(
   //@ts-ignore
-  toList,
+  of,
   until(pipe(head, isRoot), addParent)
 );
 
