@@ -262,7 +262,7 @@ describe("tree.ts", () => {
     });
   });
 
-  describe('paddingLeft', check.it("" gen.int, () => {
-    
-  }));
+  // describe('paddingLeft', check.it("" gen.int, () => {
+
+  // }));
 });

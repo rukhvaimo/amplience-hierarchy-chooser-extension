@@ -24,7 +24,7 @@
       :ripple="false"
       :disabled="preventSelection"
     ></v-checkbox>
-    <v-tooltip bottom :disabled="!isInvalid">
+    <v-tooltip bottom :disabled="!isInvalid" open-delay="300">
       <template v-slot:activator="{ on, attrs }">
         <div
           class="tree-node__item"
