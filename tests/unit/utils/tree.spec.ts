@@ -8,6 +8,7 @@ import { gen } from "testcheck";
 import Faker from "faker";
 
 import * as treeUtils from "@/utils/tree";
+import { range } from "ramda";
 
 require("jasmine-check").install();
 
@@ -262,7 +263,79 @@ describe("tree.ts", () => {
     });
   });
 
-  // describe('paddingLeft', check.it("" gen.int, () => {
+  describe("paddingLeft", () => {
+    //@ts-ignore
+    check.it(
+      "Should return the correct amount of padding",
+      gen.intWithin(1, 14),
+      (level: number) => {
+        const valid = Faker.random.boolean();
+        const paddingAmount = 32;
+        const padding = level * paddingAmount + (valid ? 32 : 0) + "px";
+        expect(treeUtils.paddingLeft(level, valid, paddingAmount)).toEqual(
+          padding
+        );
+      }
+    );
+  });
 
-  // }));
+  describe("nestingLevels", () => {
+    //@ts-ignore
+    check.it(
+      "Should get nesting levels of nodes that don't have isLast property set to true",
+      gen.intWithin(1, 14),
+      (level: number) => {
+        let nestingLevels: number[] = [];
+        const nodes = range(0, level).map((x) => {
+          const isLast = Faker.random.boolean();
+          const node = getNode({ isLast });
+          if (!isLast) {
+            nestingLevels.push(x);
+          }
+          return node;
+        });
+        //@ts-ignore
+        expect(treeUtils.nestingLevels(nodes, level)).toEqual(nestingLevels);
+      }
+    );
+  });
+
+  describe("preventSelection", () => {
+    //@ts-ignore
+    check.it(
+      "Should prevent selection if there aren`t enough remaining items",
+      gen.int,
+      (numSelectedNodes: number) => {
+        const nodes = range(0, numSelectedNodes).map(getNode);
+        expect(
+          //@ts-ignore
+          treeUtils.preventSelection(false, numSelectedNodes, nodes)
+        ).toEqual(true);
+      }
+    );
+    //@ts-ignore
+    check.it(
+      "Should not prevent selection if max number has been reached but the node is already selected",
+      gen.int,
+      (numSelectedNodes: number) => {
+        const nodes = range(0, numSelectedNodes).map(getNode);
+        expect(
+          //@ts-ignore
+          treeUtils.preventSelection(true, numSelectedNodes, nodes)
+        ).toEqual(false);
+      }
+    );
+    //@ts-ignore
+    check.it(
+      "Should allow selection",
+      gen.posInt,
+      (numSelectedNodes: number) => {
+        const nodes = range(0, numSelectedNodes).map(getNode);
+        expect(
+          //@ts-ignore
+          treeUtils.preventSelection(false, numSelectedNodes + 1, nodes)
+        ).toEqual(false);
+      }
+    );
+  });
 });
