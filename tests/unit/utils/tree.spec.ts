@@ -234,4 +234,35 @@ describe("tree.ts", () => {
       expect(valid).toBe(true);
     });
   });
+
+  describe("previousNodeDisabled", () => {
+    it("Should return true if previous node is disabled", () => {
+      const { node } = buildTree(tree, 14, true);
+      node.parent.setContentTypeUri("http://ami.valid");
+      expect(
+        treeUtils.previousNodeDisabled(
+          //@ts-ignore
+          tree.rootNode,
+          ["http://nope.invalid"],
+          node
+        )
+      ).toBe(true);
+    });
+    it("Should return false if previous node is disabled", () => {
+      const { node } = buildTree(tree, 14, true);
+      node.parent.setContentTypeUri("http://ami.valid");
+      expect(
+        treeUtils.previousNodeDisabled(
+          //@ts-ignore
+          tree.rootNode,
+          ["http://ami.valid"],
+          node
+        )
+      ).toBe(false);
+    });
+  });
+
+  describe('paddingLeft', check.it("" gen.int, () => {
+    
+  }));
 });
