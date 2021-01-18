@@ -2,6 +2,7 @@ import { buildTree } from "../../helpers";
 import { Tree, ITree } from "@/store/Tree";
 import { Node, INode } from "@/store/Node";
 import { getNode } from "../../data/Node";
+import DynamicContent from "@/store/DynamicContent";
 import { gen } from "testcheck";
 //@ts-ignore
 import Faker from "faker";
@@ -28,13 +29,26 @@ function getTree(root: boolean) {
 }
 
 describe("tree.ts", () => {
-  beforeEach(() => {
+  beforeEach(async (done) => {
     tree = Tree.create();
     setRootNode(tree);
+    await DynamicContent.initialize();
+    done();
   });
 
-  //describe("getNodes", () => {});
-  //describe("getChildren", () => {});
+  describe("getNodes", () => {
+    it("Should get nodes", async () => {
+      const nodes = await treeUtils.getNodes(Faker.random.uuid());
+      expect(nodes).toHaveProperty("root", true);
+    });
+  });
+
+  describe("getChildren", () => {
+    it("Should get children", async () => {
+      const children = await treeUtils.getChildren(Faker.random.uuid());
+      expect(children.length).toBeGreaterThan(0);
+    });
+  });
 
   describe("getVisibleNodes", () => {
     //@ts-ignore
@@ -123,13 +137,101 @@ describe("tree.ts", () => {
     );
   });
 
-  // describe("isLast", () => {
-  //   //@ts-ignore
-  //   check.it("Returns true if node is last");
+  describe("isLast", () => {
+    it("Returns true if node is last", () => {
+      const { node } = buildTree(tree, 14, true);
+      const isLast = treeUtils.isLast(node);
+      expect(isLast).toBe(true);
+    });
 
-  //   //@ts-ignore
-  //   check.it("Returns false if node is not last");
+    it("Returns false if node is not last", () => {
+      buildTree(tree, 14, true);
+      tree.rootNode?.setChildren([getNode(), getNode()]);
+      //@ts-ignore
+      const isLast = treeUtils.isLast(tree.rootNode.children[0]);
+      expect(isLast).toBe(false);
+    });
 
-  //   it("Returns true if node is rootNode");
-  // });
+    it("Returns true if node is rootNode", () => {
+      const isLast = treeUtils.isLast(tree.rootNode);
+      expect(isLast).toBe(true);
+    });
+  });
+
+  describe("hasChildren", () => {
+    it("Should return true if node has children", () => {
+      buildTree(tree, 14, true);
+      tree.rootNode?.setChildren([getNode(), getNode()]);
+      //@ts-ignore
+      expect(treeUtils.hasChildren(tree.rootNode)).toEqual(true);
+    });
+    it("Should return false if node does not have children", () => {
+      buildTree(tree, 14, true);
+      tree.rootNode?.setChildren([]);
+      //@ts-ignore
+      expect(treeUtils.hasChildren(tree.rootNode)).toEqual(false);
+    });
+  });
+
+  describe("getPadding", () => {
+    //@ts-ignore
+    check.it("Calculates padding", gen.int, (amount: number) => {
+      const padding = treeUtils.getPadding(20, amount);
+      expect(padding).toBe(20 * amount + "px");
+    });
+  });
+
+  describe("getNodePath", () => {
+    it("Should get path to node", () => {
+      const { node } = buildTree(tree, 14, true);
+      const path = treeUtils.getNodePath(node);
+      expect(path.length).toBe(15);
+    });
+  });
+
+  describe("getPreviousNode", () => {
+    it("Should get the previous visible node", () => {
+      const { node } = buildTree(tree, 14, true);
+      const path = treeUtils.getNodePath(node);
+      //@ts-ignore
+      const prevNode = treeUtils.previousNode(tree.rootNode, node);
+      expect(prevNode).toBe(path[13]);
+    });
+  });
+
+  describe("isValidType", () => {
+    it("Should return true if given a valid type", () => {
+      const type = Faker.internet.url();
+      const valid = treeUtils.isValidType([type, Faker.internet.url()], type);
+
+      expect(valid).toBe(true);
+    });
+    it("Should return false if given an invalid type", () => {
+      const type = Faker.internet.url();
+      const valid = treeUtils.isValidType(
+        [Faker.internet.url(), Faker.internet.url()],
+        type
+      );
+
+      expect(valid).toBe(false);
+    });
+  });
+
+  describe("isInvalidType", () => {
+    it("Should return false if given a valid type", () => {
+      const type = Faker.internet.url();
+      const valid = treeUtils.isInvalidType([type, Faker.internet.url()], type);
+
+      expect(valid).toBe(false);
+    });
+    it("Should return true if given an invalid type", () => {
+      const type = Faker.internet.url();
+      const valid = treeUtils.isInvalidType(
+        [Faker.internet.url(), Faker.internet.url()],
+        type
+      );
+
+      expect(valid).toBe(true);
+    });
+  });
 });

@@ -6,8 +6,9 @@ export class DynamicContent {
   constructor() {
     this.hierarchies = {
       children: {
-        async get() {
+        async get(id) {
           return getNode({
+            id,
             root: true,
             hasChildren: true,
             childrenVisible: true,
@@ -19,10 +20,11 @@ export class DynamicContent {
         },
       },
       parents: {
-        async get() {
+        async get(id) {
           const mpaIndexed = addIndex(map);
           const numParents = faker.random.number(200);
           return getNode({
+            id,
             parents: pipe(
               range(1),
               mpaIndexed((val, idx) => {
