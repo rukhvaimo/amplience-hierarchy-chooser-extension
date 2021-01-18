@@ -11,9 +11,7 @@
         'is-dragging': isDragging,
       }"
     >
-      <v-row class="px-3">
-        <p>{{ store.title }}</p>
-      </v-row>
+      <h1 class="px-3 text-body-1">{{ store.title }}</h1>
 
       <draggable
         v-if="!store.loading"
@@ -183,5 +181,17 @@ html {
 
 .is-dragging .v-chip {
   pointer-events: none;
+}
+
+.v-chip {
+  transition: all 0.3s;
+  &.is-new {
+    .theme--light & {
+      background-color: var(--v-primary-base);
+      &:hover {
+        background-color: #1ab0f0;
+      }
+    }
+  }
 }
 </style>
