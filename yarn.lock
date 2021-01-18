@@ -9796,20 +9796,6 @@ retry@^0.12.0:
   resolved "https://registry.yarnpkg.com/retry/-/retry-0.12.0.tgz#1b42a6266a21f07421d1b0b54b7dc167b01c013b"
   integrity sha1-G0KmJmoh8HQh0bC1S33BZ7AcATs=
 
-rewiremock@^3.14.3:
-  version "3.14.3"
-  resolved "https://registry.yarnpkg.com/rewiremock/-/rewiremock-3.14.3.tgz#8b42d2b79bb39e8da51cb89159061c2366ea6db3"
-  integrity sha512-6BaUGfp7NtxBjisxcGN73nNiA2fS2AwhEk/9DMUqxfv5v0aDM1wpOYpj5GSArqsJi07YCfLhkD8C74LAN7+FkQ==
-  dependencies:
-    babel-runtime "^6.26.0"
-    compare-module-exports "^2.1.0"
-    lodash.some "^4.6.0"
-    lodash.template "^4.4.0"
-    node-libs-browser "^2.1.0"
-    path-parse "^1.0.5"
-    wipe-node-cache "^2.1.2"
-    wipe-webpack-cache "^2.1.0"
-
 rgb-regex@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/rgb-regex/-/rgb-regex-1.0.1.tgz#c0e0d6882df0e23be254a475e8edd41915feaeb1"

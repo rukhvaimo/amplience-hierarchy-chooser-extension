@@ -1,5 +1,4 @@
 const webpack = require("webpack");
-const ReWireMockPlugin = require("rewiremock/webpack/plugin");
 
 module.exports = {
   transpileDependencies: ["vuetify"],
@@ -10,10 +9,6 @@ module.exports = {
     },
   },
   configureWebpack: {
-    plugins: [
-      new (require("rewiremock/webpack/plugin"))(),
-      new ReWireMockPlugin(),
-      new webpack.HotModuleReplacementPlugin(),
-    ],
+    plugins: [new webpack.HotModuleReplacementPlugin()],
   },
 };
