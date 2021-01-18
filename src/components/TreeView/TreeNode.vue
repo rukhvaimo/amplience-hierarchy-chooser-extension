@@ -21,45 +21,59 @@
       color="primary"
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
+      :ripple="false"
       :disabled="preventSelection"
     ></v-checkbox>
-    <div class="tree-node__item" @click="select(!isSelected)" ref="node">
-      <div v-if="!node.isRoot" class="tree-node__connector"></div>
-      <div class="tree-node__toggle-btn-wrapper">
-        <v-btn
-          class="tree-node__toggle-btn"
-          @click.stop="toggleChildren"
-          v-if="node.hasChildren"
-          aria-label="Toggle children"
-          icon
-          small
+    <v-tooltip bottom :disabled="!isInvalid">
+      <template v-slot:activator="{ on, attrs }">
+        <div
+          class="tree-node__item"
+          @click="select(!isSelected)"
+          ref="node"
+          v-bind="attrs"
+          v-on="on"
         >
-          <v-fade-transition mode="out-in">
-            <span v-if="loadingChildren">
-              <v-progress-circular
-                indeterminate
-                :size="16"
-                color="grey"
-                width="2"
-              ></v-progress-circular>
-            </span>
-            <span v-else>
-              <v-icon class="tree-node__toggle-btn-icon">
-                mdi-chevron-right
-              </v-icon>
-            </span>
-          </v-fade-transition>
-        </v-btn>
-      </div>
-      <div class="body-2 text-left text-truncate tree-node__label">
-        {{ node.label }}
-      </div>
-      <disabled-icon v-if="isInvalid" :node="node"></disabled-icon>
-      <status-icon
-        :status="node.publishingStatus"
-        v-else-if="showStatusIcon"
-      ></status-icon>
-    </div>
+          <div v-if="!node.isRoot" class="tree-node__connector"></div>
+          <div class="tree-node__toggle-btn-wrapper">
+            <v-btn
+              class="tree-node__toggle-btn"
+              @click.stop="toggleChildren"
+              v-if="node.hasChildren"
+              aria-label="Toggle children"
+              icon
+              small
+            >
+              <v-fade-transition mode="out-in">
+                <span v-if="loadingChildren">
+                  <v-progress-circular
+                    indeterminate
+                    :size="16"
+                    color="grey"
+                    width="2"
+                  ></v-progress-circular>
+                </span>
+                <span v-else>
+                  <v-icon class="tree-node__toggle-btn-icon">
+                    mdi-chevron-right
+                  </v-icon>
+                </span>
+              </v-fade-transition>
+            </v-btn>
+          </div>
+          <div class="body-2 text-left text-truncate tree-node__label">
+            {{ node.label }}
+          </div>
+          <status-icon
+            :status="node.publishingStatus"
+            v-if="showStatusIcon && !isInvalid"
+          ></status-icon>
+        </div>
+      </template>
+      <span v-if="node.status === 'ARCHIVED'">
+        Node is archived
+      </span>
+      <span v-else>Node is not a valid content type for addition</span>
+    </v-tooltip>
 
     <div
       v-for="level in nestingLevels"
@@ -105,13 +119,11 @@ import {
 import { notError } from "@/utils/helpers";
 import { getPadding, isInvalidType, previousNodeDisabled } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
-import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
 
 @Observer
 @Component({
   components: {
-    DisabledIcon,
     StatusIcon,
   },
 })
@@ -277,7 +289,7 @@ export default class TreeNode extends Mixins(Alert) {
 
     .tree-node:not(.is-disabled):hover & {
       background-color: rgba(#039be5, 0.2);
-      color: #039be5;
+      color: var(--v-primary-base);
       cursor: pointer;
     }
 
@@ -359,7 +371,7 @@ export default class TreeNode extends Mixins(Alert) {
     }
 
     .tree-node:not(.is-disabled):hover & {
-      color: #039be5;
+      color: var(--v-primary-base);
     }
   }
 

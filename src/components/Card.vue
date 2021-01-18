@@ -6,6 +6,7 @@
       'is-last': store.isLast(value),
       'is-edit': isEdit,
       'is-new': !isEdit,
+      'is-small': store.cardType === 'small',
     }"
   >
     <div class="card__image" v-if="isEdit">
@@ -14,7 +15,7 @@
 
     <div class="card__scale">
       <div class="txt-container" v-if="isEdit">
-        <h3 ng-if="value.contentItem.label">{{ label }}</h3>
+        <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
 
@@ -57,7 +58,7 @@
 
 <script lang="ts">
 import { Observer } from "mobx-vue";
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Prop, Vue } from "vue-property-decorator";
 
 import { CardModel, EmptyItem } from "@/store/CardModel"; // eslint-disable-line no-unused-vars
 import { ContentItemModel } from "@/store/FieldModel"; // eslint-disable-line no-unused-vars
@@ -76,7 +77,6 @@ import store from "@/store/DynamicContent";
 })
 export default class AmpCard extends Vue {
   public store = store;
-  public label: string = "";
 
   @Prop(Object) value!: CardModel;
 
@@ -87,21 +87,10 @@ export default class AmpCard extends Vue {
   get isDisabled() {
     return this.value.index === this.store.maxItems;
   }
-
-  @Watch("value.contentItem", { immediate: true })
-  async fetchLabel(val: ContentItemModel, old: ContentItemModel) {
-    if (this.isEdit && (!this.label || val.id !== old.id)) {
-      const { label } = await this.store.dcManagementSdk.contentItems.get(
-        (this.value.contentItem as ContentItemModel).id
-      );
-
-      this.label = label;
-    }
-  }
 }
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 .v-card {
   margin: 0 10px 10px 0;
   width: 350px;
@@ -129,10 +118,45 @@ export default class AmpCard extends Vue {
 
 .theme--light {
   .v-card {
-    background-color: #e9eaeb;
+    background-color: var(--v-light_grey-base);
+
+    .v-btn {
+      &:hover {
+        background-color: var(--v-primary-base) !important;
+
+        .mdi {
+          color: white;
+        }
+      }
+    }
 
     .mdi {
-      color: #e9eaeb;
+      color: var(--v-light_grey-base);
+    }
+
+    &.is-small {
+      width: 180px;
+      height: 180px;
+
+      .card__count {
+        font-size: 48px;
+      }
+
+      .txt-container {
+        padding: 4px 8px;
+
+        h3 {
+          font-size: 13px;
+        }
+
+        .v-breadcrumbs__item {
+          font-size: 11px;
+        }
+      }
+
+      .v-breadcrumbs {
+        padding: 0;
+      }
     }
 
     &.is-last,
@@ -162,24 +186,14 @@ export default class AmpCard extends Vue {
     }
 
     &:hover {
-      background-color: #c9cccf;
+      background-color: var(--v-dark_grey-base);
 
       .btn-container {
         display: block;
       }
 
       .mdi {
-        color: #c9cccf;
-      }
-    }
-  }
-
-  .v-btn {
-    &:hover {
-      background-color: #039be5 !important;
-
-      .mdi {
-        color: white;
+        color: var(--v-dark_grey-base);
       }
     }
   }
@@ -227,9 +241,9 @@ export default class AmpCard extends Vue {
     z-index: 1;
     top: 50%;
     left: 50%;
+    max-height: 160px;
 
     img {
-      max-height: 160px;
       max-width: 100%;
     }
   }

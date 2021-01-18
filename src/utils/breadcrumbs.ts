@@ -121,8 +121,7 @@ export const shouldCollapse = (crumbs: any[], item: any) =>
 export const getTailCrumbsWidth = (width: number, items: any[]) =>
   apply(
     converge(add, [
-      //@ts-ignore
-      pipe(head, prop("width")),
+      pipe(head, prop<string, any>("width")),
       //@ts-ignore
       pipe(length, subtract(__, 1), nth(__, items), prop("width"), add(width)),
     ]),
@@ -229,7 +228,7 @@ export const handleCrumb = (
   baseWidth: number,
   elementWidth: number,
   item: BreadcrumbModel
-) => {
+) =>
   apply(
     ifElse(
       propSatisfies(lte(__, elementWidth), "crumbsWidth"),
@@ -250,4 +249,3 @@ export const handleCrumb = (
     ),
     [breadcrumbs]
   );
-};

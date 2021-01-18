@@ -5,6 +5,10 @@
       :class="{
         'is-readonly': store.isReadOnly,
         'is-panel-open': store.panelOpen,
+        'is-small': store.cardType === 'small',
+        'is-large': store.cardType === 'large',
+        'is-chip': store.cardType === 'chip',
+        'is-dragging': isDragging,
       }"
     >
       <v-row class="px-3">
@@ -12,18 +16,17 @@
       </v-row>
 
       <draggable
+        v-if="!store.loading"
         v-model="store.listModel"
         class="row"
         :move="isDraggable"
         handle=".is-edit:not(.is-last),.is-new:not(.is-last)"
+        @start="isDragging = true"
+        @end="isDragging = false"
       >
-        <v-col
-          cols="auto"
-          v-for="value in store.model"
-          :key="value.contentItem.id || value.index"
-        >
-          <card :value="value" v-if="store.cardType !== 'CHIP'"></card>
-          <chip :value="value" v-if="store.cardType === 'CHIP'"> </chip>
+        <v-col cols="auto" v-for="value in store.model" :key="value.index">
+          <card :value="value" v-if="store.cardType !== 'chip'"></card>
+          <chip :value="value" v-if="store.cardType === 'chip'"> </chip>
         </v-col>
       </draggable>
 
@@ -49,18 +52,22 @@ import { Observer } from "mobx-vue";
 import { Component, Vue } from "vue-property-decorator";
 
 import Card from "@/components/Card.vue";
+import Chip from "@/components/Chip.vue";
 import Loading from "@/components/Loading.vue";
 import ChooserOverlay from "@/components/ChooserOverlay.vue";
+
 import TreeStore from "@/store/Tree";
 
-import store from "@/store/DynamicContent";
+import store, { CardType } from "@/store/DynamicContent"; // eslint-disable-line no-unused-vars
 
 import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line no-unused-vars
+import { ContentItemModel } from "./store/FieldModel"; // eslint-disable-line no-unused-vars
 
 @Observer
 @Component({
   components: {
     Card,
+    Chip,
     Loading,
     ChooserOverlay,
     draggable,
@@ -69,6 +76,7 @@ import { CardModel, EmptyItem } from "./store/CardModel"; // eslint-disable-line
 export default class App extends Vue {
   public store = store;
   public tree = TreeStore;
+  public isDragging = false;
   public originalModel!: Array<CardModel>;
 
   created() {
@@ -95,14 +103,18 @@ export default class App extends Vue {
         return;
       }
 
-      this.store.updateList(this.originalModel);
+      try {
+        await this.store.updateList(this.originalModel);
+      } catch (err) {
+        console.info("Invalid model value");
+      }
     }
   }
 
   async add() {
     const nodes = this.tree.selectedNodes;
-    const oldValues = this.store.model.map((node) => node.toJSON());
-    const newValues = nodes.map((node) => node.toJSON());
+    const oldValues = this.store.model.map((node) => node.export());
+    const newValues = nodes.map((node) => node.export()) as ContentItemModel[];
 
     if (!nodes.length) {
       return this.store.togglePanel();
@@ -119,6 +131,7 @@ export default class App extends Vue {
       this.originalModel = [...this.store.model];
     } catch (err) {
       this.originalModel = [...this.store.model];
+      console.info("Invalid model value");
     } finally {
       this.store.togglePanel();
     }
@@ -143,19 +156,32 @@ html {
 }
 
 .app {
-  padding-left: 1px;
+  padding-left: 5px;
+}
+
+.v-btn {
+  letter-spacing: normal;
 }
 
 .is-readonly {
   pointer-events: none;
   opacity: 0.9;
 }
-.v-btn {
-  letter-spacing: normal;
-}
 
 .is-panel-open {
   height: 500px;
   overflow: hidden;
+}
+
+.is-chip .col {
+  padding: 8px;
+}
+
+.is-small .col {
+  padding: 10px;
+}
+
+.is-dragging .v-chip {
+  pointer-events: none;
 }
 </style>
