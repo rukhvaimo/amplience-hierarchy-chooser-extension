@@ -53,7 +53,6 @@
     "jasmine-check": "^1.0.0-rc.0",
     "miragejs": "^0.1.41",
     "prettier": "^1.19.1",
-    "rewiremock": "^3.14.3",
     "sass": "^1.26.5",
     "sass-loader": "^8.0.2",
     "testcheck": "^1.0.0-rc.2",

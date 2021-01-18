@@ -57,6 +57,8 @@ describe("Card.vue", () => {
     it("Should display card image and label", async () => {
       DynamicContent.model[0].contentItem = getContent();
       DynamicContent.model[0].path = ["root"];
+      //@ts-ignore
+      DynamicContent.model[0].contentItem.label = "Test";
       const wrapper = mount(Card, {
         localVue,
         vuetify,
@@ -65,10 +67,11 @@ describe("Card.vue", () => {
         },
       });
       await flushPromises();
-
       expect(wrapper.find(".card__image").exists()).toBe(true);
-      //@ts-ignore
-      expect(wrapper.find("h3").text()).toBe(wrapper.vm.label);
+      expect(wrapper.find("h3").text()).toBe(
+        //@ts-ignore
+        wrapper.vm.value.contentItem.label
+      );
     });
   });
   describe("Card count", () => {

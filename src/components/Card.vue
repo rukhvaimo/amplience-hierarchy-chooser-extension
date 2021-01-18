@@ -15,7 +15,9 @@
 
     <div class="card__scale">
       <div class="txt-container" v-if="isEdit">
-        <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
+        <h3 ng-if="value.contentItem.label">
+          {{ value.contentItem.label }}
+        </h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
 

@@ -243,18 +243,6 @@ describe("TreeNode.vue", () => {
   });
 
   describe("Status icons", () => {
-    it("Should show disabled icon if node is invalid", () => {
-      const node = buildTree(faker.random.number(12));
-      node?.setStatus("ARCHIVED");
-      const wrapper = mount(TreeNode, {
-        propsData: {
-          node,
-        },
-        localVue,
-        vuetify,
-      });
-      expect(wrapper.find(".disabled-icon").exists()).toBe(true);
-    });
     it("Should show status icon if not is valid", () => {
       const node = buildTree(faker.random.number(12));
       node?.setPublishingStatus("LATEST");
