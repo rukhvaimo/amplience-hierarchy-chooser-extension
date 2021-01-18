@@ -1,5 +1,4 @@
 import * as helpers from "@/utils/helpers";
-import { when } from "mobx";
 
 describe("helpers.ts", () => {
   describe("tryCatch", () => {
@@ -54,6 +53,29 @@ describe("helpers.ts", () => {
   describe("notEmpty", () => {
     it("Should return true if value is not empty", () => {
       expect(helpers.notEmpty([1])).toEqual(true);
+    });
+  });
+  describe("detokenize", () => {
+    it("Should replace variables in a tokenised string", () => {
+      const template = "This is a {{var1}} of {{var2}} {{var3}}";
+      const variables = { var1: "type", var2: "templated", var3: "string" };
+      expect(helpers.detokenize(template, variables)).toEqual(
+        "This is a type of templated string"
+      );
+    });
+    it("Should work with different token prefixes", () => {
+      const template = "This is a <%var1%> of <%var2%> <%var3%>";
+      const variables = { var1: "type", var2: "templated", var3: "string" };
+      expect(helpers.detokenize(template, variables, "<%", "%>")).toEqual(
+        "This is a type of templated string"
+      );
+    });
+    it("Should not replace the variable if it doesn't exist", () => {
+      const template = "I {{exist}}, I {{dont_exist}}";
+      const variables = { exist: "EXIST" };
+      expect(helpers.detokenize(template, variables)).toEqual(
+        "I EXIST, I {{dont_exist}}"
+      );
     });
   });
 });
