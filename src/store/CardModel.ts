@@ -28,7 +28,7 @@ export class CardModel {
   };
 
   static createEmptyItem(): EmptyItem {
-    return Object.assign({}, { _empty: true });
+    return { _empty: true };
   }
 
   constructor(
@@ -46,7 +46,7 @@ export class CardModel {
   }
 
   isEmpty() {
-    return (this.contentItem as EmptyItem)._empty;
+    return Boolean((this.contentItem as EmptyItem)._empty);
   }
 
   export() {

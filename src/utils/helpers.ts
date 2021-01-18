@@ -45,11 +45,6 @@ export const whenError = when(isError);
 export const notError = complement(isError);
 
 /**
- * Converts the given value to a list
- */
-export const toList = unapply(identity);
-
-/**
  * Converts an number to a string and as a 'px' suffix
  */
 export const toPx = pipe(toString, concat(__, "px"));

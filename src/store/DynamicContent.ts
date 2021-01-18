@@ -1,22 +1,31 @@
+import { isError } from "@/utils/helpers";
 import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
 import {
   always,
+  andThen,
+  cond,
   equals,
   flatten,
+  identity,
   ifElse,
   invoker,
-  is,
   isNil,
   length,
   map,
+  otherwise,
   path,
   pathEq,
+  pathOr,
+  pathSatisfies,
   pipe,
+  propEq,
+  propSatisfies,
   reject,
   subtract,
+  T,
 } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
@@ -34,6 +43,28 @@ type ExtensionParams = Params & {
     type: CardType;
   };
 };
+
+function getSchemaProp(prop: string, defaultValue: any, store: any): any {
+  return pathOr(defaultValue, ["field", "schema", prop], store);
+}
+
+const checkNodeForErrors = cond([
+  [propEq("status", "ARCHIVED"), alwaysError(ERROR_TYPE.ARCHIVED)],
+  [propSatisfies(isNil, "hierarchy"), alwaysError(ERROR_TYPE.NOT_HIERARCHY)],
+  [
+    pathSatisfies(equals(false), ["hierarchy", "root"]),
+    alwaysError(ERROR_TYPE.NOT_ROOT),
+  ],
+  [T, identity],
+]);
+
+function alwaysError(error: string) {
+  return always(getError(error));
+}
+
+function getError(error: string) {
+  return Error(error);
+}
 
 export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
@@ -54,14 +85,15 @@ export class Store {
   @observable loading: Boolean = true;
 
   @computed get maxItems(): number {
-    return (
-      path(["field", "schema", "maxItems"], this.dcExtensionSdk) ||
-      Number.MAX_SAFE_INTEGER
+    return getSchemaProp(
+      "maxItems",
+      Number.MAX_SAFE_INTEGER,
+      this.dcExtensionSdk
     );
   }
 
   @computed get minItems(): number {
-    return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
+    return getSchemaProp("minItems", 0, this.dcExtensionSdk);
   }
 
   @computed get remainingItems(): number {
@@ -71,7 +103,7 @@ export class Store {
   }
 
   @computed get title(): string {
-    return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
+    return getSchemaProp("title", "", this.dcExtensionSdk);
   }
 
   @computed get cardType() {
@@ -90,6 +122,12 @@ export class Store {
     return this.model;
   }
 
+  public set listModel(value: Array<CardModel>) {
+    this.updateList(value).catch(() => {
+      console.info("Invalid model value");
+    });
+  }
+
   @computed
   public get allowedTypes(): string[] {
     // @ts-ignore
@@ -103,17 +141,10 @@ export class Store {
     )(this.dcExtensionSdk);
   }
 
-  public set listModel(value: Array<CardModel>) {
-    this.updateList(value).catch(() => {
-      console.info("Invalid model value");
-    });
-  }
-
   async initialize() {
     try {
       const dcExtensionSdk = await init<any, ExtensionParams>();
       const dcManagementSdk = new DynamicContent({}, {}, dcExtensionSdk.client);
-
       this.setDynamicContent(dcManagementSdk, dcExtensionSdk);
 
       const [model, node] = await Promise.all([
@@ -182,31 +213,21 @@ export class Store {
   }
 
   async getNode() {
-    try {
-      const nodeId = this.getNodeId();
+    const nodeId = this.getNodeId();
 
-      if (!nodeId) {
-        throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
-      }
-
-      const node = await this.dcManagementSdk.contentItems.get(nodeId);
-
-      if ((node.status as any) === "ARCHIVED") {
-        throw new Error(ERROR_TYPE.ARCHIVED);
-      }
-
-      if (!node.hierarchy) {
-        throw new Error(ERROR_TYPE.NOT_HIERARCHY);
-      }
-
-      if (!node.hierarchy?.root) {
-        throw new Error(ERROR_TYPE.NOT_ROOT);
-      }
-
-      return node;
-    } catch (err) {
-      this.setError(err);
-    }
+    return pipe(
+      ifElse(
+        isNil,
+        async () => getError(ERROR_TYPE.CANNOT_BE_FOUND),
+        pipe(
+          //@ts-ignore
+          this.dcManagementSdk.contentItems.get,
+          andThen(checkNodeForErrors),
+          otherwise(getError)
+        )
+      ),
+      andThen(ifElse(isError, this.setError, identity))
+    )(nodeId);
   }
 
   async removeItem(index: number) {
@@ -282,7 +303,6 @@ export class Store {
   async createModel(value: Array<ContentItemModel | EmptyItem>) {
     const minItems = this.minItems;
     const maxItems = this.maxItems;
-
     const model = await FieldModel.getDefaultValue(value, {
       minItems,
       maxItems,

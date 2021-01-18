@@ -79,10 +79,9 @@ export default class App extends Vue {
   public isDragging = false;
   public originalModel!: Array<CardModel>;
 
-  async created() {
+  created() {
     this.init();
   }
-
   async init() {
     await store.initialize();
   }

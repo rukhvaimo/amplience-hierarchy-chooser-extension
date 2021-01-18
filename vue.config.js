@@ -1,3 +1,6 @@
+const webpack = require("webpack");
+const ReWireMockPlugin = require("rewiremock/webpack/plugin");
+
 module.exports = {
   transpileDependencies: ["vuetify"],
   devServer: {
@@ -5,5 +8,12 @@ module.exports = {
       "Access-Control-Allow-Origin": "*",
       https: true,
     },
+  },
+  configureWebpack: {
+    plugins: [
+      new (require("rewiremock/webpack/plugin"))(),
+      new ReWireMockPlugin(),
+      new webpack.HotModuleReplacementPlugin(),
+    ],
   },
 };
