@@ -156,6 +156,10 @@ html {
   overflow: hidden;
 }
 
+.v-application--wrap {
+  min-height: 100px;
+}
+
 .app {
   padding-left: 5px;
 }
