@@ -157,7 +157,7 @@ html {
 }
 
 .v-application--wrap {
-  min-height: 0;
+  min-height: 100px;
 }
 
 .app {
