@@ -133,7 +133,7 @@ export class Store {
     // @ts-ignore
     return pipe(
       //@ts-ignore
-      path(["field", "schema", "items", "allOf"]),
+      pathOr([], ["field", "schema", "items", "allOf"]),
       map(path(["properties", "contentType", "enum"])),
       flatten,
       reject(isNil)
