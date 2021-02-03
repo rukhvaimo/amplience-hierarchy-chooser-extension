@@ -28,7 +28,7 @@ export class CardModel {
   };
 
   static createEmptyItem(): EmptyItem {
-    return Object.assign({}, { _empty: true });
+    return { _empty: true };
   }
 
   constructor(
@@ -46,7 +46,25 @@ export class CardModel {
   }
 
   isEmpty() {
-    return (this.contentItem as EmptyItem)._empty;
+    return Boolean((this.contentItem as EmptyItem)._empty);
+  }
+
+  export() {
+    if (this.isEmpty()) {
+      return this.contentItem;
+    }
+
+    const { id, contentType, label } = this.contentItem as ContentItemModel;
+
+    return {
+      id,
+      contentType,
+      path: this.path,
+      label,
+      _meta: {
+        schema: store.getItemRef(),
+      },
+    };
   }
 
   toJSON(): EmptyItem | ContentItemModel {

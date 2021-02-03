@@ -6,6 +6,8 @@ export interface ContentItemModel {
     schema: string;
   };
   id: string;
+  label?: string;
+  path?: string[];
   contentType: string;
 }
 
@@ -18,9 +20,14 @@ export class FieldModel {
       value: ContentItemModel | EmptyItem | undefined,
       index: number
     ) => {
-      if (value && (value as ContentItemModel).id) {
+      const contentItem = value as ContentItemModel;
+      if (contentItem && contentItem.id) {
+        if (contentItem.path) {
+          return new CardModel(contentItem, index, contentItem.path);
+        }
+
         const parents = await store.dcManagementSdk.hierarchies.parents.get(
-          (value as ContentItemModel).id
+          contentItem.id
         );
         const path = parents.parents.map((parent) => parent.label);
 

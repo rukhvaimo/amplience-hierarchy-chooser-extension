@@ -10,60 +10,77 @@
       'is-last': node.isLast,
       'is-selected': isSelected,
       'is-disabled': isInvalid || preventSelection,
+      'is-invalid': isInvalid,
       'has-children': node.hasChildren,
+      'previous-disabled': previousNodeDisabled,
     }"
   >
     <v-checkbox
       v-model="isSelected"
+      v-if="!isInvalid"
       color="primary"
       @click="select(isSelected)"
       class="ma-0 tree-node__checkbox"
-      :disabled="preventSelection || isInvalid"
+      :ripple="false"
+      :disabled="preventSelection"
     ></v-checkbox>
-    <div class="tree-node__item" @click="select(!isSelected)" ref="node">
-      <div v-if="!node.isRoot" class="tree-node__connector"></div>
-      <div class="tree-node__toggle-btn-wrapper">
-        <v-btn
-          class="tree-node__toggle-btn"
-          @click.stop="toggleChildren"
-          v-if="node.hasChildren"
-          aria-label="Toggle children"
-          icon
-          small
+    <v-tooltip bottom :disabled="!isInvalid" open-delay="300">
+      <template v-slot:activator="{ on, attrs }">
+        <div
+          class="tree-node__item"
+          @click="select(!isSelected)"
+          ref="node"
+          v-bind="attrs"
+          v-on="on"
         >
-          <v-fade-transition mode="out-in">
-            <span v-if="loadingChildren">
-              <v-progress-circular
-                indeterminate
-                :size="16"
-                color="grey"
-                width="2"
-              ></v-progress-circular>
-            </span>
-            <span v-else>
-              <v-icon class="tree-node__toggle-btn-icon">
-                mdi-chevron-right
-              </v-icon>
-            </span>
-          </v-fade-transition>
-        </v-btn>
-      </div>
-      <div class="body-2 text-left text-truncate tree-node__label">
-        {{ node.label }}
-      </div>
-      <disabled-icon v-if="isInvalid"></disabled-icon>
-      <status-icon
-        :status="node.publishingStatus"
-        v-else-if="showStatusIcon"
-      ></status-icon>
-    </div>
+          <div v-if="!node.isRoot" class="tree-node__connector"></div>
+          <div class="tree-node__toggle-btn-wrapper">
+            <v-btn
+              class="tree-node__toggle-btn"
+              @click.stop="toggleChildren"
+              v-if="node.hasChildren"
+              aria-label="Toggle children"
+              icon
+              small
+            >
+              <v-fade-transition mode="out-in">
+                <span v-if="loadingChildren">
+                  <v-progress-circular
+                    indeterminate
+                    :size="16"
+                    color="grey"
+                    width="2"
+                  ></v-progress-circular>
+                </span>
+                <span v-else>
+                  <v-icon class="tree-node__toggle-btn-icon">
+                    mdi-chevron-right
+                  </v-icon>
+                </span>
+              </v-fade-transition>
+            </v-btn>
+          </div>
+          <div class="body-2 text-left text-truncate tree-node__label">
+            {{ node.label }}
+          </div>
+          <status-icon
+            :status="node.publishingStatus"
+            v-if="showStatusIcon && !isInvalid"
+          ></status-icon>
+        </div>
+      </template>
+      <span v-if="node.status === 'ARCHIVED'">
+        Node is archived
+      </span>
+      <span v-else>Node is not a valid content type for addition</span>
+    </v-tooltip>
 
     <div
       v-for="level in nestingLevels"
       :key="level"
       class="tree-node__level"
       :style="{
-        left: getPadding(level),
+        left: getTreeLinePadding(level),
       }"
     ></div>
   </div>
@@ -74,41 +91,39 @@ import { Component, Prop, Mixins } from "vue-property-decorator";
 import { reaction } from "mobx";
 import { Observer } from "mobx-vue";
 import {
-  __,
   always,
   and,
-  compose,
-  forEach,
-  gte,
   equals,
+  forEach,
+  gt,
   ifElse,
-  includes,
-  length,
   not,
-  nth,
+  or,
   pipe,
-  propEq,
-  range,
-  reject,
   subtract,
   when,
   where,
+  __,
 } from "ramda";
 import TreeStore from "@/store/Tree";
 // eslint-disable-next-line no-unused-vars
 import { INode } from "@/store/Node";
 import DynamicContent from "@/store/DynamicContent";
-import { hasChildren } from "@/utils/tree";
+import {
+  hasChildren,
+  nestingLevels,
+  paddingLeft,
+  preventSelection,
+  previousNode,
+} from "@/utils/tree";
 import { notError } from "@/utils/helpers";
-import { getPadding } from "@/utils/tree";
+import { getPadding, isInvalidType, previousNodeDisabled } from "@/utils/tree";
 import Alert from "@/mixins/ShowAlert.mixin";
-import DisabledIcon from "./DisabledIcon.vue";
 import StatusIcon from "./StatusIcon.vue";
 
 @Observer
 @Component({
   components: {
-    DisabledIcon,
     StatusIcon,
   },
 })
@@ -117,41 +132,6 @@ export default class TreeNode extends Mixins(Alert) {
   node!: INode;
 
   paddingAmount: number = 26;
-
-  get paddingLeft(): string {
-    return getPadding(this.paddingAmount, this.node.nestingLevel);
-  }
-  get isInvalid() {
-    return compose(
-      not,
-      includes(
-        __,
-
-        this.dynamicContent.allowedTypes
-      )
-    )(this.node.contentTypeUri);
-  }
-  get nestingLevels(): number[] {
-    //@ts-ignore
-    const isLast = pipe(nth(__, this.node.path), propEq("isLast", true));
-
-    return pipe(
-      range(0),
-      //@ts-ignore
-      reject(isLast)
-      //@ts-ignore
-    )(this.node.nestingLevel);
-  }
-  get selected(): object[] {
-    //@ts-ignore
-    return this.treeStore.selectedNodes;
-  }
-
-  get showStatusIcon(): boolean {
-    //@ts-ignore
-    return not(equals(this.node.publishingStatus, "NONE"));
-  }
-
   treeStore = TreeStore;
   dynamicContent = DynamicContent;
   allowedTypes: string[] = [];
@@ -161,21 +141,64 @@ export default class TreeNode extends Mixins(Alert) {
   tooltipVisible: boolean = false;
   watchers: Function[] = [];
 
-  created() {
+  get paddingLeft(): string {
+    return paddingLeft(
+      this.node.nestingLevel,
+      this.isInvalid,
+      this.paddingAmount
+    );
+  }
+
+  get isArchived() {
+    return equals(this.node.status, "ARCHIVED");
+  }
+
+  get isInvalid() {
+    return or(
+      isInvalidType(this.dynamicContent.allowedTypes, this.node.contentTypeUri),
+      this.isArchived
+    );
+  }
+
+  get nestingLevels(): number[] {
+    return nestingLevels(this.node.path as INode[], this.node.nestingLevel);
+  }
+
+  get previousNodeDisabled() {
+    const prevNode = previousNode(
+      TreeStore.rootNode as INode,
+      this.node
+    ) as INode;
+
+    return and(
+      previousNodeDisabled(
+        TreeStore.rootNode as INode,
+        this.dynamicContent.allowedTypes,
+        this.node
+      ),
+      gt(this.node.nestingLevel, prevNode.nestingLevel)
+    );
+  }
+
+  get selected() {
+    return this.treeStore.selectedNodes;
+  }
+
+  get showStatusIcon(): boolean {
+    return not(equals(this.node.publishingStatus, "NONE"));
+  }
+
+  async created() {
     this.isSelected = this.treeStore.isSelected(this.node.id);
     this.watchers = [
       reaction(
         () => this.treeStore.selectedNodes.length,
         () => {
-          this.preventSelection = and(
-            not(this.isSelected),
-            pipe(
-              //@ts-ignore
-              length,
-              gte(__, this.dynamicContent.remainingItems)
-              //@ts-ignore
-            )(this.treeStore.selectedNodes)
-          );
+          this.preventSelection = preventSelection(
+            this.isSelected,
+            this.dynamicContent.remainingItems,
+            this.treeStore.selectedNodes
+          ) as boolean;
         },
         { fireImmediately: true }
       ),
@@ -186,13 +209,8 @@ export default class TreeNode extends Mixins(Alert) {
     forEach((watcher) => watcher(), this.watchers);
   }
 
-  getPadding(nestingLevel: number) {
-    return pipe(
-      subtract(__, 1),
-      //@ts-ignore
-      getPadding(this.paddingAmount)
-      //@ts-ignore
-    )(nestingLevel);
+  getTreeLinePadding(nestingLevel: number) {
+    return pipe(subtract(__, 1), getPadding(this.paddingAmount))(nestingLevel);
   }
 
   async loadChildren() {
@@ -204,6 +222,7 @@ export default class TreeNode extends Mixins(Alert) {
 
     this.loadingChildren = false;
   }
+
   select(selected: boolean) {
     when(
       where({
@@ -215,7 +234,7 @@ export default class TreeNode extends Mixins(Alert) {
         ifElse(
           always(selected),
           this.treeStore.selectNode,
-          this.treeStore.deselctNode
+          this.treeStore.deselectNode
         )(this.node.id);
       }
     )({
@@ -244,6 +263,14 @@ export default class TreeNode extends Mixins(Alert) {
   align-items: center;
   transition: opacity 0.15s;
 
+  &.is-root {
+    position: relative;
+    z-index: 1;
+    &.is-invalid {
+      padding-left: 1px !important;
+    }
+  }
+
   &__item {
     height: 32px;
     border-radius: 32px;
@@ -262,7 +289,7 @@ export default class TreeNode extends Mixins(Alert) {
 
     .tree-node:not(.is-disabled):hover & {
       background-color: rgba(#039be5, 0.2);
-      color: #039be5;
+      color: var(--v-primary-base);
       cursor: pointer;
     }
 
@@ -296,6 +323,10 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 4px;
       top: 37px;
+      .is-invalid & {
+        right: -20px;
+        width: 36px;
+      }
     }
 
     &::after {
@@ -306,6 +337,10 @@ export default class TreeNode extends Mixins(Alert) {
       position: absolute;
       right: 15px;
       height: 100%;
+      .previous-disabled & {
+        height: 50px;
+        top: -12px;
+      }
     }
 
     .is-root & {
@@ -336,7 +371,7 @@ export default class TreeNode extends Mixins(Alert) {
     }
 
     .tree-node:not(.is-disabled):hover & {
-      color: #039be5;
+      color: var(--v-primary-base);
     }
   }
 

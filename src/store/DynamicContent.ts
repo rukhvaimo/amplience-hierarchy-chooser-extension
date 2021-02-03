@@ -1,33 +1,70 @@
+import { isError } from "@/utils/helpers";
 import { SDK, init, Params } from "dc-extensions-sdk";
 import { DynamicContent, ContentItem } from "dc-management-sdk-js";
 import { action, computed, observable } from "mobx";
 
 import {
   always,
+  andThen,
+  cond,
   equals,
   flatten,
+  identity,
   ifElse,
   invoker,
-  is,
   isNil,
   length,
   map,
+  otherwise,
   path,
   pathEq,
+  pathOr,
+  pathSatisfies,
   pipe,
+  propEq,
+  propSatisfies,
   reject,
   subtract,
+  T,
 } from "ramda";
 import { CardModel, EmptyItem } from "./CardModel";
 import { ErrorModel, ERROR_TYPE, NodeError, NODE_ERRORS } from "./Errors";
 import { ContentItemModel, FieldModel } from "./FieldModel";
 
+export enum CardType {
+  CHIP = "chip",
+  LARGE = "large",
+  SMALL = "small",
+}
+
 type ExtensionParams = Params & {
   instance: {
     nodeId: string;
-    dcConfig?: string;
+    type: CardType;
   };
 };
+
+function getSchemaProp(prop: string, defaultValue: any, store: any): any {
+  return pathOr(defaultValue, ["field", "schema", prop], store);
+}
+
+const checkNodeForErrors = cond([
+  [propEq("status", "ARCHIVED"), alwaysError(ERROR_TYPE.ARCHIVED)],
+  [propSatisfies(isNil, "hierarchy"), alwaysError(ERROR_TYPE.NOT_HIERARCHY)],
+  [
+    pathSatisfies(equals(false), ["hierarchy", "root"]),
+    alwaysError(ERROR_TYPE.NOT_ROOT),
+  ],
+  [T, identity],
+]);
+
+function alwaysError(error: string) {
+  return always(getError(error));
+}
+
+function getError(error: string) {
+  return Error(error);
+}
 
 export type DcExtension = SDK<any, ExtensionParams>;
 export class Store {
@@ -45,19 +82,18 @@ export class Store {
 
   @observable error: null | ErrorModel = null;
 
-  @computed get loading() {
-    return !this.dcExtensionSdk || !this.dcManagementSdk;
-  }
+  @observable loading: Boolean = true;
 
   @computed get maxItems(): number {
-    return (
-      path(["field", "schema", "maxItems"], this.dcExtensionSdk) ||
-      Number.MAX_SAFE_INTEGER
+    return getSchemaProp(
+      "maxItems",
+      Number.MAX_SAFE_INTEGER,
+      this.dcExtensionSdk
     );
   }
 
   @computed get minItems(): number {
-    return path(["field", "schema", "minItems"], this.dcExtensionSdk) || 0;
+    return getSchemaProp("minItems", 0, this.dcExtensionSdk);
   }
 
   @computed get remainingItems(): number {
@@ -67,7 +103,18 @@ export class Store {
   }
 
   @computed get title(): string {
-    return path(["field", "schema", "title"], this.dcExtensionSdk) || "";
+    return getSchemaProp("title", "", this.dcExtensionSdk);
+  }
+
+  @computed get cardType() {
+    return (this.params.type || CardType.LARGE).toLowerCase();
+  }
+
+  @computed get params(): ExtensionParams["instance"] {
+    return (
+      path(["params", "instance"], this.dcExtensionSdk) ||
+      ({} as ExtensionParams["instance"])
+    );
   }
 
   @computed
@@ -75,12 +122,18 @@ export class Store {
     return this.model;
   }
 
+  public set listModel(value: Array<CardModel>) {
+    this.updateList(value).catch(() => {
+      console.info("Invalid model value");
+    });
+  }
+
   @computed
   public get allowedTypes(): string[] {
     // @ts-ignore
     return pipe(
       //@ts-ignore
-      path(["field", "schema", "items", "allOf"]),
+      pathOr([], ["field", "schema", "items", "allOf"]),
       map(path(["properties", "contentType", "enum"])),
       flatten,
       reject(isNil)
@@ -88,15 +141,10 @@ export class Store {
     )(this.dcExtensionSdk);
   }
 
-  public set listModel(value: Array<CardModel>) {
-    this.updateList(value);
-  }
-
   async initialize() {
     try {
       const dcExtensionSdk = await init<any, ExtensionParams>();
       const dcManagementSdk = new DynamicContent({}, {}, dcExtensionSdk.client);
-
       this.setDynamicContent(dcManagementSdk, dcExtensionSdk);
 
       const [model, node] = await Promise.all([
@@ -119,6 +167,8 @@ export class Store {
     } catch (error) {
       this.setError(error);
       console.info("Failed to initialize", error);
+    } finally {
+      this.setLoading(false);
     }
   }
 
@@ -126,7 +176,21 @@ export class Store {
     try {
       const value: ContentItemModel[] = await this.dcExtensionSdk.field.getValue();
 
-      return this.createModel(value);
+      const withLabel = await Promise.all(
+        value.map(async (item) => {
+          if (item.id) {
+            const { label } = await this.dcManagementSdk.contentItems.get(
+              item.id
+            );
+
+            item.label = label;
+          }
+
+          return item;
+        })
+      );
+
+      return this.createModel(withLabel);
     } catch (err) {
       console.info("Unable to get field value");
       return this.model;
@@ -149,31 +213,21 @@ export class Store {
   }
 
   async getNode() {
-    try {
-      const nodeId = this.getNodeId();
+    const nodeId = this.getNodeId();
 
-      if (!nodeId) {
-        throw new Error(ERROR_TYPE.CANNOT_BE_FOUND);
-      }
-
-      const node = await this.dcManagementSdk.contentItems.get(nodeId);
-
-      if ((node.status as any) === "ARCHIVED") {
-        throw new Error(ERROR_TYPE.ARCHIVED);
-      }
-
-      if (!node.hierarchy) {
-        throw new Error(ERROR_TYPE.NOT_HIERARCHY);
-      }
-
-      if (!node.hierarchy?.root) {
-        throw new Error(ERROR_TYPE.NOT_ROOT);
-      }
-
-      return node;
-    } catch (err) {
-      this.setError(err);
-    }
+    return pipe(
+      ifElse(
+        isNil,
+        async () => getError(ERROR_TYPE.CANNOT_BE_FOUND),
+        pipe(
+          //@ts-ignore
+          this.dcManagementSdk.contentItems.get,
+          andThen(checkNodeForErrors),
+          otherwise(getError)
+        )
+      ),
+      andThen(ifElse(isError, this.setError, identity))
+    )(nodeId);
   }
 
   async removeItem(index: number) {
@@ -185,11 +239,19 @@ export class Store {
         return index !== i;
       })
       .filter(Boolean)
-      .map((value) => value.toJSON());
+      .map((value) => value.export());
 
     const model = await this.createModel(updated);
 
-    await this.updateList(model);
+    try {
+      await this.updateList(model);
+    } catch (err) {
+      console.info("Invalid model value");
+    }
+  }
+
+  @action.bound setLoading(loading: Boolean) {
+    this.loading = loading;
   }
 
   @action.bound setError(err: NodeError) {
@@ -241,7 +303,6 @@ export class Store {
   async createModel(value: Array<ContentItemModel | EmptyItem>) {
     const minItems = this.minItems;
     const maxItems = this.maxItems;
-
     const model = await FieldModel.getDefaultValue(value, {
       minItems,
       maxItems,
@@ -270,7 +331,7 @@ export class Store {
   }
 
   getNodeId(): string | undefined {
-    return path(["params", "instance", "nodeId"], this.dcExtensionSdk);
+    return this.params.nodeId;
   }
 
   getItemRef(): string {
