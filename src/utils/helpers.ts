@@ -3,16 +3,19 @@ import {
   concat,
   curry,
   equals,
-  identity,
   isEmpty,
   pipe,
   toString,
   type,
-  unapply,
   when,
   complement,
   addIndex,
   reduce,
+  always,
+  ifElse,
+  isNil,
+  keys,
+  propOr,
 } from "ramda";
 
 /**
@@ -45,11 +48,6 @@ export const whenError = when(isError);
 export const notError = complement(isError);
 
 /**
- * Converts the given value to a list
- */
-export const toList = unapply(identity);
-
-/**
  * Converts an number to a string and as a 'px' suffix
  */
 export const toPx = pipe(toString, concat(__, "px"));
@@ -63,3 +61,34 @@ export const notEmpty = complement(isEmpty);
  * Reduce with list property
  */
 export const reduceIdx = addIndex(reduce);
+
+function getRegx(prefix: string, suffix: string, variableName: string) {
+  return new RegExp(`${prefix}${variableName}${suffix}`, "g");
+}
+
+export function detokenize(
+  template: string,
+  variables: { [name: string]: string | undefined },
+  tokenPrefix: string = "{{",
+  tokenSuffix: string = "}}"
+): string {
+  //@ts-ignore
+  return pipe(
+    keys,
+    reduce(
+      (tmplt, varName) =>
+        pipe(
+          //@ts-ignore
+          propOr(null, __, variables),
+          ifElse(isNil, always(tmplt), (varValue) =>
+            tmplt.replace(
+              getRegx(tokenPrefix, tokenSuffix, varName),
+              encodeURIComponent(varValue)
+            )
+          )
+          //@ts-ignore
+        )(varName),
+      template
+    )
+  )(variables);
+}

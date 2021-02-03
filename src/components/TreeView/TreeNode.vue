@@ -24,7 +24,7 @@
       :ripple="false"
       :disabled="preventSelection"
     ></v-checkbox>
-    <v-tooltip bottom :disabled="!isInvalid">
+    <v-tooltip bottom :disabled="!isInvalid" open-delay="300">
       <template v-slot:activator="{ on, attrs }">
         <div
           class="tree-node__item"
@@ -132,6 +132,14 @@ export default class TreeNode extends Mixins(Alert) {
   node!: INode;
 
   paddingAmount: number = 26;
+  treeStore = TreeStore;
+  dynamicContent = DynamicContent;
+  allowedTypes: string[] = [];
+  isSelected: boolean = false;
+  loadingChildren: boolean = false;
+  preventSelection: boolean = false;
+  tooltipVisible: boolean = false;
+  watchers: Function[] = [];
 
   get paddingLeft(): string {
     return paddingLeft(
@@ -161,6 +169,7 @@ export default class TreeNode extends Mixins(Alert) {
       TreeStore.rootNode as INode,
       this.node
     ) as INode;
+
     return and(
       previousNodeDisabled(
         TreeStore.rootNode as INode,
@@ -179,16 +188,7 @@ export default class TreeNode extends Mixins(Alert) {
     return not(equals(this.node.publishingStatus, "NONE"));
   }
 
-  treeStore = TreeStore;
-  dynamicContent = DynamicContent;
-  allowedTypes: string[] = [];
-  isSelected: boolean = false;
-  loadingChildren: boolean = false;
-  preventSelection: boolean = false;
-  tooltipVisible: boolean = false;
-  watchers: Function[] = [];
-
-  created() {
+  async created() {
     this.isSelected = this.treeStore.isSelected(this.node.id);
     this.watchers = [
       reaction(
@@ -234,7 +234,7 @@ export default class TreeNode extends Mixins(Alert) {
         ifElse(
           always(selected),
           this.treeStore.selectNode,
-          this.treeStore.deselctNode
+          this.treeStore.deselectNode
         )(this.node.id);
       }
     )({

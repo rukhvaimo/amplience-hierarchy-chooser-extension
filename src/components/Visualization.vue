@@ -4,7 +4,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { detokenize } from "@/utils/detokenize";
+import { detokenize } from "@/utils/helpers";
 
 export interface VisualizationParams {
   contentItemId?: string;

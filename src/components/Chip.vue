@@ -20,6 +20,7 @@
         :bottom="true"
         :disabled="hideTooltip"
         :open-on-click="false"
+        open-delay="300"
       >
         <template v-slot:activator="{ on, attrs }">
           <span v-bind="attrs" v-on="on" @mousedown="setHideTooltip(true)">{{

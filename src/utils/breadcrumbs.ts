@@ -74,7 +74,7 @@ export const getTotalCrumbsWidth = reduce(
 );
 
 /**
- * Gets the total width of the breadcrumb including all crumbs nad dividers
+ * Gets the total width of the breadcrumb including all crumbs and dividers
  */
 export const getTotalBreadcrumbsWidth = curry(
   (dividerWidth: number, items: any[]) =>

@@ -15,7 +15,9 @@
 
     <div class="card__scale">
       <div class="txt-container" v-if="isEdit">
-        <h3 ng-if="value.contentItem.label">{{ value.contentItem.label }}</h3>
+        <h3 ng-if="value.contentItem.label">
+          {{ value.contentItem.label }}
+        </h3>
         <breadcrumbs :items="value.path"></breadcrumbs>
       </div>
 
@@ -28,7 +30,12 @@
     </div>
 
     <div class="btn-container">
-      <v-tooltip bottom v-for="action in value.actions" :key="action.label">
+      <v-tooltip
+        bottom
+        v-for="action in value.actions"
+        :key="action.label"
+        open-delay="300"
+      >
         <template v-slot:activator="{ on, attrs }">
           <v-btn
             fab
