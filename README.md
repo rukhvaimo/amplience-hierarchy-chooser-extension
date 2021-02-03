@@ -26,7 +26,7 @@ $ npm run build
 ## Registering the extension
 
 - Register the extension in Dynamic Content
-- Add the extension url or use our hosted version: https://dev-dc-extension-hierarchy-chooser.dev.adis.ws
+- Add the extension url
 - Give the extension the following permissions:
   - Read access
   - Allow same origin
