@@ -1,41 +1,46 @@
 [![Amplience Dynamic Content](header.png)](https://amplience.com/dynamic-content)
 
+![Amplience Dynamic Content Hierarchy Chooser Extension](screenshot.png)
+
 # dc-extension-hierarchy-chooser
 
-> Allows selection of content links and content references from a hierarchy tree.
+> Hierarchy chooser field for use in [Amplience Dynamic Content](https://amplience.com/dynamic-content)
 
-## dev
+This extension is designed to replace content link and content reference fields to allow items to be selected from a hierarchy tree.
 
-```bash
-$ npm run serve
-```
+## How to install
 
-## build
+THis extension needs to be [registered](https://amplience.com/docs/development/registeringextensions.html) on a hub within the Dynamic Content application (Developer -> Extensions).
 
-```bash
-$ npm run build
-```
+![Installation](installation.png)
 
-## Installation parameters
+- Category: Content Field
+- Label: A suitable label so the extension can be easily identified e.g. 'Hierarchy Chooser'
+- Name: A unique name for the extension e.g. 'hierarchy-chooser'
+- URL: The URL that the extension is hosted on
+- Description: An optional description to help identify the extension
+- Initial height: The height in pixels that you want the extension to take up within the content form e.g. 200
 
-| Parameter | Default   | Notes                                                  | Required |
-| --------- | --------- | ------------------------------------------------------ | -------- |
-| nodeId    | undefined | The ID of the node to use as the root node of the tree | true     |
-| type      | 'large'   | Display settings options: large, small, chip  | false     |
+_As this is an open source project you're welcome to host your own "fork" of this project. You can use any standard static hosting service (Netlify, Amplify, Vercel, etc.) if you wish._
 
-## Registering the extension
+### Permissions
 
-- Register the extension in Dynamic Content
-- Add the extension url
-- Give the extension the following permissions:
-  - Read access
-  - Allow same origin
+![Permissions](permissions.png)
 
-### Example snippet
+Api permissions:
+
+- Read access
+
+Sandbox permissions:
+
+- Allow same origin
+
+### Assign the extension to a schema
+
+To use the hierarchy chooser extension you need to add a content link or content reference field to your content type schema. This extension also works with lists of content links and references.
 
 ```json
 {
-  "title": "title",
   "type": "array",
   "ui:extension": {
     "name": "<extension name>",
@@ -51,12 +56,42 @@ $ npm run build
       {
         "properties": {
           "contentType": {
-            "enum": ["https://example.schema.com"]
+            "enum": ["<hierarchcal content type>"]
           }
         }
       }
     ]
   }
+}
+```
+
+## Installation parameters
+
+| Parameter | Default   | Notes                                                  | Required |
+| --------- | --------- | ------------------------------------------------------ | -------- |
+| nodeId    | undefined | The ID of the node to use as the root node of the tree | true     |
+| type      | 'large'   | Display settings options: large, small, chip           | false    |
+
+```json
+{
+  "ui:extension": {
+    "params": {
+      "nodeId": "123456",
+      "type": "chip"
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "http://bigcontent.io/cms/schema/v1/core#/definitions/content-reference"
+    },
+    {
+      "properties": {
+        "contentType": {
+          "enum": ["<hierarchcal content type>"]
+        }
+      }
+    }
+  ]
 }
 ```
 
@@ -105,4 +140,17 @@ $ npm run build
   },
   "propertyOrder": []
 }
+```
+
+## How to run locally
+
+```bash
+  npm i
+  npm run serve
+```
+
+## Building the extension
+
+```bash
+$ npm run build
 ```
