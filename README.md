@@ -149,6 +149,8 @@ To use the hierarchy chooser extension you need to add a content link or content
   npm run serve
 ```
 
+Head to http://localhost:8080 for the locally running extension
+
 ## Building the extension
 
 ```bash
