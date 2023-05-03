@@ -17,9 +17,11 @@ THis extension needs to be [registered](https://amplience.com/docs/development/r
 - Category: Content Field
 - Label: A suitable label so the extension can be easily identified e.g. 'Hierarchy Chooser'
 - Name: A unique name for the extension e.g. 'hierarchy-chooser'
-- URL: The URL that the extension is hosted on
+- URL: The URL that the extension is hosted on (https://hierarchy-chooser.extensions.content.amplience.net)
 - Description: An optional description to help identify the extension
 - Initial height: The height in pixels that you want the extension to take up within the content form e.g. 200
+
+**Note:** You can use our deployed version of this extension - https://hierarchy-chooser.extensions.content.amplience.net
 
 _As this is an open source project you're welcome to host your own "fork" of this project. You can use any standard static hosting service (Netlify, Amplify, Vercel, etc.) if you wish._
 
