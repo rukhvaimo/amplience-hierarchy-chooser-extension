@@ -10,7 +10,7 @@ This extension is designed to replace content link and content reference fields 
 
 ## How to install
 
-THis extension needs to be [registered](https://amplience.com/docs/development/registeringextensions.html) on a hub within the Dynamic Content application (Developer -> Extensions).
+This extension needs to be [registered](https://amplience.com/docs/development/registeringextensions.html) on a hub within the Dynamic Content application (Developer -> Extensions).
 
 ![Installation](installation.png)
 
