@@ -8,6 +8,8 @@
 
 This extension is designed to replace content link and content reference fields to allow items to be selected from a hierarchy tree.
 
+This project requires Node 16.x to build. Tested with Node 16.16.0, NPM 8.11.0.
+
 ## How to install
 
 This extension needs to be [registered](https://amplience.com/docs/development/registeringextensions.html) on a hub within the Dynamic Content application (Developer -> Extensions).
