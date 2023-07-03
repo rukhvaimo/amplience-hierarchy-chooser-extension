@@ -30,13 +30,7 @@
         </v-expand-x-transition>
       </v-btn>
     </div>
-    <error-box
-      v-if="store.error"
-      :message="store.error.message"
-      @action="cancel"
-    ></error-box>
     <tree-view v-if="!store.error"></tree-view>
-    <alert class="chooser-overlay__alert"></alert>
   </div>
 </template>
 

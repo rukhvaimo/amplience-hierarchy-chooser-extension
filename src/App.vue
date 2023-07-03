@@ -11,8 +11,17 @@
         'is-dragging': isDragging,
       }"
     >
-      <h1 class="px-3 text-body-1">{{ store.title }}</h1>
-
+      <div class="v-chip__title">
+        <h1 class="px-3 text-body-1">{{ store.title }}</h1>
+        <v-btn
+            @click="store.togglePanel()"
+            class="v-chip v-chip--clickable v-chip--no-color theme--light v-size--small is-last is-new add"
+            :disabled="store.model.length >= store.maxItems">
+        <span class="v-chip__content">
+          <i aria-hidden="true" class="v-icon notranslate v-chip__add-icon mdi mdi-plus theme--light"></i>
+        </span>
+      </v-btn>
+      </div>
       <draggable
         v-if="!store.loading"
         v-model="store.listModel"
@@ -119,9 +128,7 @@ export default class App extends Vue {
     }
 
     try {
-      const updatedValue = [oldValues, newValues]
-        .flat()
-        .filter((item) => !(item as EmptyItem)._empty);
+      const updatedValue = [oldValues, newValues].flat()
 
       const model = await store.createModel(updatedValue);
 
@@ -196,6 +203,13 @@ html {
         background-color: #1ab0f0;
       }
     }
+  }
+  &__title {
+    display: flex;
+    align-items: center;
+  }
+  &.add {
+    background-color: #1ab0f0!important;
   }
 }
 </style>
