@@ -32,9 +32,8 @@
       </v-tooltip>
       <span
         class="v-chip__count"
-        :class="{ required: isRequired() }"
         v-if="value.isEmpty() && !store.isLast(value)"
-        >{{ hover ? "Add" : chipText() }}</span
+        >{{ hover ? "Add" : value.index + 1 }}</span
       >
       <span class="v-chip__add" v-if="value.isEmpty() && store.isLast(value)">
         Add
@@ -79,20 +78,6 @@ export default class Chip extends Vue {
     }
 
     return [];
-  }
-
-  chipText = (): any => {
-    if (this.value.isEmpty() && this.store.minItems === 0) {
-      return this.value.index + 1;
-    }
-
-    if (this.value.isEmpty() && this.store.minItems > 0) {
-      return 'Required';
-    }
-  }
-
-  isRequired = (): boolean => {
-    return (this.value.isEmpty() && this.store.minItems > 0);
   }
 
   setHideTooltip(value: boolean) {
@@ -176,12 +161,6 @@ export default class Chip extends Vue {
 
     & > span:last-child {
       font-weight: 700;
-    }
-  }
-
-  .v-chip__count {
-    &.required {
-      color: red;
     }
   }
 }

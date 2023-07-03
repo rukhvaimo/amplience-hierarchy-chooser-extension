@@ -151,8 +151,7 @@ export class Store {
         this.getValue(),
         this.getNode(),
       ]);
-
-      this.setValue(model);
+      this.setValue(model.filter((item: any) => !item.contentItem._empty));
 
       if (node) {
         this.setRootNode(node);
@@ -175,6 +174,7 @@ export class Store {
   async getValue() {
     try {
       const value: ContentItemModel[] = await this.dcExtensionSdk.field.getValue();
+      await this.dcExtensionSdk.field.setValue(value.filter((item: any) => !item._empty))
 
       const withLabel = await Promise.all(
         value.map(async (item) => {
@@ -273,7 +273,7 @@ export class Store {
   }
 
   @action.bound setValue(model: Array<CardModel>) {
-    this.model = model;
+    this.model = model.filter((item: any) => !item.contentItem._empty);
   }
 
   @action.bound setNode(node: ContentItem) {
@@ -319,13 +319,13 @@ export class Store {
     const length = model.length;
     const last = model[length - 1];
 
-    if ((last as EmptyItem)._empty) {
-      const value = [...model];
-
-      value.pop();
-
-      return value;
-    }
+    // if ((last as EmptyItem)._empty) {
+    //   const value = [...model];
+    //
+    //   value.pop();
+    //
+    //   return value;
+    // }
 
     return model;
   }
