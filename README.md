@@ -1,5 +1,3 @@
-[![Amplience Dynamic Content](header.png)](https://amplience.com/dynamic-content)
-
 ![Amplience Dynamic Content Hierarchy Chooser Extension](screenshot.png)
 
 # dc-extension-hierarchy-chooser
